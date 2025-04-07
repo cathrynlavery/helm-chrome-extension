@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'wouter';
 import { useFocus } from '../contexts/FocusContext';
 import FocusTimer from '../components/FocusTimer';
 import ProfilesManager from '../components/ProfilesManager';
 import StatCard from '../components/StatCard';
+import { DailyTargets } from '../components/DailyTargets';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDuration } from '../lib/focusTimer';
-import { Clock, Settings, User } from 'lucide-react';
+import { Clock, Settings, User, Timer } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { 
@@ -64,6 +67,12 @@ const Dashboard: React.FC = () => {
             <h1 className="ml-2 text-2xl font-semibold">Helm</h1>
           </div>
           <div className="flex items-center space-x-4">
+            <Link href="/">
+              <Button variant="outline" size="sm" className="flex items-center">
+                <Timer className="h-4 w-4 mr-2" />
+                Focus Mode
+              </Button>
+            </Link>
             <button className="text-muted-foreground hover:text-primary focus:outline-none">
               <Settings className="h-6 w-6" />
             </button>
@@ -171,6 +180,11 @@ const Dashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Daily Targets */}
+          <div className="mb-8">
+            <DailyTargets />
           </div>
 
           {/* Profiles Manager */}

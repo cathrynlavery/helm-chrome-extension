@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { 
   FocusProfile, 
-  FocusSession, 
+  FocusSession,
+  DailyTarget,
   initStorage, 
   getFocusProfiles, 
   getActiveProfile,
@@ -14,7 +15,11 @@ import {
   getFocusGoal,
   getWeeklyFocusGoal,
   getStreaks,
-  getActiveFocusSession
+  getActiveFocusSession,
+  getDailyTargets,
+  addDailyTarget,
+  updateDailyTarget,
+  deleteDailyTarget
 } from '../lib/chromeStorage';
 import { FocusTimer, TimerState } from '../lib/focusTimer';
 
@@ -22,6 +27,7 @@ interface FocusContextType {
   profiles: FocusProfile[];
   activeProfile: FocusProfile | null;
   dailyIntention: string;
+  dailyTargets: DailyTarget[];
   isLoading: boolean;
   focusTimer: {
     state: TimerState;
@@ -43,6 +49,9 @@ interface FocusContextType {
   createProfile: (profile: Omit<FocusProfile, 'id' | 'lastUsed'>) => Promise<void>;
   updateProfile: (id: number, updates: Partial<FocusProfile>) => Promise<void>;
   deleteProfile: (id: number) => Promise<void>;
+  addTarget: (text: string) => Promise<void>;
+  updateTarget: (id: number, updates: Partial<DailyTarget>) => Promise<void>;
+  deleteTarget: (id: number) => Promise<void>;
   refreshData: () => Promise<void>;
 }
 
@@ -64,6 +73,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
   const [profiles, setProfiles] = useState<FocusProfile[]>([]);
   const [activeProfile, setActiveProfile] = useState<FocusProfile | null>(null);
   const [dailyIntention, setDailyIntentionState] = useState<string>('');
+  const [dailyTargets, setDailyTargets] = useState<DailyTarget[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [timerState, setTimerState] = useState<TimerState>({
     isRunning: false,
@@ -112,6 +122,10 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
       // Get daily intention
       const intention = await getDailyIntention();
       setDailyIntentionState(intention);
+      
+      // Get daily targets
+      const targets = await getDailyTargets();
+      setDailyTargets(targets);
       
       // Get focus history and stats
       const history = await getFocusHistory();
@@ -188,6 +202,27 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     await deleteStorageProfile(id);
     await refreshData();
   };
+
+  // Add daily target
+  const handleAddTarget = async (text: string) => {
+    await addDailyTarget(text);
+    const targets = await getDailyTargets();
+    setDailyTargets(targets);
+  };
+
+  // Update daily target
+  const handleUpdateTarget = async (id: number, updates: Partial<DailyTarget>) => {
+    await updateDailyTarget(id, updates);
+    const targets = await getDailyTargets();
+    setDailyTargets(targets);
+  };
+
+  // Delete daily target
+  const handleDeleteTarget = async (id: number) => {
+    await deleteDailyTarget(id);
+    const targets = await getDailyTargets();
+    setDailyTargets(targets);
+  };
   
   // Timer functions
   const timer = FocusTimer.getInstance();
@@ -199,6 +234,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     profiles,
     activeProfile,
     dailyIntention,
+    dailyTargets,
     isLoading,
     focusTimer: {
       state: timerState,
@@ -214,6 +250,9 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     createProfile: handleCreateProfile,
     updateProfile: handleUpdateProfile,
     deleteProfile: handleDeleteProfile,
+    addTarget: handleAddTarget,
+    updateTarget: handleUpdateTarget,
+    deleteTarget: handleDeleteTarget,
     refreshData
   };
   

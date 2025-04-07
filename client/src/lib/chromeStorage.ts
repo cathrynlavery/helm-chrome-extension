@@ -1,8 +1,16 @@
 // Chrome storage API wrapper for async/await
+export interface DailyTarget {
+  id: number;
+  text: string;
+  completed: boolean;
+  date: string; // ISO string date
+}
+
 export interface StorageData {
   focusProfiles: FocusProfile[];
   activeFocusSession: FocusSession | null;
   dailyIntention: string;
+  dailyTargets: DailyTarget[];
   focusGoal: number; // daily focus goal in minutes
   weeklyFocusGoal: number; // weekly focus goal in minutes
   focusHistory: Record<string, number>; // date string to minutes
@@ -60,6 +68,26 @@ const defaultData: StorageData = {
   ],
   activeFocusSession: null,
   dailyIntention: "Complete the product research for my team meeting",
+  dailyTargets: [
+    {
+      id: 1,
+      text: "Finish quarterly report",
+      completed: false,
+      date: getDateString(new Date())
+    },
+    {
+      id: 2,
+      text: "Review presentation slides",
+      completed: true,
+      date: getDateString(new Date())
+    },
+    {
+      id: 3,
+      text: "Respond to client emails",
+      completed: false,
+      date: getDateString(new Date())
+    }
+  ],
   focusGoal: 240, // 4 hours in minutes
   weeklyFocusGoal: 1200, // 20 hours in minutes
   focusHistory: {
@@ -84,40 +112,67 @@ function getDateString(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
+// Helper function to check if we're in a Chrome extension context
+const isChromeExtension = (): boolean => {
+  return typeof chrome !== 'undefined' && !!chrome.storage;
+};
+
 // Initialize with default data if not already set
 export const initStorage = async (): Promise<void> => {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    const data = await chrome.storage.local.get('helmData');
-    if (!data.helmData) {
-      await chrome.storage.local.set({ helmData: defaultData });
+  try {
+    if (isChromeExtension()) {
+      const data = await chrome.storage.local.get('helmData');
+      if (!data.helmData) {
+        await chrome.storage.local.set({ helmData: defaultData });
+      }
+    } else {
+      // If not running in a Chrome extension context, use localStorage for development
+      if (!localStorage.getItem('helmData')) {
+        localStorage.setItem('helmData', JSON.stringify({
+          ...defaultData,
+          // Ensure dailyTargets exists in default data
+          dailyTargets: defaultData.dailyTargets || []
+        }));
+      }
     }
-  } else {
-    // If not running in a Chrome extension context, use localStorage for development
-    if (!localStorage.getItem('helmData')) {
-      localStorage.setItem('helmData', JSON.stringify(defaultData));
-    }
+  } catch (error) {
+    console.error('Error initializing storage:', error);
+    // Fallback to ensure we have data
+    localStorage.setItem('helmData', JSON.stringify({
+      ...defaultData,
+      dailyTargets: defaultData.dailyTargets || []
+    }));
   }
 };
 
 // Get all data
 export const getStorageData = async (): Promise<StorageData> => {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    const data = await chrome.storage.local.get('helmData');
-    return data.helmData as StorageData;
-  } else {
-    // Fallback to localStorage for development
-    const data = localStorage.getItem('helmData');
-    return data ? JSON.parse(data) : defaultData;
+  try {
+    if (isChromeExtension()) {
+      const data = await chrome.storage.local.get('helmData');
+      return data.helmData as StorageData;
+    } else {
+      // Fallback to localStorage for development
+      const data = localStorage.getItem('helmData');
+      return data ? JSON.parse(data) : defaultData;
+    }
+  } catch (error) {
+    console.error('Error getting storage data:', error);
+    return defaultData;
   }
 };
 
 // Set all data
 export const setStorageData = async (data: StorageData): Promise<void> => {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    await chrome.storage.local.set({ helmData: data });
-  } else {
-    // Fallback to localStorage for development
-    localStorage.setItem('helmData', JSON.stringify(data));
+  try {
+    if (isChromeExtension()) {
+      await chrome.storage.local.set({ helmData: data });
+    } else {
+      // Fallback to localStorage for development
+      localStorage.setItem('helmData', JSON.stringify(data));
+    }
+  } catch (error) {
+    console.error('Error setting storage data:', error);
   }
 };
 
@@ -301,4 +356,58 @@ export const getStreaks = async (): Promise<{current: number, best: number}> => 
     current: data.streaks.current,
     best: data.streaks.best
   };
+};
+
+// Daily targets functions
+export const getDailyTargets = async (): Promise<DailyTarget[]> => {
+  const data = await getStorageData();
+  const today = getDateString(new Date());
+  
+  // Filter to only today's targets
+  return data.dailyTargets.filter(target => target.date === today);
+};
+
+export const addDailyTarget = async (text: string): Promise<DailyTarget> => {
+  const data = await getStorageData();
+  const today = getDateString(new Date());
+  
+  // Generate new ID (max ID + 1)
+  const maxId = data.dailyTargets.reduce((max, t) => Math.max(max, t.id), 0);
+  
+  const newTarget: DailyTarget = {
+    id: maxId + 1,
+    text,
+    completed: false,
+    date: today
+  };
+  
+  data.dailyTargets.push(newTarget);
+  await setStorageData(data);
+  return newTarget;
+};
+
+export const updateDailyTarget = async (id: number, updates: Partial<DailyTarget>): Promise<DailyTarget | undefined> => {
+  const data = await getStorageData();
+  const index = data.dailyTargets.findIndex(t => t.id === id);
+  
+  if (index === -1) return undefined;
+  
+  data.dailyTargets[index] = {
+    ...data.dailyTargets[index],
+    ...updates
+  };
+  
+  await setStorageData(data);
+  return data.dailyTargets[index];
+};
+
+export const deleteDailyTarget = async (id: number): Promise<boolean> => {
+  const data = await getStorageData();
+  const index = data.dailyTargets.findIndex(t => t.id === id);
+  
+  if (index === -1) return false;
+  
+  data.dailyTargets.splice(index, 1);
+  await setStorageData(data);
+  return true;
 };
