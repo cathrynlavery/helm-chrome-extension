@@ -31,7 +31,7 @@ interface FocusContextType {
   isLoading: boolean;
   focusTimer: {
     state: TimerState;
-    start: (profileId?: number) => Promise<void>;
+    start: (profileId?: number, duration?: number) => Promise<void>;
     pause: () => void;
     reset: () => void;
     end: () => Promise<void>;
@@ -229,6 +229,11 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
   
   const formattedTime = `${Math.floor(timerState.timeRemaining / 60)}:${Math.floor(timerState.timeRemaining % 60).toString().padStart(2, '0')}`;
   
+  // Create wrapper functions to properly handle the function parameters
+  const startTimer = async (profileId?: number, duration?: number) => {
+    return timer.start(profileId, duration);
+  };
+  
   // Context value
   const value: FocusContextType = {
     profiles,
@@ -238,7 +243,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     isLoading,
     focusTimer: {
       state: timerState,
-      start: timer.start.bind(timer),
+      start: startTimer,
       pause: timer.pause.bind(timer),
       reset: timer.reset.bind(timer),
       end: timer.end.bind(timer),

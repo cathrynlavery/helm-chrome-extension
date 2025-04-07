@@ -16,6 +16,7 @@ export class FocusTimer {
   private timerId: number | null = null;
   private startTime: number = 0;
   private pausedTimeRemaining: number = DEFAULT_DURATION;
+  private totalDuration: number = DEFAULT_DURATION;
   private sessionId: number | null = null;
   private profileId: number | null = null;
   private listeners: Set<(state: TimerState) => void> = new Set();
@@ -43,7 +44,11 @@ export class FocusTimer {
       // Calculate remaining time
       const startTime = new Date(activeSession.startTime).getTime();
       const elapsed = (Date.now() - startTime) / 1000;
-      this.pausedTimeRemaining = Math.max(DEFAULT_DURATION - elapsed, 0);
+      
+      // Use the session duration if provided (fallback to default)
+      const sessionDuration = activeSession.duration || DEFAULT_DURATION;
+      this.totalDuration = sessionDuration;
+      this.pausedTimeRemaining = Math.max(sessionDuration - elapsed, 0);
       
       if (this.pausedTimeRemaining > 0) {
         this.start();
@@ -73,6 +78,7 @@ export class FocusTimer {
     // If specific profile provided, use it
     if (profileId) {
       this.profileId = profileId;
+      this.totalDuration = duration;
       this.pausedTimeRemaining = duration;
       
       // Create a new focus session
@@ -110,6 +116,7 @@ export class FocusTimer {
       this.timerId = null;
     }
     
+    this.totalDuration = duration;
     this.pausedTimeRemaining = duration;
     this.notifyListeners();
   }
@@ -126,6 +133,7 @@ export class FocusTimer {
       this.sessionId = null;
     }
     
+    this.totalDuration = DEFAULT_DURATION;
     this.pausedTimeRemaining = DEFAULT_DURATION;
     this.notifyListeners();
   }
@@ -143,8 +151,8 @@ export class FocusTimer {
     return {
       isRunning: Boolean(this.timerId),
       timeRemaining,
-      progress: 1 - (timeRemaining / DEFAULT_DURATION),
-      totalDuration: DEFAULT_DURATION
+      progress: 1 - (timeRemaining / this.totalDuration),
+      totalDuration: this.totalDuration
     };
   }
 
