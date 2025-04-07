@@ -1,0 +1,31 @@
+Helm is a Chrome extension designed to replicate the HELM app's focus-enhancing features without the need for any physical device. This extension aims to help users block distractions, set daily intentions, and track focus time. It combines the minimalist aesthetics of Momentum with effective site blocking and habit tracking capabilities.
+
+**Recommended Tech Stack:**
+- **Frontend:** React with TypeScript for building the UI components.
+- **Bundling:** Webpack or Vite for managing and optimizing the extension assets.
+- **Extension Framework:** Chrome Manifest V3 to handle permissions and background processes.
+- **Data Storage:** Chrome's local storage or Sync API for persisting user data and settings.
+
+**Core Features:**
+- **Focus Profiles:**
+  - Users create profiles to specify which sites should be blocked or allowed.
+  - Profiles can be toggled from a popup menu or the new tab page.
+- **Focus Session Timer & Tracking:**
+  - A timer to track focus sessions with start/stop functionality.
+  - Displays motivational messages when attempting to visit blocked sites.
+- **New Tab Dashboard:**
+  - Replaces the default Chrome new tab page with a custom dashboard showing focus status, session timers, and daily progress.
+- **User Settings:**
+  - Persistent storage for site preferences and daily intention settings.
+- **Distraction Block Page:**
+  - Custom page that appears when visiting a blocked site displaying user intentions and gentle nudges to refocus.
+
+**App Structure:**
+- **Popup/Options UI:** Allows users to manage settings such as focus profiles and site lists.
+- **New Tab Page:** Serves as the main dashboard, showing focus-related metrics and status.
+- **Background Script:** Handles site blocking by intercepting navigation events and activating the appropriate response.
+- **Block Page:** Displays messages to encourage users to return to their focus goals.
+
+**Additional Context:**
+- The project could incorporate AI tools in the future to offer personalized coaching or suggestions for improving focus habits and replacing distractions with productive activities.
+- Consideration for scalability via Chrome's Sync API could allow for multi-device data consistency if pursued beyond MVP stage.
