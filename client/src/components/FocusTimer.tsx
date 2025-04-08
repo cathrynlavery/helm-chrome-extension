@@ -210,7 +210,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => end()}
+                    onClick={handleEndSession}
                     className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                   >
                     <StopCircle className="h-5 w-5 mr-2" />
@@ -220,7 +220,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => state.isRunning ? pause() : start()}
+                    onClick={handleStartPause}
                     className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                   >
                     {state.isRunning ? (
