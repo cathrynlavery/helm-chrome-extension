@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FocusProfile } from '../lib/chromeStorage';
-import { X } from 'lucide-react';
+import { X, Globe, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { motion } from 'framer-motion';
 
 interface ProfileEditorProps {
   isOpen: boolean;
@@ -87,66 +88,87 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
   
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border border-[#CDAA7A]/20 p-6">
         <DialogHeader>
-          <DialogTitle>{profile ? `Edit Profile: ${profile.name}` : 'Create New Profile'}</DialogTitle>
+          <DialogTitle className="text-xl ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A]">
+            {profile ? `Edit Profile: ${profile.name}` : 'Create New Profile'}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
-          <div className="mb-4">
-            <Label htmlFor="profileName" className="block text-sm font-medium mb-1">Profile Name</Label>
+          <div className="mb-5">
+            <Label htmlFor="profileName" className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-2">
+              Profile Name
+            </Label>
             <Input
               id="profileName"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full"
+              className="w-full bg-transparent border border-[#CDAA7A]/30 focus:border-[#CDAA7A] text-[#333333] dark:text-[#E0E0E0] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-[8px]"
               placeholder="Enter profile name"
             />
           </div>
           
           <div className="mb-6">
-            <Label htmlFor="profileDescription" className="block text-sm font-medium mb-1">Description (optional)</Label>
+            <Label htmlFor="profileDescription" className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-2">
+              Description (optional)
+            </Label>
             <Textarea
               id="profileDescription"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full"
+              className="w-full bg-transparent border border-[#CDAA7A]/30 focus:border-[#CDAA7A] text-[#333333] dark:text-[#E0E0E0] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-[8px]"
               placeholder="Add a description for this profile"
               rows={2}
             />
           </div>
           
           <div className="mb-6">
-            <Label className="block text-sm font-medium mb-3">Blocked Sites</Label>
-            <div className="space-y-2 mb-4">
-              {blockedSites.map(site => (
-                <div key={site} className="flex items-center justify-between p-2 border border-input rounded-md">
-                  <span>{site}</span>
+            <Label className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-3">
+              Blocked Sites
+            </Label>
+            <div className="space-y-2 mb-5">
+              {blockedSites.map((site, index) => (
+                <motion.div 
+                  key={site}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center justify-between p-3 border border-[#CDAA7A]/20 rounded-[8px] bg-white/50 dark:bg-gray-800/30"
+                >
+                  <div className="flex items-center">
+                    <Globe className="h-4 w-4 mr-2 text-[#CDAA7A]" />
+                    <span className="text-[#333333] dark:text-[#E0E0E0]">{site}</span>
+                  </div>
                   <button 
                     onClick={() => handleRemoveSite(site)}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-[#333333]/50 dark:text-[#E0E0E0]/50 hover:text-red-500 transition-colors duration-200"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </button>
-                </div>
+                </motion.div>
               ))}
               
               {blockedSites.length === 0 && (
-                <div className="text-sm text-muted-foreground p-2">
-                  No sites blocked. Add a site below.
+                <div className="text-sm text-[#333333]/60 dark:text-[#E0E0E0]/60 p-4 text-center border border-dashed border-[#CDAA7A]/20 rounded-[8px]">
+                  No sites blocked yet. Add websites you want to block during focus sessions.
                 </div>
               )}
             </div>
             
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mt-4">
               <Input
                 value={newSite}
                 onChange={e => setNewSite(e.target.value)}
                 placeholder="Enter website URL (e.g., reddit.com)"
                 onKeyDown={handleKeyDown}
-                className="flex-grow"
+                className="flex-grow bg-transparent border border-[#CDAA7A]/30 focus:border-[#CDAA7A] text-[#333333] dark:text-[#E0E0E0] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-[8px]"
               />
-              <Button onClick={handleAddSite}>
+              <Button 
+                onClick={handleAddSite}
+                className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] rounded-[8px] hover:scale-[1.02] transition-all duration-200"
+              >
+                <Plus className="h-4 w-4 mr-1" />
                 Add
               </Button>
             </div>
@@ -154,10 +176,17 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="bg-transparent border border-[#CDAA7A]/30 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300 rounded-[8px]"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave}>
+          <Button 
+            onClick={handleSave}
+            className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] rounded-[8px] hover:scale-[1.02] transition-all duration-200"
+          >
             Save Changes
           </Button>
         </DialogFooter>

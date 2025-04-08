@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useFocus } from '../contexts/FocusContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import ProfileCard from './ProfileCard';
 import ProfileEditor from './ProfileEditor';
 import { FocusProfile } from '../lib/chromeStorage';
@@ -16,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { motion } from 'framer-motion';
 
 const ProfilesManager: React.FC = () => {
   const { profiles, setActiveProfile, createProfile, updateProfile, deleteProfile } = useFocus();
@@ -64,42 +64,47 @@ const ProfilesManager: React.FC = () => {
   
   return (
     <>
-      <Card className="mb-8">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-medium">Focus Profiles</CardTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-primary font-medium flex items-center" 
-              onClick={handleCreateProfile}
-            >
-              <PlusCircle className="h-5 w-5 mr-1" />
-              New Profile
-            </Button>
-          </div>
-        </CardHeader>
+      <div className="mb-6 flex justify-between items-center">
+        <p className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
+          {profiles.length} profile{profiles.length !== 1 ? 's' : ''} available
+        </p>
+        <Button 
+          className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-4 py-2 text-sm hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
+          onClick={handleCreateProfile}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New Profile
+        </Button>
+      </div>
         
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {profiles.map(profile => (
-              <ProfileCard
-                key={profile.id}
-                profile={profile}
-                onSelect={handleSelectProfile}
-                onEdit={handleEditProfile}
-                onDelete={handleDeleteProfile}
-              />
-            ))}
-            
-            {profiles.length === 0 && (
-              <div className="col-span-full text-center p-4 text-muted-foreground">
-                No profiles yet. Create a profile to get started.
-              </div>
-            )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {profiles.map((profile, index) => (
+          <motion.div
+            key={profile.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+          >
+            <ProfileCard
+              profile={profile}
+              onSelect={handleSelectProfile}
+              onEdit={handleEditProfile}
+              onDelete={handleDeleteProfile}
+            />
+          </motion.div>
+        ))}
+        
+        {profiles.length === 0 && (
+          <div className="col-span-full p-8 text-center">
+            <div className="text-[#333333]/50 dark:text-[#E0E0E0]/50 ibm-plex-mono-regular mb-2">
+              No profiles yet
+            </div>
+            <p className="text-sm text-[#333333]/70 dark:text-[#E0E0E0]/70 mb-4">
+              Create your first focus profile to get started
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
       
       <ProfileEditor
         isOpen={isEditorOpen}
@@ -109,16 +114,23 @@ const ProfilesManager: React.FC = () => {
       />
       
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white dark:bg-gray-900 border border-[#CDAA7A]/20">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-[#333333] dark:text-[#E0E0E0] ibm-plex-mono-medium">
+              Are you sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[#333333]/70 dark:text-[#E0E0E0]/70">
               This will permanently delete this profile and its settings. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteProfile} className="bg-destructive text-destructive-foreground">
+            <AlertDialogCancel className="bg-transparent border border-[#CDAA7A]/30 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteProfile} 
+              className="bg-red-500/80 hover:bg-red-500 text-white"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
