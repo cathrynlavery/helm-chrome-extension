@@ -116,6 +116,17 @@ const FocusSession: React.FC = () => {
           
           {/* Active profile indicator - moved inside focus timer component */}
           
+          {/* Test button to verify click events */}
+          <button 
+            className="block mx-auto mb-4 p-4 bg-red-500 text-white font-bold rounded"
+            onClick={() => {
+              console.log('TEST BUTTON CLICKED!');
+              alert('Test button clicked!');
+            }}
+          >
+            TEST CLICK ME
+          </button>
+
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
           <div className="mb-8 max-w-xl mx-auto">
             <FocusTimer 
