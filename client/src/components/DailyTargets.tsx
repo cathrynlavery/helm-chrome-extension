@@ -74,22 +74,22 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
         {editable && (
           <form onSubmit={handleAddTarget} className="flex gap-2 mb-6">
             <Input
-              placeholder="What are you focusing on today?"
+              placeholder="What will you focus on today?"
               value={newTargetText}
               onChange={(e) => setNewTargetText(e.target.value)}
-              className="flex-1 rounded-[12px] ibm-plex-mono-regular border-gray-200 dark:border-gray-700 focus:border-amber-300 dark:focus:border-amber-600 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md py-6"
+              className="flex-1 rounded-[14px] ibm-plex-mono-regular border-gray-200 dark:border-gray-700 focus:border-amber-300 dark:focus:border-amber-600 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md py-6 px-6"
               autoComplete="off"
             />
             <Button 
               type="submit" 
               disabled={dailyTargets.length >= 3}
-              className={`transition-all duration-300 rounded-[12px] ibm-plex-mono-medium py-6 ${
+              className={`transition-all duration-300 rounded-[14px] ibm-plex-mono-medium flex items-center justify-center w-12 h-12 ${
                 dailyTargets.length >= 3 
                   ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-                  : 'bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg'
+                  : 'bg-primary hover:bg-primary/90 hover:scale-[1.03] active:scale-[0.98]'
               }`}
             >
-              Add
+              <span className="text-xl font-medium">+</span>
             </Button>
           </form>
         )}

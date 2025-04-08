@@ -119,21 +119,7 @@ const FocusSession: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="max-w-2xl mx-auto w-full text-center"
         >
-          {/* Inspirational Quote - Only show when not in a focus session */}
-          {!focusTimer.state.isRunning && (
-            <motion.div 
-              key={quote.text}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mb-16"
-            >
-              <h2 className="quote-text text-2xl md:text-3xl mb-3 leading-relaxed text-gray-800 dark:text-gray-200">
-                "{quote.text}"
-              </h2>
-              <p className="libre-baskerville-regular text-sm text-muted-foreground">— {quote.author}</p>
-            </motion.div>
-          )}
+          {/* Quote moved below Daily Targets */}
           
           {/* Active profile indicator - moved inside focus timer component */}
           
@@ -154,6 +140,22 @@ const FocusSession: React.FC = () => {
           >
             <DailyTargets editable={!focusTimer.state.isRunning} />
           </motion.div>
+          
+          {/* Inspirational Quote moved below targets - Only show when not in a focus session */}
+          {!focusTimer.state.isRunning && (
+            <motion.div 
+              key={quote.text}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-16 max-w-xl mx-auto"
+            >
+              <p className="libre-baskerville-italic text-lg leading-relaxed text-gray-700 dark:text-gray-300 opacity-70">
+                "{quote.text}"
+              </p>
+              <p className="libre-baskerville-regular text-sm text-muted-foreground opacity-60 mt-2">— {quote.author}</p>
+            </motion.div>
+          )}
         </motion.div>
       </main>
     </div>

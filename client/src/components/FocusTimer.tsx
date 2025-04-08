@@ -211,7 +211,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     variant="outline"
                     size="lg"
                     onClick={handleEndSession}
-                    className="btn-end-session rounded-[14px] py-6 border hover:border-blue-400/40 transition-all duration-300 ibm-plex-mono-medium"
+                    className="btn-end-session rounded-[16px] py-6 border hover:border-blue-400/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                   >
                     <span className="flex items-center px-2">
                       <StopCircle className="h-5 w-5 mr-2" />
@@ -223,7 +223,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     variant="outline"
                     size="lg"
                     onClick={handleStartPause}
-                    className="btn-pause rounded-[14px] py-6 border hover:border-amber-400/40 transition-all duration-300 ibm-plex-mono-medium"
+                    className="btn-pause rounded-[16px] py-6 border hover:border-amber-400/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                   >
                     <span className="flex items-center px-2">
                       {state.isRunning ? (
@@ -250,32 +250,45 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                {/* Idle state circular placeholder with subtle glow */}
+                {/* Idle state circular placeholder with enhanced ambient glow */}
                 <div className="relative inline-flex items-center justify-center mb-12 group">
-                  {/* Ambient soft glow behind circle */}
-                  <div className="absolute w-full h-full rounded-full blur-3xl opacity-5 bg-amber-500 group-hover:opacity-10 transition-opacity duration-700"></div>
+                  {/* Ambient soft glow behind circle with pulse animation when duration selected */}
+                  <div className={`absolute w-full h-full rounded-full blur-3xl ${selectedDuration ? 'opacity-10 pulse-glow' : 'opacity-5'} bg-amber-500 group-hover:opacity-15 transition-all duration-700`}></div>
+                  <div className={`absolute w-3/4 h-3/4 rounded-full blur-xl ${selectedDuration ? 'opacity-5' : 'opacity-0'} bg-amber-400 transition-all duration-700`}></div>
                   
                   <svg className={`${enhancedSize} transform -rotate-90 transition-all duration-500 group-hover:scale-[1.02]`} viewBox="0 0 100 100">
+                    {/* Background circle with subtle inner shadow */}
+                    <defs>
+                      <filter id="innerShadow">
+                        <feGaussianBlur stdDeviation="2" result="blur"/>
+                        <feOffset dx="0" dy="0" result="offsetBlur"/>
+                        <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
+                      </filter>
+                    </defs>
                     <circle 
-                      className="text-gray-200 dark:text-gray-700" 
-                      strokeWidth="1" 
+                      className={`${selectedDuration ? 'text-gray-300 dark:text-gray-600' : 'text-gray-200 dark:text-gray-700'}`}
+                      strokeWidth="1.2" 
                       stroke="currentColor" 
                       fill="transparent" 
                       r="47" 
                       cx="50" 
                       cy="50"
+                      filter="url(#innerShadow)"
                     />
                   </svg>
                   <div className="absolute text-center">
-                    <div className={`${compact ? 'text-xl' : 'text-2xl'} ibm-plex-mono-medium text-gray-500 dark:text-gray-300 mb-2`}>
+                    <div className={`${compact ? 'text-xl' : 'text-xl'} ibm-plex-mono-medium 
+                      ${selectedDuration
+                        ? 'text-amber-600 dark:text-amber-400 transition-all duration-500'
+                        : 'text-gray-500 dark:text-gray-300'} mb-2`}>
                       Ready to Focus
                     </div>
                   </div>
                 </div>
                 
-                <div className="text-center mb-12 max-w-sm mx-auto">
-                  <h3 className="ibm-plex-mono-medium text-lg mb-2">Select Focus Duration</h3>
-                  <p className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-70 mb-8">
+                <div className="text-center mb-16 max-w-sm mx-auto">
+                  <h3 className="ibm-plex-mono-medium text-base mb-3">Select Focus Duration</h3>
+                  <p className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60 mb-8">
                     How long would you like to focus?
                   </p>
                   
@@ -284,10 +297,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                       <Button
                         key={duration}
                         variant={selectedDuration === duration ? "default" : "outline"}
-                        className={`py-6 rounded-[14px] transition-all duration-300 ibm-plex-mono-medium
+                        className={`py-6 rounded-[16px] transition-all duration-400 ibm-plex-mono-medium
                           ${selectedDuration === duration 
-                            ? "bg-primary text-primary-foreground border-none" 
-                            : "bg-transparent border-gray-200 dark:border-gray-700/50 hover:border-amber-300 dark:hover:border-amber-700/60 hover:bg-gray-50/30 dark:hover:bg-gray-800/20"}`
+                            ? "bg-primary text-primary-foreground border-none hover:bg-gradient-to-r hover:from-amber-500 hover:to-amber-400 hover:scale-[1.02] active:scale-[0.98]" 
+                            : "bg-transparent border-gray-200 dark:border-gray-700/50 hover:border-amber-300 dark:hover:border-amber-700/60 hover:bg-gray-50/30 dark:hover:bg-gray-800/20 hover:scale-[1.02]"}`
                         }
                         onClick={() => handleSelectDuration(duration)}
                       >
@@ -297,7 +310,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   </div>
                   
                   <div className="flex items-center justify-center gap-3 mb-10 w-full mx-auto">
-                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-70">Custom:</div>
+                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60">Custom:</div>
                     <Input
                       type="number"
                       min="1"
@@ -305,14 +318,14 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                       value={customDuration}
                       onChange={handleCustomDurationChange}
                       placeholder="minutes"
-                      className="w-28 text-center rounded-[14px] ibm-plex-mono-regular py-6 border-gray-200 dark:border-gray-700/50 focus:border-amber-300 dark:focus:border-amber-600 bg-transparent"
+                      className="w-28 text-center rounded-[16px] ibm-plex-mono-regular py-6 px-4 border-gray-200 dark:border-gray-700/50 focus:border-amber-300 dark:focus:border-amber-600 bg-transparent"
                     />
-                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-70">min</div>
+                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60">min</div>
                   </div>
                 </div>
                 
                 {stats && stats.todayMinutes > 0 && (
-                  <div className="mb-8 text-sm text-muted-foreground ibm-plex-mono-regular opacity-70">
+                  <div className="mb-10 text-sm text-muted-foreground ibm-plex-mono-regular opacity-60">
                     Today: {formatDuration(stats.todayMinutes)} focused
                   </div>
                 )}
@@ -321,7 +334,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   size="lg"
                   onClick={handleStartPause}
                   disabled={!activeProfile}
-                  className="py-7 px-12 rounded-[16px] bg-primary hover:bg-gradient-to-r hover:from-amber-500 hover:to-amber-400 text-primary-foreground transition-all duration-500 shadow-none ibm-plex-mono-medium text-base"
+                  className="py-7 px-12 rounded-[16px] bg-primary hover:bg-gradient-to-r hover:from-amber-500 hover:to-amber-400 hover:scale-[1.02] active:scale-[0.98] text-primary-foreground transition-all duration-300 ibm-plex-mono-medium text-base"
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Start Focus Session
