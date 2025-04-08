@@ -111,10 +111,12 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
           }`}
       >
         <div className={`p-8 ${compact ? 'py-6' : 'py-12'}`}>
+          {/* Profile selector moved to centered position above timer */}
           {showProfileSelector && !state.isRunning && (
-            <div className="flex items-center justify-between mb-12">
-              <h3 className="heading-text text-lg">Focus Session</h3>
-              <ProfileSelector />
+            <div className="flex items-center justify-center mb-10">
+              <div className="profile-label text-center">
+                <ProfileSelector />
+              </div>
             </div>
           )}
           
@@ -213,10 +215,12 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   </div>
                 </div>
                 
-                {/* Session label - showing active profile being used */}
+                {/* Session label - showing active profile name above timer */}
                 {activeProfile && (
                   <div className="mb-8 text-center">
-                    <span className="metadata-label text-gray-300">{activeProfile.name} Focus</span>
+                    <div className="profile-label text-center">
+                      <span className="text-[1.25rem] heading-text text-gray-100">{activeProfile.name}</span>
+                    </div>
                   </div>
                 )}
                 
@@ -303,7 +307,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 
                 <div className="text-center mb-16 max-w-sm mx-auto">
                   <h3 className="ibm-plex-mono-medium text-base mb-3">Select Focus Duration</h3>
-                  <p className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60 mb-8">
+                  <p className="ibm-plex-mono-regular text-sm text-[#8E8E8E] mb-8">
+                    {/* higher contrast gray */}
                     How long would you like to focus?
                   </p>
                   
@@ -325,7 +330,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   </div>
                   
                   <div className="flex items-center justify-center gap-3 mb-10 w-full mx-auto">
-                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60">Custom:</div>
+                    {/* higher contrast gray */}
+                    <div className="ibm-plex-mono-regular text-sm text-[#8E8E8E]">Custom:</div>
                     <Input
                       type="number"
                       min="1"
@@ -335,13 +341,15 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                       placeholder="minutes"
                       className="w-28 text-center rounded-[16px] ibm-plex-mono-regular py-6 px-4 border-gray-200 dark:border-gray-700/50 focus:border-primary/70 dark:focus:border-primary/70 bg-transparent"
                     />
-                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60">min</div>
+                    {/* higher contrast gray */}
+                    <div className="ibm-plex-mono-regular text-sm text-[#8E8E8E]">min</div>
                   </div>
                 </div>
                 
                 {stats && stats.todayMinutes > 0 && (
-                  <div className="mb-10 text-sm text-muted-foreground ibm-plex-mono-regular opacity-60">
-                    Today: {formatDuration(stats.todayMinutes)} focused
+                  <div className="mb-10 text-sm ibm-plex-mono-regular">
+                    {/* higher contrast gray */}
+                    <span className="text-[#8E8E8E]">Today: {formatDuration(stats.todayMinutes)} focused</span>
                   </div>
                 )}
                 

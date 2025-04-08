@@ -20,9 +20,9 @@ const ProfileSelector: React.FC = () => {
   
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger className="flex items-center text-sm font-medium text-primary focus:outline-none">
+      <DropdownMenuTrigger className="flex items-center text-[1.25rem] heading-text text-zinc-900 dark:text-zinc-100 focus:outline-none hover:text-primary transition-colors">
         <span>{activeProfile?.name || 'Select Profile'}</span>
-        <ChevronDown className="ml-1 h-4 w-4" />
+        <ChevronDown className="ml-1 h-5 w-5" />
       </DropdownMenuTrigger>
       
       <DropdownMenuContent align="end" className="w-48">

@@ -91,7 +91,8 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               exit={{ opacity: 0 }}
               className="text-center py-8"
             >
-              <p className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60">
+              {/* higher contrast gray */}
+              <p className="ibm-plex-mono-regular text-sm text-[#8E8E8E]">
                 No targets set for today
               </p>
             </motion.div>
