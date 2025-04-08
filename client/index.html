@@ -61,25 +61,52 @@
     <!-- Base React app container -->
     <div id="root"></div>
     
-    <!-- Emergency button outside React -->
-    <button class="emergency-button" onclick="document.getElementById('emergencyOverlay').style.display='flex'">
-      Emergency UI Override
-    </button>
-    
-    <!-- Emergency overlay with pure HTML buttons -->
-    <div id="emergencyOverlay" class="emergency-overlay">
-      <h1>Emergency UI Controls</h1>
-      <p>This is a fallback UI for testing button functionality</p>
+    <!-- Direct links to HTML pages outside of React -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
+      <a href="/emergency.html" style="
+        display: block;
+        padding: 12px 20px;
+        background: #ff3b30;
+        color: white;
+        font-family: system-ui, sans-serif;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      ">
+        Emergency Controls
+      </a>
       
-      <div>
-        <button onclick="alert('Button 1 clicked!')">Test Button 1</button>
-        <button onclick="alert('Button 2 clicked!')">Test Button 2</button>
-        <button onclick="window.location.href='/test.html'">Go to Test HTML Page</button>
-      </div>
+      <a href="/access-style.html" style="
+        display: block;
+        padding: 12px 20px;
+        background: #34c759;
+        color: white;
+        font-family: system-ui, sans-serif;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      ">
+        Access Style Settings
+      </a>
       
-      <button onclick="document.getElementById('emergencyOverlay').style.display='none'" style="margin-top: 40px; background: red;">
-        Close Emergency UI
-      </button>
+      <a href="/test.html" style="
+        display: block;
+        padding: 12px 20px;
+        background: #007aff;
+        color: white;
+        font-family: system-ui, sans-serif;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      ">
+        Test HTML Page
+      </a>
     </div>
     
     <!-- Load React app -->

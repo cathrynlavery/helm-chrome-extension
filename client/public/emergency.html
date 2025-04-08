@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Controls - Helm</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f7;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #ff3b30;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+        
+        h2 {
+            color: #333;
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .primary {
+            background: #007aff;
+            color: white;
+        }
+        
+        .danger {
+            background: #ff3b30;
+            color: white;
+        }
+        
+        .warning {
+            background: #ff9500;
+            color: white;
+        }
+        
+        .success {
+            background: #34c759;
+            color: white;
+        }
+        
+        .secondary {
+            background: #8e8e93;
+            color: white;
+        }
+        
+        .outline {
+            background: transparent;
+            border: 1px solid #007aff;
+            color: #007aff;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .status {
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .debug-log {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Helm Emergency Controls</h1>
+        <p>This standalone HTML interface provides direct control over your focus sessions.</p>
+        
+        <div class="section">
+            <h2>Focus Profiles</h2>
+            <select id="profileSelect">
+                <option value="">Select a profile...</option>
+                <option value="1">Work Profile</option>
+                <option value="2">Study Profile</option>
+                <option value="3">Writing Focus</option>
+            </select>
+            <button onclick="createDefaultProfiles()" class="outline">Reset Profiles</button>
+        </div>
+        
+        <div class="section">
+            <h2>Focus Session Controls</h2>
+            <div class="button-row">
+                <button onclick="startSession(15)" class="primary">Start 15 min</button>
+                <button onclick="startSession(30)" class="primary">Start 30 min</button>
+                <button onclick="startSession(45)" class="primary">Start 45 min</button>
+                <button onclick="startSession(60)" class="primary">Start 60 min</button>
+            </div>
+            <div class="button-row">
+                <button onclick="pauseSession()" class="warning">Pause</button>
+                <button onclick="resumeSession()" class="success">Resume</button>
+                <button onclick="endSession()" class="danger">End Session</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Session Status</h2>
+            <div id="sessionStatus" class="status">No active session</div>
+            <div id="timer">00:00:00</div>
+        </div>
+        
+        <div class="section">
+            <h2>Emergency Reset</h2>
+            <p>Use with caution - this will clear all focus session data</p>
+            <button onclick="emergencyReset()" class="danger">Emergency Reset</button>
+            <button onclick="reloadApp()" class="secondary">Reload App</button>
+        </div>
+        
+        <div>
+            <h2>Debug Log</h2>
+            <div id="debugLog" class="debug-log"></div>
+        </div>
+    </div>
+    
+    <a href="/" style="margin-top: 20px; color: #007aff; text-decoration: none;">Return to main app</a>
+    
+    <script>
+        // Debug logging
+        function log(message) {
+            const debugLog = document.getElementById('debugLog');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugLog.appendChild(logEntry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+        
+        // Focus session handling
+        let activeSession = null;
+        let timerInterval = null;
+        
+        function updateStatus(message, type = '') {
+            const statusEl = document.getElementById('sessionStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+        
+        function startSession(minutes) {
+            const profileId = document.getElementById('profileSelect').value;
+            
+            if (!profileId) {
+                updateStatus('Please select a profile first', 'error');
+                return;
+            }
+            
+            activeSession = {
+                profileId: parseInt(profileId),
+                startTime: new Date(),
+                duration: minutes * 60,
+                isRunning: true
+            };
+            
+            updateStatus(`Focus session started (${minutes} minutes)`, 'success');
+            startTimer();
+            log(`Started ${minutes} minute session with profile ${profileId}`);
+            
+            try {
+                // Store in localStorage
+                localStorage.setItem('helm_activeSession', JSON.stringify(activeSession));
+                
+                // Try to communicate with Chrome storage if possible
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                    chrome.storage.local.set({'activeFocusSession': activeSession});
+                }
+            } catch (e) {
+                log(`Error saving session: ${e.message}`);
+            }
+        }
+        
+        function pauseSession() {
+            if (!activeSession) {
+                updateStatus('No active session to pause', 'error');
+                return;
+            }
+            
+            activeSession.isRunning = false;
+            clearInterval(timerInterval);
+            updateStatus('Session paused', 'warning');
+            log('Session paused');
+            
+            try {
+                localStorage.setItem('helm_activeSession', JSON.stringify(activeSession));
+            } catch (e) {
+                log(`Error saving session: ${e.message}`);
+            }
+        }
+        
+        function resumeSession() {
+            if (!activeSession) {
+                updateStatus('No active session to resume', 'error');
+                return;
+            }
+            
+            activeSession.isRunning = true;
+            startTimer();
+            updateStatus('Session resumed', 'success');
+            log('Session resumed');
+            
+            try {
+                localStorage.setItem('helm_activeSession', JSON.stringify(activeSession));
+            } catch (e) {
+                log(`Error saving session: ${e.message}`);
+            }
+        }
+        
+        function endSession() {
+            if (!activeSession) {
+                updateStatus('No active session to end', 'error');
+                return;
+            }
+            
+            clearInterval(timerInterval);
+            updateStatus('Session ended', '');
+            document.getElementById('timer').textContent = '00:00:00';
+            log('Session ended');
+            
+            try {
+                localStorage.removeItem('helm_activeSession');
+                activeSession = null;
+                
+                // Try to communicate with Chrome storage if possible
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                    chrome.storage.local.remove('activeFocusSession');
+                }
+            } catch (e) {
+                log(`Error ending session: ${e.message}`);
+            }
+        }
+        
+        function startTimer() {
+            if (!activeSession || !activeSession.isRunning) return;
+            
+            clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const elapsed = Math.floor((now - new Date(activeSession.startTime)) / 1000);
+                const remaining = Math.max(0, activeSession.duration - elapsed);
+                
+                if (remaining <= 0) {
+                    endSession();
+                    return;
+                }
+                
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = remaining % 60;
+                
+                document.getElementById('timer').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        // Emergency functions
+        function emergencyReset() {
+            if (confirm('WARNING: This will clear all Helm focus session data. Continue?')) {
+                clearInterval(timerInterval);
+                
+                try {
+                    // Clear all Helm-related localStorage
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('helm_')) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                    
+                    // Try Chrome storage clear if available
+                    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                        chrome.storage.local.clear();
+                    }
+                    
+                    activeSession = null;
+                    document.getElementById('timer').textContent = '00:00:00';
+                    updateStatus('Emergency reset completed', 'success');
+                    log('Emergency reset performed');
+                } catch (e) {
+                    log(`Error during reset: ${e.message}`);
+                    updateStatus('Reset failed: ' + e.message, 'error');
+                }
+            }
+        }
+        
+        function reloadApp() {
+            window.location.href = '/';
+        }
+        
+        // Create default profiles
+        function createDefaultProfiles() {
+            try {
+                const defaultProfiles = [
+                    {
+                        id: 1,
+                        name: "Work Profile",
+                        description: "Block distracting websites during work hours",
+                        isActive: true,
+                        blockedSites: ["facebook.com", "twitter.com", "instagram.com", "reddit.com"],
+                        lastUsed: new Date().toISOString(),
+                        accessStyle: "blocklist"
+                    },
+                    {
+                        id: 2,
+                        name: "Study Profile",
+                        description: "Block all social media and entertainment sites",
+                        isActive: false,
+                        blockedSites: ["youtube.com", "netflix.com", "hulu.com", "facebook.com", "twitter.com"],
+                        lastUsed: new Date().toISOString(),
+                        accessStyle: "blocklist"
+                    },
+                    {
+                        id: 3,
+                        name: "Writing Focus",
+                        description: "Allow only writing tools and reference sites",
+                        isActive: false,
+                        blockedSites: ["docs.google.com", "notion.so", "dictionary.com", "thesaurus.com"],
+                        lastUsed: new Date().toISOString(),
+                        accessStyle: "allowlist"
+                    }
+                ];
+                
+                localStorage.setItem('helm_focusProfiles', JSON.stringify(defaultProfiles));
+                
+                // Try Chrome storage if available
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                    chrome.storage.local.set({'focusProfiles': defaultProfiles});
+                }
+                
+                updateStatus('Default profiles created', 'success');
+                log('Default profiles created');
+                
+                // Refresh the profile dropdown
+                const select = document.getElementById('profileSelect');
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                defaultProfiles.forEach(profile => {
+                    const option = document.createElement('option');
+                    option.value = profile.id;
+                    option.textContent = profile.name;
+                    select.appendChild(option);
+                });
+                
+            } catch (e) {
+                log(`Error creating profiles: ${e.message}`);
+                updateStatus('Failed to create profiles: ' + e.message, 'error');
+            }
+        }
+        
+        // Check for existing session on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Emergency control page loaded');
+            
+            try {
+                // Check localStorage for active session
+                const savedSession = localStorage.getItem('helm_activeSession');
+                if (savedSession) {
+                    activeSession = JSON.parse(savedSession);
+                    if (activeSession && activeSession.isRunning) {
+                        startTimer();
+                        updateStatus('Active session restored', 'success');
+                        log('Restored active session from localStorage');
+                    }
+                }
+                
+                // Check localStorage for profiles
+                const savedProfiles = localStorage.getItem('helm_focusProfiles');
+                if (savedProfiles) {
+                    const profiles = JSON.parse(savedProfiles);
+                    const select = document.getElementById('profileSelect');
+                    
+                    // Clear existing options (except the first)
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
+                    
+                    // Add profiles to dropdown
+                    profiles.forEach(profile => {
+                        const option = document.createElement('option');
+                        option.value = profile.id;
+                        option.textContent = profile.name;
+                        select.appendChild(option);
+                    });
+                    
+                    log(`Loaded ${profiles.length} profiles from localStorage`);
+                }
+            } catch (e) {
+                log(`Error during initialization: ${e.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
