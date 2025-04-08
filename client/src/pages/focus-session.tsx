@@ -4,9 +4,10 @@ import FocusTimer from '../components/FocusTimer';
 import { DailyTargets } from '../components/DailyTargets';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { Clock, BarChart2, Flame } from 'lucide-react';
+import { BarChart2, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getRandomQuote } from '../lib/quotes';
+import HelmLogo from '../components/HelmLogo';
 
 const FocusSession: React.FC = () => {
   const { activeProfile, isLoading, stats, focusTimer } = useFocus();
@@ -47,7 +48,7 @@ const FocusSession: React.FC = () => {
     >
       <header className="py-4 px-6 flex items-center justify-between backdrop-blur-sm bg-white/50 dark:bg-black/20 shadow-sm">
         <div className="flex items-center">
-          <Clock className="h-6 w-6 text-primary" />
+          <HelmLogo size={28} />
           <h1 className="ml-2 text-xl font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Helm
           </h1>

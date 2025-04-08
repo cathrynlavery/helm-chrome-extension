@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDuration } from '../lib/focusTimer';
-import { Clock, Settings, Timer, Flame, ArrowLeft } from 'lucide-react';
+import { Settings, Timer, Flame, ArrowLeft } from 'lucide-react';
+import HelmLogo from '../components/HelmLogo';
 import { motion } from 'framer-motion';
 
 const Dashboard: React.FC = () => {
@@ -65,7 +66,7 @@ const Dashboard: React.FC = () => {
       <header className="backdrop-blur-sm bg-white/50 dark:bg-black/20 border-b border-gray-200 dark:border-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center">
-            <Clock className="h-7 w-7 text-primary" />
+            <HelmLogo size={30} />
             <h1 className="ml-2 text-xl font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               Helm Dashboard
             </h1>
