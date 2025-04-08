@@ -65,17 +65,17 @@ const FocusSession: React.FC = () => {
         ></div>
       )}
       
-      <header className={`py-4 px-6 flex items-center justify-between backdrop-blur-sm transition-all duration-700
+      <header className={`py-6 px-6 md:px-8 flex items-center justify-between backdrop-blur-sm transition-all duration-700
         ${focusTimer.state.isRunning 
           ? 'bg-transparent' 
           : 'bg-transparent'}`}
       >
-        <div className="flex items-center group cursor-pointer hover:opacity-90 transition-opacity">
-          <HelmLogo size={28} className="group-hover:scale-105 transition-transform duration-300" />
-          <h1 className={`ml-2 text-xl ibm-plex-mono-regular tracking-wide transition-all duration-500
+        <div className="flex items-center group cursor-pointer hover:opacity-85 transition-opacity pl-1 md:pl-2">
+          <HelmLogo size={32} className="group-hover:scale-105 transition-transform duration-300" />
+          <h1 className={`ml-3 text-xl ibm-plex-mono-regular tracking-wide transition-all duration-500
             ${focusTimer.state.isRunning
-              ? 'bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent'
-              : 'bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent'}`}
+              ? 'text-[#CDAA7A]'
+              : 'text-[#333333] dark:text-[#333333]'}`}
           >
             Helm
           </h1>
@@ -89,10 +89,10 @@ const FocusSession: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex items-center bg-transparent border-gray-200 hover:border-primary/70 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-[12px] ibm-plex-mono-regular py-5"
+              className="flex items-center bg-transparent border border-[#CDAA7A]/40 hover:border-[#CDAA7A]/70 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-[12px] ibm-plex-mono-regular py-5 px-6 mr-1 md:mr-2"
             >
-              <BarChart2 className="h-4 w-4 mr-2 text-primary" />
-              <span className="text-gray-800 dark:text-gray-200">View Dashboard</span>
+              <BarChart2 className="h-4 w-4 mr-2 text-[#CDAA7A]" />
+              <span className="text-[#333333] dark:text-[#333333]">View Dashboard</span>
             </Button>
           </Link>
         )}

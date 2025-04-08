@@ -42,9 +42,9 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
   return (
     <div className="w-full rounded-xl transition-all duration-500 ease-in-out bg-transparent">
       <div className="p-6">
-        <div className="flex flex-col items-center justify-center mb-4">
-          <h3 className={`heading-text text-lg text-center
-            ${allTasksCompleted ? 'text-primary dark:text-primary' : ''}`}
+        <div className="flex flex-col items-center justify-center mb-6">
+          <h3 className={`heading-text text-lg text-center ibm-plex-mono-medium text-[#333333] dark:text-[#333333]
+            ${allTasksCompleted ? 'text-[#CDAA7A] dark:text-[#CDAA7A]' : ''}`}
           >
             Today's Targets
           </h3>
@@ -52,7 +52,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
             <motion.span 
               initial={{ opacity: 0, scale: 0.8, y: 5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="metadata-label text-primary dark:text-primary flex items-center opacity-80 mt-1"
+              className="metadata-label text-[#CDAA7A] dark:text-[#CDAA7A] flex items-center opacity-80 mt-1"
             >
               <CheckCircle2 className="h-4 w-4 mr-1" />
               All completed
@@ -66,7 +66,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               placeholder="What will you focus on today?"
               value={newTargetText}
               onChange={(e) => setNewTargetText(e.target.value)}
-              className="flex-1 rounded-[16px] ibm-plex-mono-regular border-gray-200 dark:border-gray-700 focus:border-primary hover:border-primary/60 dark:focus:border-primary dark:hover:border-primary/60 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md py-6 px-8"
+              className="flex-1 rounded-[16px] ibm-plex-mono-regular border border-[#CDAA7A]/30 focus:border-[#CDAA7A]/60 hover:border-[#CDAA7A]/40 bg-white/60 backdrop-blur-md py-6 px-8 text-[#333333]"
               autoComplete="off"
             />
             <Button 
@@ -74,11 +74,11 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               disabled={dailyTargets.length >= 3}
               className={`transition-all duration-300 rounded-[16px] ibm-plex-mono-medium flex items-center justify-center w-12 h-12 ${
                 dailyTargets.length >= 3 
-                  ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-                  : 'bg-primary hover:bg-primary/90 hover:scale-[1.05] active:scale-[0.98]'
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 hover:scale-[1.02] active:scale-[0.98]'
               }`}
             >
-              <span className="text-xl font-medium text-primary-foreground group-hover:scale-110 transition-transform duration-200">+</span>
+              <span className="text-xl font-medium text-[#333333] group-hover:scale-110 transition-transform duration-200">+</span>
             </Button>
           </form>
         )}
@@ -133,7 +133,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                           y: [0, -30]
                         }}
                         transition={{ duration: 1.2 }}
-                        className="text-primary text-2xl"
+                        className="text-[#CDAA7A] text-2xl"
                       >
                         ✓
                       </motion.div>
@@ -146,7 +146,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                           opacity: [0.8, 0]
                         }}
                         transition={{ duration: 0.8 }}
-                        className="absolute w-24 h-24 rounded-full bg-gradient-to-r from-primary/30 to-primary/70 blur-2xl"
+                        className="absolute w-24 h-24 rounded-full bg-gradient-to-r from-[#CDAA7A]/30 to-[#CDAA7A]/70 blur-2xl"
                       />
                     </motion.div>
                   )}
@@ -159,16 +159,16 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                     }}
                     className={`mr-4 transition-all duration-200 h-5 w-5 
                       ${target.completed 
-                        ? 'border-primary bg-primary text-white' 
-                        : 'border-gray-300 dark:border-gray-600 hover:border-primary/70'}`
+                        ? 'border-[#CDAA7A] bg-[#CDAA7A] text-white' 
+                        : 'border-[#CDAA7A]/40 hover:border-[#CDAA7A]/70'}`
                     }
                   />
                   <label 
                     htmlFor={`target-${target.id}`}
                     className={`flex-1 transition-all duration-300 text-base ibm-plex-mono-regular ${
                       target.completed 
-                        ? 'line-through text-primary dark:text-primary font-medium' 
-                        : 'text-gray-800 dark:text-gray-200'
+                        ? 'line-through text-[#CDAA7A] font-medium' 
+                        : 'text-[#333333]'
                     }`}
                   >
                     {target.text}
@@ -179,7 +179,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteTarget(target.id)}
-                      className="ml-2 h-8 w-8 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                      className="ml-2 h-8 w-8 text-[#CDAA7A]/70 hover:text-[#CDAA7A] hover:bg-[#CDAA7A]/10 rounded-full transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </Button>

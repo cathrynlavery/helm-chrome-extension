@@ -20,27 +20,27 @@ const ProfileSelector: React.FC = () => {
   
   return (
     <div className="flex flex-col items-center">
-      <p className="text-sm text-center uppercase ibm-plex-mono-medium text-gray-500 dark:text-gray-400 mb-2">Work Profile</p>
+      <p className="text-sm text-center uppercase ibm-plex-mono-medium text-[#333333]/80 dark:text-[#333333]/80 mb-2">Focus Space</p>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger className="flex items-center text-[1.25rem] heading-text text-zinc-900 dark:text-zinc-100 focus:outline-none hover:text-primary transition-colors">
+        <DropdownMenuTrigger className="flex items-center text-[1.25rem] heading-text text-[#333333] dark:text-[#333333] focus:outline-none hover:text-[#CDAA7A] transition-colors">
           <span>{activeProfile?.name || 'Select Profile'}</span>
           <ChevronDown className="ml-1 h-5 w-5" />
         </DropdownMenuTrigger>
         
-        <DropdownMenuContent align="center" className="w-48">
+        <DropdownMenuContent align="center" className="w-48 bg-white/90 backdrop-blur-md rounded-[12px] border border-[#CDAA7A]/30">
           {profiles.map(profile => (
             <DropdownMenuItem 
               key={profile.id}
-              className="cursor-pointer"
+              className="cursor-pointer ibm-plex-mono-regular hover:text-[#CDAA7A] hover:bg-[#CDAA7A]/10 transition-colors"
               onClick={() => handleSelectProfile(profile.id)}
             >
               {profile.name}
             </DropdownMenuItem>
           ))}
           
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-[#CDAA7A]/20" />
           
-          <DropdownMenuItem className="text-primary cursor-pointer">
+          <DropdownMenuItem className="text-[#CDAA7A] cursor-pointer ibm-plex-mono-regular hover:bg-[#CDAA7A]/10 transition-colors">
             Manage profiles...
           </DropdownMenuItem>
         </DropdownMenuContent>
