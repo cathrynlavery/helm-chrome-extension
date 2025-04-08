@@ -287,47 +287,82 @@ export const startFocusSession = async (profileId: number): Promise<FocusSession
 };
 
 export const endFocusSession = async (): Promise<FocusSession | null> => {
-  const data = await getStorageData();
+  console.log('chromeStorage.endFocusSession called');
   
-  if (!data.activeFocusSession) return null;
-  
-  const endTime = new Date();
-  const startTime = new Date(data.activeFocusSession.startTime);
-  const durationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
-  
-  const endedSession: FocusSession = {
-    ...data.activeFocusSession,
-    endTime: endTime.toISOString(),
-    duration: durationSeconds,
-    isActive: false
-  };
-  
-  // Update focus history
-  const dateString = getDateString(new Date());
-  const minutesFocused = Math.floor(durationSeconds / 60);
-  
-  data.focusHistory[dateString] = (data.focusHistory[dateString] || 0) + minutesFocused;
-  
-  // Update streak
-  const today = getDateString(new Date());
-  if (data.streaks.lastActiveDate !== today) {
-    const yesterday = getDateString(new Date(Date.now() - 86400000));
+  try {
+    const data = await getStorageData();
     
-    if (data.streaks.lastActiveDate === yesterday) {
-      // Continuing streak
-      data.streaks.current += 1;
-      data.streaks.best = Math.max(data.streaks.best, data.streaks.current);
-    } else {
-      // Broken streak, start over
-      data.streaks.current = 1;
+    if (!data.activeFocusSession) {
+      console.log('No active focus session found in storage');
+      return null;
     }
     
-    data.streaks.lastActiveDate = today;
+    const endTime = new Date();
+    const startTime = new Date(data.activeFocusSession.startTime);
+    const durationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
+    
+    console.log('Ending session that started at:', startTime);
+    console.log('Session duration in seconds:', durationSeconds);
+    
+    const endedSession: FocusSession = {
+      ...data.activeFocusSession,
+      endTime: endTime.toISOString(),
+      duration: durationSeconds,
+      isActive: false
+    };
+    
+    // Update focus history
+    const dateString = getDateString(new Date());
+    const minutesFocused = Math.floor(durationSeconds / 60);
+    
+    data.focusHistory[dateString] = (data.focusHistory[dateString] || 0) + minutesFocused;
+    
+    // Update streak
+    const today = getDateString(new Date());
+    if (data.streaks.lastActiveDate !== today) {
+      const yesterday = getDateString(new Date(Date.now() - 86400000));
+      
+      if (data.streaks.lastActiveDate === yesterday) {
+        // Continuing streak
+        data.streaks.current += 1;
+        data.streaks.best = Math.max(data.streaks.best, data.streaks.current);
+      } else {
+        // Broken streak, start over
+        data.streaks.current = 1;
+      }
+      
+      data.streaks.lastActiveDate = today;
+    }
+    
+    console.log('Setting activeFocusSession to null');
+    data.activeFocusSession = null;
+    
+    // Force localStorage reset as well to avoid stuck state
+    localStorage.removeItem('helmData');
+    await setStorageData(data);
+    console.log('Session ended successfully, storage updated');
+    
+    return endedSession;
+  } catch (error) {
+    console.error('Error ending focus session:', error);
+    
+    // Emergency reset
+    console.log('Emergency reset: clearing active session');
+    try {
+      const data = await getStorageData();
+      data.activeFocusSession = null;
+      await setStorageData(data);
+      localStorage.removeItem('helmData');
+      localStorage.setItem('helmData', JSON.stringify({
+        ...defaultData,
+        activeFocusSession: null
+      }));
+    } catch (innerError) {
+      console.error('Error during emergency reset:', innerError);
+    }
+    
+    return null;
   }
-  
-  data.activeFocusSession = null;
-  await setStorageData(data);
-  return endedSession;
 };
 
 export const getActiveFocusSession = async (): Promise<FocusSession | null> => {

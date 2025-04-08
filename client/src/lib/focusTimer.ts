@@ -10,6 +10,8 @@ export interface TimerState {
 // Default focus session duration (45 minutes)
 const DEFAULT_DURATION = 45 * 60;
 
+import { getStorageData, setStorageData } from './chromeStorage';
+
 // Timer class to handle focus session timing
 export class FocusTimer {
   private static instance: FocusTimer | null = null;
@@ -227,6 +229,43 @@ export class FocusTimer {
   // Get active profile ID
   getActiveProfileId(): number | null {
     return this.profileId;
+  }
+  
+  // Emergency reset function to force clear any stuck timers
+  async emergencyReset(): Promise<void> {
+    console.log('EMERGENCY RESET triggered');
+    
+    // Clear any running timers
+    if (this.timerId) {
+      console.log('Clearing interval for emergency reset:', this.timerId);
+      window.clearInterval(this.timerId);
+      this.timerId = null;
+    }
+    
+    // Reset all internal state
+    this.sessionId = null;
+    this.profileId = null;
+    this.totalDuration = DEFAULT_DURATION;
+    this.pausedTimeRemaining = DEFAULT_DURATION;
+    
+    try {
+      // Force clear active session in storage
+      const data = await getStorageData();
+      if (data.activeFocusSession) {
+        console.log('Clearing active focus session from storage');
+        data.activeFocusSession = null;
+        await setStorageData(data);
+      }
+      
+      // Force clear localStorage as a last resort
+      localStorage.removeItem('helmData');
+    } catch (error) {
+      console.error('Error during emergency reset of storage:', error);
+    }
+    
+    // Notify listeners with reset state
+    this.notifyListeners();
+    console.log('Emergency reset completed');
   }
 }
 
