@@ -72,7 +72,7 @@ const defaultData: StorageData = {
     {
       id: 3,
       name: "Writing Focus",
-      description: "Allows only writing tools and reference sites",
+      description: "Allow List: Only writing tools and reference sites allowed",
       isActive: false,
       blockedSites: ["docs.google.com", "notion.so", "dictionary.com", "thesaurus.com", "wikipedia.org", "grammarly.com"],
       lastUsed: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
