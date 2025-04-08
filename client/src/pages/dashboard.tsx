@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
       <main className="flex-grow py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Helm Logo aligned with main content */}
-          <div className="flex items-center mb-8 pl-1">
+          <div className="flex items-center mb-8">
             <HelmLogo 
               size={28} 
               className={`text-[#333333] transition-colors duration-300`}

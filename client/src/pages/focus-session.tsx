@@ -72,12 +72,12 @@ const FocusSession: React.FC = () => {
           : 'bg-transparent'}`}
       >
         {/* Helm Logo aligned with main content */}
-        <div className="flex items-center ml-1">
+        <div className="flex items-center gap-3">
           <HelmLogo 
             size={28} 
             className={`text-[#333333] dark:text-[#CDAA7A] transition-colors duration-300`}
           />
-          <span className={`ml-3 ibm-plex-mono-medium text-lg ${
+          <span className={`ibm-plex-mono-medium text-lg ${
             focusTimer.state.isRunning 
               ? 'text-[#E0E0E0]' 
               : 'text-[#1A1A1A]'

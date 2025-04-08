@@ -70,12 +70,12 @@ const BlockedPage: React.FC = () => {
     <div className="fixed inset-0 bg-[#fbfcfc]">
       {/* Helm Logo aligned with main content */}
       <div className="absolute top-6 left-6">
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
           <HelmLogo 
             size={28} 
             className={`text-[#333333] transition-colors duration-300`}
           />
-          <span className="ml-3 text-[#1A1A1A] ibm-plex-mono-medium text-lg">
+          <span className="text-[#1A1A1A] ibm-plex-mono-medium text-lg">
             Helm
           </span>
         </div>
