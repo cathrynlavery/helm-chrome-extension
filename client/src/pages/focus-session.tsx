@@ -35,9 +35,9 @@ const FocusSession: React.FC = () => {
     );
   }
   
-  // Enhanced seamless background styles that transition from light to dark
+  // Consistent background style across dashboard and focus session screens
   const lightBackground = {
-    background: 'radial-gradient(circle at center, #F7F5F0 0%, #ECE7DF 100%)',
+    background: '#fbfcfc',
     transition: 'all 0.8s ease-in-out'
   };
   
@@ -70,9 +70,25 @@ const FocusSession: React.FC = () => {
           ? 'bg-transparent' 
           : 'bg-transparent'}`}
       >
-        {/* Logo and app name are now handled by DynamicIcon component */}
-        <div className="invisible">
-          {/* Invisible placeholder to maintain header layout */}
+        {/* Helm Logo aligned with main content */}
+        <div className="flex items-center ml-1">
+          <img 
+            src="/icons/dark-icon.svg" 
+            alt="Helm" 
+            className={`h-6 w-auto ${focusTimer.state.isRunning ? 'hidden' : ''}`}
+          />
+          <img 
+            src="/icons/light-icon.svg" 
+            alt="Helm" 
+            className={`h-6 w-auto ${focusTimer.state.isRunning ? '' : 'hidden'}`}
+          />
+          <span className={`ml-2 ibm-plex-mono-medium text-[16px] ${
+            focusTimer.state.isRunning 
+              ? 'text-[#E0E0E0]' 
+              : 'text-[#1A1A1A]'
+          }`}>
+            Helm
+          </span>
         </div>
         
         {/* Stats summary removed - now only shown in the main timer component */}

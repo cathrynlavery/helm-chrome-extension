@@ -65,7 +65,21 @@ const BlockedPage: React.FC = () => {
   };
   
   return (
-    <div className="fixed inset-0 bg-white">
+    <div className="fixed inset-0 bg-[#fbfcfc]">
+      {/* Helm Logo aligned with main content */}
+      <div className="absolute top-6 left-6">
+        <div className="flex items-center">
+          <img 
+            src="/icons/dark-icon.svg" 
+            alt="Helm" 
+            className="h-6 w-auto"
+          />
+          <span className="ml-2 text-[#1A1A1A] ibm-plex-mono-medium text-[16px]">
+            Helm
+          </span>
+        </div>
+      </div>
+      
       <div className="max-w-xl mx-auto px-4 pt-24 pb-12 text-center">
         <AlertTriangle className="h-24 w-24 mx-auto text-destructive mb-6" />
         
@@ -95,19 +109,21 @@ const BlockedPage: React.FC = () => {
           <Button 
             variant="outline" 
             onClick={handleGoBack}
+            className="flex items-center bg-transparent border border-[#CDAA7A]/30 text-[#333333] hover:bg-[#CDAA7A]/10 transition-all duration-300 rounded-[16px]"
           >
             Go Back
           </Button>
           
           <Button 
-            variant="destructive"
             onClick={handleAllowFiveMinutes}
+            className="flex items-center bg-red-500/80 hover:bg-red-600 text-white transition-all duration-300 rounded-[16px]"
           >
             Allow for 5 minutes
           </Button>
           
           <Button
             onClick={handleOpenNewTab}
+            className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium hover:scale-[1.02] transition-all duration-300 rounded-[16px]"
           >
             Open New Tab
           </Button>

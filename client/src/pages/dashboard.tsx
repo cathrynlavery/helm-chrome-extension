@@ -53,7 +53,7 @@ const Dashboard: React.FC = () => {
   const formattedDate = now.toLocaleDateString(undefined, options);
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen flex flex-col bg-[#fbfcfc] dark:bg-gray-900">
       {/* Clean layout without header */}
       <div className="absolute top-4 right-4 z-10">
         <Link href="/">
@@ -71,18 +71,16 @@ const Dashboard: React.FC = () => {
       {/* Main content - Cleaned up */}
       <main className="flex-grow py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          {/* Add Helm Logo aligned with main content */}
+          {/* Helm Logo aligned with main content */}
           <div className="flex items-center mb-8 pl-1">
             <img 
               src="/icons/dark-icon.svg" 
               alt="Helm" 
-              className="h-8 w-auto dark:hidden"
+              className="h-6 w-auto"
             />
-            <img 
-              src="/icons/light-icon.svg" 
-              alt="Helm" 
-              className="h-8 w-auto hidden dark:block"
-            />
+            <span className="ml-2 text-[#1A1A1A] ibm-plex-mono-medium text-[16px] dark:text-[#E0E0E0]">
+              Helm
+            </span>
           </div>
           
           <motion.div 
@@ -258,10 +256,10 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Light divider for visual separation */}
-            <div className="w-full max-w-4xl mx-auto h-px bg-[#CDAA7A]/10 mb-16"></div>
+            <div className="w-full max-w-4xl mx-auto h-px bg-[#CDAA7A]/10 mb-20"></div>
 
             {/* Profiles Manager - Single column full width */}
-            <div className="mb-16"> {/* Increased margin (mb-10 to mb-16) for +32px spacing */}
+            <div className="mb-24"> {/* Increased margin for more spacing */}
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
                 <CardHeader className="p-6"> {/* Added p-6 for 24px padding */}
                   <CardDescription className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
@@ -277,23 +275,7 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
       
-      {/* BestSelf Branding with 48px spacing */}
-      <footer className="flex justify-center items-center py-12 mt-8 mb-6">
-        <a 
-          href="https://bestself.co" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="flex items-center opacity-50 hover:opacity-70 transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:brightness-110"
-        >
-          <div className="h-[17px] w-auto">
-            <img 
-              src="/assets/BestSelf-Text-Logo-black.png" 
-              alt="BestSelf.co" 
-              className="h-full w-auto dark:invert"
-            />
-          </div>
-        </a>
-      </footer>
+      {/* Removed BestSelf footer completely as requested */}
     </div>
   );
 };
