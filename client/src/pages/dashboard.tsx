@@ -5,9 +5,10 @@ import ProfilesManager from '../components/ProfilesManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatDuration } from '../lib/focusTimer';
-import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
+import BestSelfLogo from '../components/BestSelfLogo';
 
 const Dashboard: React.FC = () => {
   const { 
@@ -76,7 +77,7 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.4 }}
           >
             {/* Just the greeting - removed redundant text */}
-            <div className="mb-6 text-center mt-8">
+            <div className="mb-10 text-center mt-8">
               <h2 className="text-3xl libre-baskerville-bold mb-2 text-[#333333] dark:text-[#E0E0E0]">
                 Good {timeOfDay}
               </h2>
@@ -85,8 +86,8 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
 
-            {/* Quick Start Button - MOVED directly below the greeting header */}
-            <div className="flex justify-center mb-8 mt-6"> {/* Added mt-6 for 24px spacing below header */}
+            {/* Quick Start Button - with more spacing (32px) below greeting */}
+            <div className="flex justify-center mb-12 mt-6"> {/* Increased spacing */}
               <Link href="/">
                 <Button 
                   className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-6 py-3.5 text-base hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
@@ -268,15 +269,14 @@ const Dashboard: React.FC = () => {
           href="https://bestself.co" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center opacity-40 hover:opacity-70 transition-all duration-300 hover:transform hover:translate-y-[-2px]"
+          className="flex items-center opacity-45 hover:opacity-70 transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:brightness-110"
         >
-          <div className="h-[18px] w-auto flex">
+          <div className="h-[17px] w-auto">
             <img 
-              src="/assets/BestSelf-Text-Logo-black.svg" 
+              src="/icons/BestSelf-Text-Logo-black.png" 
               alt="BestSelf.co" 
               className="h-full w-auto dark:invert"
             />
-            <ExternalLink className="h-3 w-3 ml-1 mt-[2px]" />
           </div>
         </a>
       </footer>
