@@ -42,17 +42,17 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
   return (
     <div className="w-full rounded-xl transition-all duration-500 ease-in-out bg-transparent">
       <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className={`heading-text text-lg 
+        <div className="flex flex-col items-center justify-center mb-4">
+          <h3 className={`heading-text text-lg text-center
             ${allTasksCompleted ? 'text-primary dark:text-primary' : ''}`}
           >
             Today's Targets
           </h3>
           {allTasksCompleted && (
             <motion.span 
-              initial={{ opacity: 0, scale: 0.8, x: -5 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              className="metadata-label text-primary dark:text-primary flex items-center opacity-80"
+              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="metadata-label text-primary dark:text-primary flex items-center opacity-80 mt-1"
             >
               <CheckCircle2 className="h-4 w-4 mr-1" />
               All completed

@@ -2,16 +2,10 @@
 /// <reference types="chrome"/>
 
 // Create a type-safe check for chrome API availability in a development environment
+// Define our custom extension of the Window interface without redefining chrome property
 declare global {
   interface Window {
-    chrome?: {
-      storage?: {
-        local?: {
-          get: (key: string) => Promise<any>;
-          set: (data: object) => Promise<void>;
-        };
-      };
-    };
+    // Omit chrome property to avoid conflicts with Chrome Extension types
   }
 }
 export interface DailyTarget {

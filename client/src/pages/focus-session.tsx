@@ -70,9 +70,9 @@ const FocusSession: React.FC = () => {
           ? 'bg-transparent' 
           : 'bg-transparent'}`}
       >
-        <div className="flex items-center">
-          <HelmLogo size={28} />
-          <h1 className={`ml-2 text-xl font-medium transition-all duration-500
+        <div className="flex items-center group cursor-pointer hover:opacity-90 transition-opacity">
+          <HelmLogo size={28} className="group-hover:scale-105 transition-transform duration-300" />
+          <h1 className={`ml-2 text-xl ibm-plex-mono-regular tracking-wide transition-all duration-500
             ${focusTimer.state.isRunning
               ? 'bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent'
               : 'bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent'}`}
@@ -81,17 +81,7 @@ const FocusSession: React.FC = () => {
           </h1>
         </div>
         
-        {/* Stats summary - shown in header when not in session */}
-        {!focusTimer.state.isRunning && (
-          <div className="hidden md:flex items-center space-x-4 text-sm">
-            {stats.streaks.current > 0 && (
-              <div className="flex items-center text-primary px-2 py-1 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-all duration-300">
-                <Flame className="h-4 w-4 mr-1" />
-                <span className="font-medium ibm-plex-mono-medium text-xs">{stats.streaks.current} day streak</span>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Stats summary removed - now only shown in the main timer component */}
         
         {/* Only show dashboard link when not in focus mode */}
         {!focusTimer.state.isRunning && (
@@ -99,10 +89,10 @@ const FocusSession: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex items-center bg-transparent border-gray-200 hover:border-primary/70 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-[12px] ibm-plex-mono-regular"
+              className="flex items-center bg-transparent border-gray-200 hover:border-primary/70 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-[12px] ibm-plex-mono-regular py-5"
             >
-              <BarChart2 className="h-4 w-4 mr-2" />
-              View Dashboard
+              <BarChart2 className="h-4 w-4 mr-2 text-primary" />
+              <span className="text-gray-800 dark:text-gray-200">View Dashboard</span>
             </Button>
           </Link>
         )}
