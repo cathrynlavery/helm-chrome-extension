@@ -4,15 +4,12 @@ import FocusTimer from '../components/FocusTimer';
 import { DailyTargets } from '../components/DailyTargets';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { BarChart2, Flame } from 'lucide-react';
+import { BarChart2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getRandomQuote } from '../lib/quotes';
 import HelmLogo from '../components/HelmLogo';
 import BestSelfLogo from '../components/BestSelfLogo';
-import { initializeClickInterceptors } from '../lib/interceptClickEvents';
-import EmergencyControlPanel from '../components/EmergencyControlPanel';
-import UrlControlPanel from '../components/UrlControlPanel';
-import { initUrlControlSystem } from '../lib/urlControlSystem';
+import EmergencyReset from '../components/EmergencyReset';
 
 const FocusSession: React.FC = () => {
   const { activeProfile, isLoading, stats, focusTimer } = useFocus();
@@ -28,73 +25,6 @@ const FocusSession: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [focusTimer.state.isRunning]);
-  
-  // Initialize URL-based control system
-  useEffect(() => {
-    console.log('Initializing URL-based control system');
-    initUrlControlSystem();
-  }, []);
-  
-  // Setup click interceptors for essential interactions
-  useEffect(() => {
-    console.log('Setting up click interceptors for critical UI elements');
-    
-    // Initialize test button first
-    const cleanup = initializeClickInterceptors([
-      { 
-        id: 'test-button-container',
-        callback: () => {
-          console.log('Test button interceptor clicked!');
-          alert('Test button clicked via interceptor!');
-        }
-      },
-      // Add more button interceptors as needed
-    ]);
-    
-    // Add second-level interceptors after a delay to ensure the DOM is ready
-    const timeoutId = setTimeout(() => {
-      if (focusTimer.state.isRunning) {
-        initializeClickInterceptors([
-          {
-            id: 'end-session-button',
-            callback: () => {
-              console.log('End Session interceptor clicked!');
-              alert('End Session clicked via interceptor!');
-              focusTimer.end();
-            }
-          },
-          {
-            id: 'pause-resume-button',
-            callback: () => {
-              console.log('Pause interceptor clicked!');
-              alert('Pause clicked via interceptor!');
-              focusTimer.pause();
-            }
-          }
-        ]);
-      } else {
-        initializeClickInterceptors([
-          {
-            id: 'start-session-button',
-            callback: () => {
-              console.log('Start Session interceptor clicked!');
-              alert('Start Session clicked via interceptor!');
-              if (!activeProfile) {
-                alert("Please select a focus profile first");
-                return;
-              }
-              focusTimer.start(activeProfile.id);
-            }
-          }
-        ]);
-      }
-    }, 1000);
-    
-    return () => {
-      cleanup();
-      clearTimeout(timeoutId);
-    };
-  }, [focusTimer.state.isRunning, activeProfile]);
   
   if (isLoading) {
     return (
@@ -157,8 +87,6 @@ const FocusSession: React.FC = () => {
           </span>
         </div>
         
-        {/* Stats summary removed - now only shown in the main timer component */}
-        
         {/* Only show dashboard link when not in focus mode */}
         {!focusTimer.state.isRunning && (
           <Link href="/dashboard">
@@ -183,30 +111,6 @@ const FocusSession: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="max-w-2xl mx-auto w-full text-center"
         >
-          {/* Quote moved below Daily Targets */}
-          
-          {/* Active profile indicator - moved inside focus timer component */}
-          
-          {/* Test button with direct DOM reference and event listener */}
-          <div 
-            id="test-button-container" 
-            className="block mx-auto mb-4 p-4 bg-red-500 text-white font-bold rounded"
-            ref={(el) => {
-              if (el) {
-                // Remove existing event listeners to prevent duplicates
-                el.removeEventListener('click', () => {});
-                
-                // Add new event listener
-                el.addEventListener('click', () => {
-                  console.log('TEST BUTTON CLICKED VIA DOM!');
-                  alert('Test button clicked via DOM!');
-                });
-              }
-            }}
-          >
-            TEST CLICK ME (DOM VERSION)
-          </div>
-
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
           <div className="mb-8 max-w-xl mx-auto">
             <FocusTimer 
@@ -251,19 +155,8 @@ const FocusSession: React.FC = () => {
         <BestSelfLogo />
       </footer>
       
-      {/* Emergency Control Panel for direct timer control */}
-      <EmergencyControlPanel />
-      
-      {/* URL-based Control Panel */}
-      <UrlControlPanel />
-      
-      {/* Special URL-based test button */}
-      <a 
-        href="#action=test"
-        className="fixed bottom-4 left-4 z-[9999] bg-green-600 text-white p-3 rounded-md shadow-lg"
-      >
-        URL Test Button
-      </a>
+      {/* Emergency Reset only shown during active focus sessions */}
+      {focusTimer.state.isRunning && <EmergencyReset />}
     </div>
   );
 };

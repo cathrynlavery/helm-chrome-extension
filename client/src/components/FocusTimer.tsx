@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFocus } from '../contexts/FocusContext';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Pause, Play, RefreshCw, CheckCircle, Timer, Flame, StopCircle } from 'lucide-react';
+import { Pause, Play, Flame, StopCircle } from 'lucide-react';
 import ProfileSelector from './ProfileSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
@@ -320,43 +319,25 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 {/* Controls */}
                 <div className="flex flex-col items-center">
                   <div className="flex justify-center space-x-6 mb-6">
-                    {/* End Session button with DOM-based event handler */}
-                    <div 
+                    {/* End Session button with direct onClick handler */}
+                    <Button 
                       id="end-session-button"
-                      ref={(el) => {
-                        if (el) {
-                          // Remove existing listeners
-                          el.removeEventListener('click', () => {});
-                          
-                          // Add new click listener
-                          el.addEventListener('click', () => {
-                            console.log('END SESSION CLICKED VIA DOM!');
-                            alert('End Session clicked via DOM!');
-                            handleEndSession();
-                          });
-                        }
+                      onClick={() => {
+                        console.log('End Session button clicked');
+                        handleEndSession();
                       }}
                       className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       <StopCircle className="h-5 w-5 mr-2" />
                       End Session
-                    </div>
+                    </Button>
                     
-                    {/* Pause/Resume button with DOM-based event handler */}
-                    <div 
+                    {/* Pause/Resume button with direct onClick handler */}
+                    <Button 
                       id="pause-resume-button"
-                      ref={(el) => {
-                        if (el) {
-                          // Remove existing listeners
-                          el.removeEventListener('click', () => {});
-                          
-                          // Add new click listener
-                          el.addEventListener('click', () => {
-                            console.log('PAUSE/RESUME CLICKED VIA DOM!', state.isRunning ? 'Pausing' : 'Resuming');
-                            alert('Pause/Resume clicked via DOM!');
-                            handleStartPause();
-                          });
-                        }
+                      onClick={() => {
+                        console.log('Pause/Resume button clicked', state.isRunning ? 'Pausing' : 'Resuming');
+                        handleStartPause();
                       }}
                       className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
@@ -371,7 +352,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                           Resume
                         </>
                       )}
-                    </div>
+                    </Button>
                   </div>
                   
                   {/* Note: Emergency Reset functionality now moved to global component */}
@@ -422,26 +403,18 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   </div>
                 </div>
                 
-                {/* Start Session button with DOM-based event handler */}
-                <div 
+                {/* Start Session button with direct onClick handler */}
+                <Button 
                   id="start-session-button"
-                  ref={(el) => {
-                    if (el) {
-                      // Remove existing listeners
-                      el.removeEventListener('click', () => {});
-                      
-                      // Add new click listener
-                      el.addEventListener('click', () => {
-                        console.log('START SESSION CLICKED VIA DOM!');
-                        alert('Start Session clicked via DOM!');
-                        if (!activeProfile) {
-                          alert("Please select a focus profile first");
-                          return;
-                        }
-                        handleStartPause();
-                      });
+                  onClick={() => {
+                    console.log('Start Session button clicked');
+                    if (!activeProfile) {
+                      alert("Please select a focus profile first");
+                      return;
                     }
+                    handleStartPause();
                   }}
+                  disabled={!activeProfile}
                   className={`inline-flex items-center justify-center py-7 px-12 rounded-[16px] mb-4 
                     ${!activeProfile ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} 
                     bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 
@@ -449,7 +422,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Start Session
-                </div>
+                </Button>
                 
                 {stats && stats.todayMinutes > 0 && (
                   <div className="mb-8 text-sm ibm-plex-mono-regular">
@@ -463,20 +436,12 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   
                   <div className="grid grid-cols-3 gap-4 mb-6 w-full mx-auto">
                     {PRESET_DURATIONS.map(duration => (
-                      <div
+                      <Button
                         key={duration}
                         id={`duration-button-${duration}`}
-                        ref={(el) => {
-                          if (el) {
-                            // Remove existing listeners
-                            el.removeEventListener('click', () => {});
-                            
-                            // Add new click listener
-                            el.addEventListener('click', () => {
-                              console.log(`DURATION ${duration} CLICKED VIA DOM!`);
-                              handleSelectDuration(duration);
-                            });
-                          }
+                        onClick={() => {
+                          console.log(`Duration ${duration} button clicked`);
+                          handleSelectDuration(duration);
                         }}
                         className={`inline-flex items-center justify-center py-6 rounded-[16px] cursor-pointer transition-all duration-400 ibm-plex-mono-medium
                           ${selectedDuration === duration 
@@ -485,7 +450,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                         }
                       >
                         {duration} min
-                      </div>
+                      </Button>
                     ))}
                   </div>
                   
