@@ -111,10 +111,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
           }`}
       >
         <div className={`p-8 ${compact ? 'py-6' : 'py-12'}`}>
-          {/* Profile selector moved to centered position above timer */}
           {showProfileSelector && !state.isRunning && (
-            <div className="flex items-center justify-center mb-10">
-              <div className="profile-label text-center">
+            <div className="flex items-center justify-between mb-12">
+              {/* Profile name as heading instead of "Focus Session" */}
+              <div className="profile-label">
                 <ProfileSelector />
               </div>
             </div>
