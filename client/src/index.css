@@ -2,14 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Typography scale */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.125rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.25rem;
+  --font-size-4xl: 3rem;
+  
+  /* Spacing scale - Apple-like */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  
+  /* Color variables */
+  --color-amber-glow: rgba(251, 191, 36, 0.8);
+  --color-ambient-glow: rgba(217, 119, 6, 0.12);
+  --color-text-primary: rgba(20, 20, 20, 1);
+  --color-text-secondary: rgba(20, 20, 20, 0.7);
+  --color-text-tertiary: rgba(20, 20, 20, 0.5);
+}
+
+.dark {
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-tertiary: rgba(255, 255, 255, 0.5);
+}
+
 @layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply antialiased bg-background text-foreground;
+    color: var(--color-text-primary);
   }
+  
+  /* Button styling */
+  button {
+    border-radius: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  button:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Typography classes */
+.ibm-plex-mono-medium {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+}
+
+.ibm-plex-mono-regular {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 400;
+}
+
+.libre-baskerville-regular {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 400;
+}
+
+.libre-baskerville-italic {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* For timer display text */
+.timer-digits {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* For timer labels */
+.timer-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 400;
+  opacity: 0.7;
+  letter-spacing: 0.02em;
+}
+
+/* For quotes and inspirational text */
+.quote-text {
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* For headings */
+.heading-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* For metadata labels */
+.metadata-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 400;
+  opacity: 0.7;
+  font-size: var(--font-size-sm);
 }
 
 /* Subtle noise overlay to create Apple-like texture */
@@ -32,13 +140,38 @@
   transition-duration: 150ms;
 }
 
-/* Special animation for glow effects */
+/* Special animation for glow effects - smoother and more subtle */
 @keyframes pulse-glow {
-  0% { opacity: 0.2; }
-  50% { opacity: 0.3; }
-  100% { opacity: 0.2; }
+  0% { opacity: 0.15; }
+  50% { opacity: 0.25; }
+  100% { opacity: 0.15; }
 }
 
 .pulse-glow {
-  animation: pulse-glow 4s infinite ease-in-out;
+  animation: pulse-glow 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button style enhancements */
+.btn-end-session {
+  background: linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: rgba(59, 130, 246, 0.9);
+}
+
+.btn-pause {
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: rgba(245, 158, 11, 0.9);
+}
+
+.dark .btn-end-session {
+  background: linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: rgba(96, 165, 250, 0.9);
+}
+
+.dark .btn-pause {
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: rgba(251, 191, 36, 0.9);
 }

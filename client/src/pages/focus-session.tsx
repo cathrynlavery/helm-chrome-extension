@@ -128,10 +128,10 @@ const FocusSession: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="mb-12"
             >
-              <h2 className="text-2xl md:text-3xl font-medium mb-3 leading-relaxed text-gray-800 dark:text-gray-200">
+              <h2 className="quote-text text-2xl md:text-3xl mb-3 leading-relaxed text-gray-800 dark:text-gray-200">
                 "{quote.text}"
               </h2>
-              <p className="text-sm text-muted-foreground">— {quote.author}</p>
+              <p className="libre-baskerville-regular text-sm text-muted-foreground">— {quote.author}</p>
             </motion.div>
           )}
           

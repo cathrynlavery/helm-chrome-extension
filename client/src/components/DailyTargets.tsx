@@ -61,7 +61,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
     >
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className={`text-lg font-medium 
+          <h3 className={`heading-text text-lg 
             ${allTasksCompleted ? 'text-amber-600 dark:text-amber-400' : ''}`}
           >
             Today's Targets
@@ -70,7 +70,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
             <motion.span 
               initial={{ opacity: 0, scale: 0.8, x: -5 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
-              className="text-sm text-amber-600 dark:text-amber-400 flex items-center"
+              className="metadata-label text-amber-600 dark:text-amber-400 flex items-center"
             >
               <CheckCircle2 className="h-4 w-4 mr-1" />
               All completed
@@ -84,13 +84,13 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               placeholder="What are you focusing on today?"
               value={newTargetText}
               onChange={(e) => setNewTargetText(e.target.value)}
-              className="flex-1 border-gray-200 dark:border-gray-700 focus:border-amber-300 dark:focus:border-amber-600 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md"
+              className="flex-1 rounded-[12px] ibm-plex-mono-regular border-gray-200 dark:border-gray-700 focus:border-amber-300 dark:focus:border-amber-600 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md py-6"
               autoComplete="off"
             />
             <Button 
               type="submit" 
               disabled={dailyTargets.length >= 3}
-              className={`transition-all duration-300 ${
+              className={`transition-all duration-300 rounded-[12px] ibm-plex-mono-medium py-6 ${
                 dailyTargets.length >= 3 
                   ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
                   : 'bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg'
@@ -109,8 +109,8 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               exit={{ opacity: 0 }}
               className="text-center py-8"
             >
-              <p className="text-lg font-medium mb-2 text-gray-500 dark:text-gray-400 italic">{quote.text}</p>
-              <p className="text-sm text-muted-foreground">— {quote.author}</p>
+              <p className="quote-text text-lg mb-2 text-gray-500 dark:text-gray-400">{quote.text}</p>
+              <p className="libre-baskerville-regular text-sm text-muted-foreground">— {quote.author}</p>
             </motion.div>
           ) : (
             <motion.div className="space-y-4">
@@ -181,7 +181,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                   />
                   <label 
                     htmlFor={`target-${target.id}`}
-                    className={`flex-1 transition-all duration-300 text-base ${
+                    className={`flex-1 transition-all duration-300 text-base ibm-plex-mono-regular ${
                       target.completed 
                         ? 'line-through text-amber-600 dark:text-amber-400 font-medium' 
                         : 'text-gray-800 dark:text-gray-200'

@@ -1,0 +1,114 @@
+We are aiming for a premium, Apple-level clean, elegant design for our focus extension.
+Primary goals: balance of clarity, spaciousness, and minimalism.
+
+1. Fonts
+
+Integrate the following Google fonts:
+
+html
+Copy
+Edit
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+Apply fonts with purpose:
+
+Timer numbers: .ibm-plex-mono-medium
+
+Timer labels ("Time Remaining"): .ibm-plex-mono-regular with reduced opacity (~70%)
+
+Quotes & inspirational text: .libre-baskerville-regular-italic
+
+General headings (e.g. "Today's Targets"): .ibm-plex-mono-medium
+
+Metadata labels ("Work Profile Focus"): .ibm-plex-mono-regular, smaller size, ~60–70% opacity
+
+2. Typography & Visual Hierarchy
+
+Timer digits: bold, large, central focal point.
+
+Sub-labels (like “Time Remaining”): smaller, reduced opacity to let timer breathe.
+
+Quote section: use Libre Baskerville italic, slightly smaller size for editorial feel.
+
+Ensure clear spacing between text elements, use consistent line height for elegance.
+
+3. Layout & Spacing
+
+Remove all container strokes / borders.
+
+Unify background between page and sections — seamless single canvas.
+
+Use spacing (not boxes) to define hierarchy.
+
+Bring "Today's Targets" section closer to the timer for better flow.
+
+Add bottom page spacing to balance vertical weight.
+
+4. Buttons
+
+Style buttons cleanly, no inner shadows.
+
+Use subtle gradients:
+
+"End Session": soft cool blue gradient.
+
+"Pause": warm amber gradient (match the glow).
+
+Increase border radius to 12–16px.
+
+Add soft hover state: slight lift, gradient shift.
+
+Button text should use .ibm-plex-mono-medium for consistency.
+
+5. Timer Circle Enhancements
+
+Slightly increase the thickness of the timer progress arc (~10–20% thicker).
+
+Use rounded line caps for arc ends for smoothness.
+
+Increase outer glow halo around the timer.
+
+Optional: subtle slow pulse animation on glow (1–2s loop, very subtle).
+
+6. Micro-interactions
+
+Smooth transition when focus mode starts/ends.
+
+On session end, optional brief glow flash and fade to simple session summary.
+
+Optional: future add a streak indicator at top with minimal design.
+
+7. CSS & Scalability
+
+Use CSS variables for:
+
+Colors (backgrounds, accents, text)
+
+Font sizes
+
+Spacing units
+
+Ensure modular CSS structure for future scalability.
+
+Final Outcome
+
+Clean, unified background.
+
+Timer is the clear visual hero.
+
+Elegant typography with systemized fonts.
+
+Seamless spacing and hierarchy.
+
+Premium, delightfully simple UI ready for customer-facing use.
+
+Inspiration references:
+
+Apple Fitness / Screen Time UI
+
+Apple Watch subtle animations
+
+Apple.com product pages (clean typography hierarchy)
+
+Deliver clean, maintainable code — no inline styles, favor external or component CSS.

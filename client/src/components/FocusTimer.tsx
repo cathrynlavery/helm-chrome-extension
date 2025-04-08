@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFocus } from '../contexts/FocusContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Pause, Play, RefreshCw, CheckCircle, Timer, Flame } from 'lucide-react';
+import { Pause, Play, RefreshCw, CheckCircle, Timer, Flame, StopCircle } from 'lucide-react';
 import ProfileSelector from './ProfileSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
@@ -184,7 +184,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   {/* Timer text */}
                   <div className="absolute text-center">
                     <motion.div 
-                      className={`${enhancedFontSize} font-bold tracking-tight text-white`}
+                      className={`${enhancedFontSize} timer-digits text-white`}
                       key={focusTimer.formattedTime}
                       initial={{ opacity: 0.5, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -193,7 +193,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                       {focusTimer.formattedTime}
                     </motion.div>
                     {!compact && (
-                      <div className={`${subTextSize} text-gray-300 mt-1 font-medium`}>Time Remaining</div>
+                      <div className={`${subTextSize} timer-label text-gray-300 mt-1`}>Time Remaining</div>
                     )}
                   </div>
                 </div>
@@ -201,7 +201,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 {/* Session label - showing active profile being used */}
                 {activeProfile && (
                   <div className="mb-8 text-center">
-                    <span className="text-gray-300">{activeProfile.name} Focus</span>
+                    <span className="metadata-label text-gray-300">{activeProfile.name} Focus</span>
                   </div>
                 )}
                 
@@ -211,10 +211,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     variant="outline"
                     size="lg"
                     onClick={handleEndSession}
-                    className="border-gray-700 bg-gray-800/60 text-white hover:bg-gray-700 hover:text-white transition-all duration-300"
+                    className="btn-end-session rounded-[14px] py-6 border hover:border-blue-400/40 transition-all duration-300 ibm-plex-mono-medium"
                   >
                     <span className="flex items-center px-2">
-                      <span className="mr-2">⏹️</span>
+                      <StopCircle className="h-5 w-5 mr-2" />
                       End Session
                     </span>
                   </Button>
@@ -223,17 +223,17 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     variant="outline"
                     size="lg"
                     onClick={handleStartPause}
-                    className="border-amber-700/50 bg-amber-900/40 text-amber-200 hover:bg-amber-800/60 hover:text-amber-100 transition-all duration-300"
+                    className="btn-pause rounded-[14px] py-6 border hover:border-amber-400/40 transition-all duration-300 ibm-plex-mono-medium"
                   >
                     <span className="flex items-center px-2">
                       {state.isRunning ? (
                         <>
-                          <span className="mr-2">⏸️</span>
+                          <Pause className="h-5 w-5 mr-2" />
                           Pause
                         </>
                       ) : (
                         <>
-                          <span className="mr-2">▶️</span>
+                          <Play className="h-5 w-5 mr-2" />
                           Resume
                         </>
                       )}
