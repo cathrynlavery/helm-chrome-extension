@@ -22,6 +22,7 @@ export const focusProfiles = pgTable("focus_profiles", {
   name: text("name").notNull(),
   description: text("description"),
   isActive: boolean("is_active").default(false),
+  accessStyle: text("access_style").default('blocklist').notNull(),
   lastUsed: timestamp("last_used").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -30,6 +31,7 @@ export const insertFocusProfileSchema = createInsertSchema(focusProfiles).pick({
   name: true,
   description: true,
   isActive: true,
+  accessStyle: true,
 });
 
 export type InsertFocusProfile = z.infer<typeof insertFocusProfileSchema>;

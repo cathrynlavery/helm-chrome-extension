@@ -11,6 +11,8 @@ import HelmLogo from '../components/HelmLogo';
 import BestSelfLogo from '../components/BestSelfLogo';
 import { initializeClickInterceptors } from '../lib/interceptClickEvents';
 import EmergencyControlPanel from '../components/EmergencyControlPanel';
+import UrlControlPanel from '../components/UrlControlPanel';
+import { initUrlControlSystem } from '../lib/urlControlSystem';
 
 const FocusSession: React.FC = () => {
   const { activeProfile, isLoading, stats, focusTimer } = useFocus();
@@ -26,6 +28,12 @@ const FocusSession: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [focusTimer.state.isRunning]);
+  
+  // Initialize URL-based control system
+  useEffect(() => {
+    console.log('Initializing URL-based control system');
+    initUrlControlSystem();
+  }, []);
   
   // Setup click interceptors for essential interactions
   useEffect(() => {
@@ -245,6 +253,17 @@ const FocusSession: React.FC = () => {
       
       {/* Emergency Control Panel for direct timer control */}
       <EmergencyControlPanel />
+      
+      {/* URL-based Control Panel */}
+      <UrlControlPanel />
+      
+      {/* Special URL-based test button */}
+      <a 
+        href="#action=test"
+        className="fixed bottom-4 left-4 z-[9999] bg-green-600 text-white p-3 rounded-md shadow-lg"
+      >
+        URL Test Button
+      </a>
     </div>
   );
 };

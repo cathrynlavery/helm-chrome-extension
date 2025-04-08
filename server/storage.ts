@@ -68,19 +68,29 @@ export class MemStorage implements IStorage {
     this.createProfile({
       name: "Work Profile",
       description: "For focused work time without social media distractions",
-      isActive: true
+      isActive: true,
+      accessStyle: 'blocklist'
     });
 
     this.createProfile({
       name: "Study Profile",
       description: "For focused study time without gaming and entertainment sites",
-      isActive: false
+      isActive: false,
+      accessStyle: 'blocklist'
+    });
+    
+    this.createProfile({
+      name: "Writing Focus",
+      description: "Allow List: Only writing tools and reference sites allowed",
+      isActive: false,
+      accessStyle: 'allowlist'
     });
 
     this.createProfile({
       name: "Personal Profile", 
       description: "Block distracting work-related sites during personal time",
-      isActive: false
+      isActive: false,
+      accessStyle: 'blocklist'
     });
 
     // Add some default blocked sites
@@ -89,7 +99,17 @@ export class MemStorage implements IStorage {
     this.addBlockedSite({ profileId: 1, url: "instagram.com" });
     this.addBlockedSite({ profileId: 2, url: "youtube.com" });
     this.addBlockedSite({ profileId: 2, url: "twitch.tv" });
-    this.addBlockedSite({ profileId: 3, url: "linkedin.com" });
+    
+    // Add allowed sites for Writing Focus profile (id: 3, allowlist mode)
+    this.addBlockedSite({ profileId: 3, url: "docs.google.com" });
+    this.addBlockedSite({ profileId: 3, url: "notion.so" });
+    this.addBlockedSite({ profileId: 3, url: "dictionary.com" });
+    this.addBlockedSite({ profileId: 3, url: "thesaurus.com" });
+    this.addBlockedSite({ profileId: 3, url: "wikipedia.org" });
+    this.addBlockedSite({ profileId: 3, url: "grammarly.com" });
+    
+    // Add blocked sites for Personal profile
+    this.addBlockedSite({ profileId: 4, url: "linkedin.com" });
   }
 
   // User methods
