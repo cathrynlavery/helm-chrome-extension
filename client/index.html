@@ -8,9 +8,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/icons/helm-icon.svg" />
+    <!-- Direct control scripts for emergency functionality -->
+    <script src="/emergency-reset.js"></script>
+    <script src="/direct-controls.js"></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Emergency direct access controls -->
+    <div id="emergency-controls" style="display: none; position: fixed; bottom: 80px; left: 10px; z-index: 999999; background: #ff5722; padding: 15px; border-radius: 8px;">
+      <h3 style="color: white; margin-top: 0;">Emergency Controls</h3>
+      <a href="#emergency-reset" style="display: block; color: white; margin: 10px 0; text-decoration: underline;">FORCE RESET</a>
+    </div>
+    <script>
+      // Show emergency controls after 5 seconds
+      setTimeout(() => {
+        document.getElementById('emergency-controls').style.display = 'block';
+      }, 5000);
+    </script>
   </body>
 </html>
