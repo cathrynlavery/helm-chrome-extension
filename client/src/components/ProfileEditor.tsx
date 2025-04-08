@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FocusProfile } from '../lib/chromeStorage';
-import { X, Globe, Plus, CheckSquare, Square, Check } from 'lucide-react';
+import { X, Globe, Plus, CheckSquare, Square, Check, Lock, ShieldCheck } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
   const [newSite, setNewSite] = useState('');
   const [selectedPopularSites, setSelectedPopularSites] = useState<string[]>([]);
   const [blockAll, setBlockAll] = useState(false);
+  const [accessStyle, setAccessStyle] = useState<'allowlist' | 'blocklist'>('blocklist');
   
   // Initialize form when profile changes
   useEffect(() => {
@@ -43,6 +44,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
       setName(profile.name);
       setDescription(profile.description || '');
       setBlockedSites([...profile.blockedSites]);
+      setAccessStyle(profile.accessStyle || 'blocklist');
       
       // Initialize selected popular sites based on existing blocked sites
       const selected = popularSites
@@ -59,6 +61,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
       setBlockedSites([]);
       setSelectedPopularSites([]);
       setBlockAll(false);
+      setAccessStyle('blocklist'); // Default to blocklist
     }
   }, [profile, isOpen]);
   
@@ -178,7 +181,8 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
       name,
       description,
       blockedSites,
-      isActive: profile?.isActive || false
+      isActive: profile?.isActive || false,
+      accessStyle
     });
     
     onClose();
@@ -233,9 +237,72 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
           </div>
           
           <div className="mb-6">
+            <Label className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-3">
+              Choose Your Access Style
+            </Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div 
+                onClick={() => setAccessStyle('allowlist')}
+                className={`cursor-pointer relative rounded-xl border p-4 ${
+                  accessStyle === 'allowlist' 
+                    ? 'border-[#CDAA7A] bg-[#CDAA7A]/10'
+                    : 'border-gray-200 hover:border-[#CDAA7A]/50 dark:border-gray-700'
+                }`}
+              >
+                <div className="flex flex-col items-center">
+                  <div className={`w-12 h-12 flex items-center justify-center rounded-full mb-2 ${
+                    accessStyle === 'allowlist' 
+                      ? 'border-2 border-[#CDAA7A] text-[#CDAA7A]'
+                      : 'border border-gray-300 text-gray-400 dark:border-gray-600'
+                  }`}>
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div className="font-semibold text-center ibm-plex-mono-medium">Allow List</div>
+                  {accessStyle === 'allowlist' && (
+                    <div className="absolute top-2 right-2 text-[#CDAA7A]">
+                      <Check className="w-5 h-5" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div 
+                onClick={() => setAccessStyle('blocklist')}
+                className={`cursor-pointer relative rounded-xl border p-4 ${
+                  accessStyle === 'blocklist' 
+                    ? 'border-[#CDAA7A] bg-[#CDAA7A]/10'
+                    : 'border-gray-200 hover:border-[#CDAA7A]/50 dark:border-gray-700'
+                }`}
+              >
+                <div className="flex flex-col items-center">
+                  <div className={`w-12 h-12 flex items-center justify-center rounded-full mb-2 ${
+                    accessStyle === 'blocklist' 
+                      ? 'border-2 border-[#CDAA7A] text-[#CDAA7A]'
+                      : 'border border-gray-300 text-gray-400 dark:border-gray-600'
+                  }`}>
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <div className="font-semibold text-center ibm-plex-mono-medium">Block List</div>
+                  {accessStyle === 'blocklist' && (
+                    <div className="absolute top-2 right-2 text-[#CDAA7A]">
+                      <Check className="w-5 h-5" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-3 text-xs text-[#333333]/80 dark:text-[#E0E0E0]/70">
+              {accessStyle === 'allowlist' 
+                ? "We'll block everything except the sites you've selected."
+                : "We'll block distracting sites while allowing access to everything else."}
+            </div>
+          </div>
+          
+          <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <Label className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0]">
-                Blocked Sites
+                {accessStyle === 'allowlist' ? 'Allowed Sites' : 'Blocked Sites'}
               </Label>
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -248,7 +315,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
                   htmlFor="blockAll" 
                   className="text-xs ibm-plex-mono-medium text-[#333333]/90 dark:text-[#E0E0E0]/90 cursor-pointer"
                 >
-                  Block All Popular Sites
+                  {accessStyle === 'allowlist' ? 'Allow All Popular Sites' : 'Block All Popular Sites'}
                 </label>
               </div>
             </div>
@@ -308,14 +375,16 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
             </div>
             
             <div className="text-xs text-[#333333]/70 dark:text-[#E0E0E0]/70 mb-4">
-              Select popular sites to block instantly. You can also add custom sites below.
+              {accessStyle === 'allowlist' 
+                ? "Select sites you want to allow during focus sessions. All other sites will be blocked."
+                : "Select popular sites to block during focus sessions. You can also add custom sites below."}
             </div>
             
             {/* Custom sites list */}
             {customBlockedSites.length > 0 && (
               <div className="space-y-2 mb-4">
                 <Label className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-2">
-                  Custom Blocked Sites
+                  {accessStyle === 'allowlist' ? 'Custom Allowed Sites' : 'Custom Blocked Sites'}
                 </Label>
                 {customBlockedSites.map((site, index) => (
                   <motion.div 
@@ -344,7 +413,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
               <Input
                 value={newSite}
                 onChange={e => setNewSite(e.target.value)}
-                placeholder="Enter custom site URL (e.g., example.com)"
+                placeholder={`Enter custom site URL to ${accessStyle === 'allowlist' ? 'allow' : 'block'}`}
                 onKeyDown={handleKeyDown}
                 className="flex-grow bg-transparent border border-[#CDAA7A]/30 focus:border-[#CDAA7A] text-[#333333] dark:text-[#E0E0E0] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-[8px]"
               />
@@ -356,6 +425,20 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
                 Add
               </Button>
             </div>
+            
+            {/* Warning for allowlist mode with no sites */}
+            {accessStyle === 'allowlist' && blockedSites.length === 0 && (
+              <div className="mt-4 p-3 border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700/50 rounded-lg">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 text-amber-500">
+                    ⚠️
+                  </div>
+                  <div className="ml-2 text-xs text-amber-800 dark:text-amber-300">
+                    You haven't selected any allowed sites. All web access will be blocked during focus sessions.
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         

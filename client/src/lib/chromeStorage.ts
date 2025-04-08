@@ -37,6 +37,7 @@ export interface FocusProfile {
   isActive: boolean;
   blockedSites: string[];
   lastUsed: string;
+  accessStyle: 'allowlist' | 'blocklist';
 }
 
 export interface FocusSession {
@@ -56,7 +57,8 @@ const defaultData: StorageData = {
       description: "For focused work time without social media distractions",
       isActive: true,
       blockedSites: ["facebook.com", "twitter.com", "instagram.com"],
-      lastUsed: new Date().toISOString()
+      lastUsed: new Date().toISOString(),
+      accessStyle: 'blocklist'
     },
     {
       id: 2,
@@ -64,7 +66,8 @@ const defaultData: StorageData = {
       description: "For focused study time without gaming and entertainment sites",
       isActive: false,
       blockedSites: ["youtube.com", "twitch.tv"],
-      lastUsed: new Date(Date.now() - 86400000).toISOString() // yesterday
+      lastUsed: new Date(Date.now() - 86400000).toISOString(), // yesterday
+      accessStyle: 'blocklist'
     },
     {
       id: 3,
@@ -72,7 +75,8 @@ const defaultData: StorageData = {
       description: "Block distracting work-related sites during personal time",
       isActive: false,
       blockedSites: ["linkedin.com"],
-      lastUsed: new Date(Date.now() - 86400000 * 3).toISOString() // 3 days ago
+      lastUsed: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+      accessStyle: 'blocklist'
     }
   ],
   activeFocusSession: null,

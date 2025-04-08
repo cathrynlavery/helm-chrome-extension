@@ -1,0 +1,87 @@
+Objective:
+Add a new "Access Style" selection when creating a new Focus Profile, giving users two clear options:
+
+✅ Allow List: Block all sites except those the user selects.
+
+🔒 Block List: Allow all sites except those the user blocks.
+
+Design Reference:
+✅ Please refer to the attached design screenshot for UI layout.
+We already have the toggle design from the app version — follow the same visual style.
+
+"Choose Your Access Style" heading
+
+Two selectable cards:
+
+Left: Allow List (checkmark icon)
+
+Right: Block List (lock icon)
+
+Default selection = Block List
+
+Behavior:
+Selecting either option should visually highlight the active card (like shown).
+
+Clicking one card deselects the other.
+
+The selected mode should be stored in the profile data model.
+
+Functional Requirements:
+Data Model Update:
+
+Extend the profile model to include:
+
+json
+Copy
+Edit
+{
+  "accessStyle": "allowlist" // or "blocklist"
+}
+Logic for Blocked Sites Selection:
+
+If Block List is selected:
+
+The user adds domains they want to block.
+
+(Already works, no change needed.)
+
+If Allow List is selected:
+
+The user adds domains they want to allow.
+
+All other domains will be blocked by default.
+
+Important: Update copy in the site selection step to reflect:
+
+"Add websites you want to allow during focus sessions."
+
+Helper Text:
+
+Below the selection cards, add helper text based on selection:
+
+If Block List selected:
+“We’ll block distracting sites while allowing access to everything else.”
+
+If Allow List selected:
+“We’ll block everything except the sites you’ve selected.”
+
+Default Experience:
+
+When users land on the profile creation screen, default the access style to Block List for simplicity.
+
+Validation:
+
+For Allow List, warn if no sites are added:
+
+"⚠️ You haven’t selected any allowed sites. All web access will be blocked during focus sessions."
+
+Persistence:
+
+Save user’s selection to the profile for later editing.
+
+When editing an existing profile, the previous Access Style should be pre-selected.
+
+Futureproofing:
+
+Build the logic cleanly for future "Recommended Lists" (e.g., pre-built categories like "Social Media" or "Entertainment").
+
