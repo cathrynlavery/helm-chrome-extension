@@ -8,6 +8,7 @@ import BlockedPage from "@/pages/blocked";
 import FocusSession from "@/pages/focus-session";
 import { FocusProvider } from "./contexts/FocusContext";
 import EmergencyReset from "./components/EmergencyReset";
+import DynamicIcon from "./components/DynamicIcon";
 
 function Router() {
   return (
@@ -24,6 +25,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <FocusProvider>
+        {/* Add DynamicIcon to global app */}
+        <DynamicIcon />
         <Router />
         <Toaster />
         <EmergencyReset />

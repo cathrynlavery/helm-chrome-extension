@@ -1,0 +1,85 @@
+✅ Core Objectives
+Clean, minimal flow. Remove redundancies. Ensure clear icon visibility and premium layout.
+
+1. Remove Duplicate Streak Indicator
+✅ Only display the streak once, above the timer circle.
+
+✅ Remove the streak from the top header of the screen.
+
+2. Simplify Focus Duration Selection
+✅ Remove the "Select Focus Duration" label.
+
+✅ Do not add any other inline label (remove the optional "Choose Duration" suggestion from earlier).
+
+✅ Keep only the focus duration buttons (15 min / 30 min / 45 min).
+
+3. Update Start Button Text
+✅ Change button text from:
+
+❌ "Start Focus Session"
+
+✅ To: "Start Session"
+
+✅ Keep styling and position as per below.
+
+4. Improve Button & Layout Hierarchy
+✅ Move the "Start Session" button closer to the timer and duration buttons.
+
+✅ Place the "Today: X min focused" metric directly under the Start Session button for clear flow.
+
+Maintain this structure:
+
+Streak (single instance)
+
+Timer Circle
+
+Duration buttons
+
+Start Session button
+
+Today’s Focused Minutes metric
+
+Today’s Targets
+
+Inspirational quote
+
+5. Today’s Targets Section
+✅ Add clear spacing between the input field and target list.
+
+✅ Maintain completed task style (strike-through, lighter text).
+
+✅ Optional: keep or add subtle completion animation (if time allows).
+
+✅ Optional: add small hover effect on "+" icon for interactivity.
+
+6. Icon Update (Critical for Visibility)
+✅ Use correct icon based on screen mode:
+
+Idle screen (light background): use dark-icon.svg
+
+Focus screen (dark background): use light-icon.svg
+
+✅ Make icon switch dynamic based on state change.
+
+✅ Ensure icon swap happens cleanly on session start and end.
+
+Optional: smooth fade transition for icon swap.
+
+7. General Spacing & Flow
+✅ Increase spacing between profile/top line and main module.
+
+✅ Maintain clean, readable section hierarchy.
+
+✅ Ensure no visual clutter.
+
+🎯 Goal Summary
+✅ Clean, minimal UI with no redundancy.
+
+✅ Dynamic icons for clarity and contrast.
+
+✅ Button copy refined ("Start Session").
+
+✅ Logical hierarchy of elements.
+
+✅ Professional, Apple-level premium polish.
+

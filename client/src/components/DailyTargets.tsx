@@ -61,7 +61,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
         </div>
         
         {editable && (
-          <form onSubmit={handleAddTarget} className="flex gap-2 mb-6">
+          <form onSubmit={handleAddTarget} className="flex gap-2 mb-8">
             <Input
               placeholder="What will you focus on today?"
               value={newTargetText}
@@ -75,10 +75,10 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               className={`transition-all duration-300 rounded-[16px] ibm-plex-mono-medium flex items-center justify-center w-12 h-12 ${
                 dailyTargets.length >= 3 
                   ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-                  : 'bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]'
+                  : 'bg-primary hover:bg-primary/90 hover:scale-[1.05] active:scale-[0.98]'
               }`}
             >
-              <span className="text-xl font-medium text-primary-foreground">+</span>
+              <span className="text-xl font-medium text-primary-foreground group-hover:scale-110 transition-transform duration-200">+</span>
             </Button>
           </form>
         )}

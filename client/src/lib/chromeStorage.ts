@@ -1,4 +1,19 @@
 // Chrome storage API wrapper for async/await
+/// <reference types="chrome"/>
+
+// Create a type-safe check for chrome API availability in a development environment
+declare global {
+  interface Window {
+    chrome?: {
+      storage?: {
+        local?: {
+          get: (key: string) => Promise<any>;
+          set: (data: object) => Promise<void>;
+        };
+      };
+    };
+  }
+}
 export interface DailyTarget {
   id: number;
   text: string;
@@ -114,16 +129,18 @@ function getDateString(date: Date): string {
 
 // Helper function to check if we're in a Chrome extension context
 const isChromeExtension = (): boolean => {
-  return typeof chrome !== 'undefined' && !!chrome.storage;
+  return typeof window !== 'undefined' && 
+         typeof window.chrome !== 'undefined' && 
+         !!window.chrome.storage;
 };
 
 // Initialize with default data if not already set
 export const initStorage = async (): Promise<void> => {
   try {
-    if (isChromeExtension()) {
-      const data = await chrome.storage.local.get('helmData');
+    if (isChromeExtension() && window.chrome?.storage?.local) {
+      const data = await window.chrome.storage.local.get('helmData');
       if (!data.helmData) {
-        await chrome.storage.local.set({ helmData: defaultData });
+        await window.chrome.storage.local.set({ helmData: defaultData });
       }
     } else {
       // If not running in a Chrome extension context, use localStorage for development
@@ -148,8 +165,8 @@ export const initStorage = async (): Promise<void> => {
 // Get all data
 export const getStorageData = async (): Promise<StorageData> => {
   try {
-    if (isChromeExtension()) {
-      const data = await chrome.storage.local.get('helmData');
+    if (isChromeExtension() && window.chrome?.storage?.local) {
+      const data = await window.chrome.storage.local.get('helmData');
       return data.helmData as StorageData;
     } else {
       // Fallback to localStorage for development
@@ -165,8 +182,8 @@ export const getStorageData = async (): Promise<StorageData> => {
 // Set all data
 export const setStorageData = async (data: StorageData): Promise<void> => {
   try {
-    if (isChromeExtension()) {
-      await chrome.storage.local.set({ helmData: data });
+    if (isChromeExtension() && window.chrome?.storage?.local) {
+      await window.chrome.storage.local.set({ helmData: data });
     } else {
       // Fallback to localStorage for development
       localStorage.setItem('helmData', JSON.stringify(data));
