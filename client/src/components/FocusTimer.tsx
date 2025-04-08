@@ -320,23 +320,43 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 {/* Controls */}
                 <div className="flex flex-col items-center">
                   <div className="flex justify-center space-x-6 mb-6">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        console.log('End Session clicked');
-                        handleEndSession();
+                    {/* End Session button with DOM-based event handler */}
+                    <div 
+                      id="end-session-button"
+                      ref={(el) => {
+                        if (el) {
+                          // Remove existing listeners
+                          el.removeEventListener('click', () => {});
+                          
+                          // Add new click listener
+                          el.addEventListener('click', () => {
+                            console.log('END SESSION CLICKED VIA DOM!');
+                            alert('End Session clicked via DOM!');
+                            handleEndSession();
+                          });
+                        }
                       }}
                       className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       <StopCircle className="h-5 w-5 mr-2" />
                       End Session
-                    </button>
+                    </div>
                     
-                    <button
-                      type="button"
-                      onClick={() => {
-                        console.log('Pause/Resume clicked', state.isRunning ? 'Pausing' : 'Resuming');
-                        handleStartPause();
+                    {/* Pause/Resume button with DOM-based event handler */}
+                    <div 
+                      id="pause-resume-button"
+                      ref={(el) => {
+                        if (el) {
+                          // Remove existing listeners
+                          el.removeEventListener('click', () => {});
+                          
+                          // Add new click listener
+                          el.addEventListener('click', () => {
+                            console.log('PAUSE/RESUME CLICKED VIA DOM!', state.isRunning ? 'Pausing' : 'Resuming');
+                            alert('Pause/Resume clicked via DOM!');
+                            handleStartPause();
+                          });
+                        }
                       }}
                       className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
@@ -351,7 +371,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                           Resume
                         </>
                       )}
-                    </button>
+                    </div>
                   </div>
                   
                   {/* Note: Emergency Reset functionality now moved to global component */}
@@ -402,18 +422,34 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   </div>
                 </div>
                 
-                <Button
-                  size="lg"
-                  onClick={() => {
-                    console.log('Start Session clicked');
-                    handleStartPause();
+                {/* Start Session button with DOM-based event handler */}
+                <div 
+                  id="start-session-button"
+                  ref={(el) => {
+                    if (el) {
+                      // Remove existing listeners
+                      el.removeEventListener('click', () => {});
+                      
+                      // Add new click listener
+                      el.addEventListener('click', () => {
+                        console.log('START SESSION CLICKED VIA DOM!');
+                        alert('Start Session clicked via DOM!');
+                        if (!activeProfile) {
+                          alert("Please select a focus profile first");
+                          return;
+                        }
+                        handleStartPause();
+                      });
+                    }
                   }}
-                  disabled={!activeProfile}
-                  className="py-7 px-12 rounded-[16px] mb-4 bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+                  className={`inline-flex items-center justify-center py-7 px-12 rounded-[16px] mb-4 
+                    ${!activeProfile ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} 
+                    bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 
+                    transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation`}
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Start Session
-                </Button>
+                </div>
                 
                 {stats && stats.todayMinutes > 0 && (
                   <div className="mb-8 text-sm ibm-plex-mono-regular">
@@ -427,18 +463,29 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   
                   <div className="grid grid-cols-3 gap-4 mb-6 w-full mx-auto">
                     {PRESET_DURATIONS.map(duration => (
-                      <Button
+                      <div
                         key={duration}
-                        variant={selectedDuration === duration ? "default" : "outline"}
-                        className={`py-6 rounded-[16px] transition-all duration-400 ibm-plex-mono-medium
+                        id={`duration-button-${duration}`}
+                        ref={(el) => {
+                          if (el) {
+                            // Remove existing listeners
+                            el.removeEventListener('click', () => {});
+                            
+                            // Add new click listener
+                            el.addEventListener('click', () => {
+                              console.log(`DURATION ${duration} CLICKED VIA DOM!`);
+                              handleSelectDuration(duration);
+                            });
+                          }
+                        }}
+                        className={`inline-flex items-center justify-center py-6 rounded-[16px] cursor-pointer transition-all duration-400 ibm-plex-mono-medium
                           ${selectedDuration === duration 
                             ? "bg-primary text-zinc-900 border-none hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]" 
-                            : "bg-transparent border-gray-200 dark:border-gray-700/50 hover:border-primary/60 hover:bg-primary/20 dark:hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02]"}`
+                            : "bg-transparent border border-gray-200 dark:border-gray-700/50 hover:border-primary/60 hover:bg-primary/20 dark:hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02]"}`
                         }
-                        onClick={() => handleSelectDuration(duration)}
                       >
                         {duration} min
-                      </Button>
+                      </div>
                     ))}
                   </div>
                   

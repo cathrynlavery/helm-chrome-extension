@@ -116,16 +116,25 @@ const FocusSession: React.FC = () => {
           
           {/* Active profile indicator - moved inside focus timer component */}
           
-          {/* Test button to verify click events */}
-          <button 
+          {/* Test button with direct DOM reference and event listener */}
+          <div 
+            id="test-button-container" 
             className="block mx-auto mb-4 p-4 bg-red-500 text-white font-bold rounded"
-            onClick={() => {
-              console.log('TEST BUTTON CLICKED!');
-              alert('Test button clicked!');
+            ref={(el) => {
+              if (el) {
+                // Remove existing event listeners to prevent duplicates
+                el.removeEventListener('click', () => {});
+                
+                // Add new event listener
+                el.addEventListener('click', () => {
+                  console.log('TEST BUTTON CLICKED VIA DOM!');
+                  alert('Test button clicked via DOM!');
+                });
+              }
             }}
           >
-            TEST CLICK ME
-          </button>
+            TEST CLICK ME (DOM VERSION)
+          </div>
 
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
           <div className="mb-8 max-w-xl mx-auto">
