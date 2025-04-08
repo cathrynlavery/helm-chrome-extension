@@ -43,8 +43,8 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
     <div className="w-full rounded-xl transition-all duration-500 ease-in-out bg-transparent">
       <div className="p-6">
         <div className="flex flex-col items-center justify-center mb-6">
-          <h3 className={`text-[1.35rem] text-center libre-baskerville-bold text-[#333333] dark:text-[#333333]
-            ${allTasksCompleted ? 'text-[#CDAA7A] dark:text-[#CDAA7A]' : ''}`}
+          <h3 className={`text-[1.35rem] text-center libre-baskerville-bold text-[#333333] dark:text-[#CDAA7A]
+            ${allTasksCompleted ? 'text-[#CDAA7A] dark:text-[#CDAA7A]/90' : ''}`}
           >
             Today's Targets:
           </h3>
@@ -92,7 +92,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               className="text-center py-8"
             >
               {/* higher contrast gray */}
-              <p className="ibm-plex-mono-regular text-sm text-[#8E8E8E]">
+              <p className="ibm-plex-mono-regular text-sm text-[#8E8E8E] dark:text-[#B0B0B0]">
                 No targets set for today
               </p>
             </motion.div>
@@ -167,8 +167,8 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                     htmlFor={`target-${target.id}`}
                     className={`flex-1 transition-all duration-300 text-base ibm-plex-mono-regular ${
                       target.completed 
-                        ? 'line-through text-[#CDAA7A] font-medium' 
-                        : 'text-[#333333]'
+                        ? 'line-through text-[#CDAA7A] dark:text-[#CDAA7A] font-medium' 
+                        : 'text-[#333333] dark:text-[#E0E0E0]'
                     }`}
                   >
                     {target.text}
@@ -179,7 +179,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteTarget(target.id)}
-                      className="ml-2 h-8 w-8 text-[#CDAA7A]/70 hover:text-[#CDAA7A] hover:bg-[#CDAA7A]/10 rounded-full transition-colors"
+                      className="ml-2 h-8 w-8 text-[#CDAA7A]/70 dark:text-[#CDAA7A]/80 hover:text-[#CDAA7A] hover:bg-[#CDAA7A]/10 rounded-full transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </Button>

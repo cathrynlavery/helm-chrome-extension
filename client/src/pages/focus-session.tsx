@@ -113,8 +113,8 @@ const FocusSession: React.FC = () => {
             />
           </div>
           
-          {/* Section divider line */}
-          <div className="w-full max-w-md mx-auto h-[1.5px] bg-gradient-to-r from-transparent via-[#BFA98A] to-transparent opacity-70 mb-6"></div>
+          {/* Section divider line - enhanced for dark mode */}
+          <div className="w-full max-w-md mx-auto h-[1.5px] bg-gradient-to-r from-transparent via-[#BFA98A] to-transparent opacity-70 dark:opacity-80 dark:via-[#CDAA7A] mb-6"></div>
           
           {/* Only show daily targets when in focus mode or on initial load */}
           <motion.div 
