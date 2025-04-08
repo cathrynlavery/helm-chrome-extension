@@ -322,7 +322,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   <div className="flex justify-center space-x-6 mb-6">
                     <button
                       type="button"
-                      onClick={handleEndSession}
+                      onClick={() => {
+                        console.log('End Session clicked');
+                        handleEndSession();
+                      }}
                       className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       <StopCircle className="h-5 w-5 mr-2" />
@@ -331,7 +334,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     
                     <button
                       type="button"
-                      onClick={handleStartPause}
+                      onClick={() => {
+                        console.log('Pause/Resume clicked', state.isRunning ? 'Pausing' : 'Resuming');
+                        handleStartPause();
+                      }}
                       className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       {state.isRunning ? (
@@ -398,7 +404,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 
                 <Button
                   size="lg"
-                  onClick={handleStartPause}
+                  onClick={() => {
+                    console.log('Start Session clicked');
+                    handleStartPause();
+                  }}
                   disabled={!activeProfile}
                   className="py-7 px-12 rounded-[16px] mb-4 bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
                 >
