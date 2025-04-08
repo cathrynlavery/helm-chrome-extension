@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import { getRandomQuote } from '../lib/quotes';
 import HelmLogo from '../components/HelmLogo';
 import BestSelfLogo from '../components/BestSelfLogo';
+import { initializeClickInterceptors } from '../lib/interceptClickEvents';
+import EmergencyControlPanel from '../components/EmergencyControlPanel';
 
 const FocusSession: React.FC = () => {
   const { activeProfile, isLoading, stats, focusTimer } = useFocus();
@@ -24,6 +26,67 @@ const FocusSession: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [focusTimer.state.isRunning]);
+  
+  // Setup click interceptors for essential interactions
+  useEffect(() => {
+    console.log('Setting up click interceptors for critical UI elements');
+    
+    // Initialize test button first
+    const cleanup = initializeClickInterceptors([
+      { 
+        id: 'test-button-container',
+        callback: () => {
+          console.log('Test button interceptor clicked!');
+          alert('Test button clicked via interceptor!');
+        }
+      },
+      // Add more button interceptors as needed
+    ]);
+    
+    // Add second-level interceptors after a delay to ensure the DOM is ready
+    const timeoutId = setTimeout(() => {
+      if (focusTimer.state.isRunning) {
+        initializeClickInterceptors([
+          {
+            id: 'end-session-button',
+            callback: () => {
+              console.log('End Session interceptor clicked!');
+              alert('End Session clicked via interceptor!');
+              focusTimer.end();
+            }
+          },
+          {
+            id: 'pause-resume-button',
+            callback: () => {
+              console.log('Pause interceptor clicked!');
+              alert('Pause clicked via interceptor!');
+              focusTimer.pause();
+            }
+          }
+        ]);
+      } else {
+        initializeClickInterceptors([
+          {
+            id: 'start-session-button',
+            callback: () => {
+              console.log('Start Session interceptor clicked!');
+              alert('Start Session clicked via interceptor!');
+              if (!activeProfile) {
+                alert("Please select a focus profile first");
+                return;
+              }
+              focusTimer.start(activeProfile.id);
+            }
+          }
+        ]);
+      }
+    }, 1000);
+    
+    return () => {
+      cleanup();
+      clearTimeout(timeoutId);
+    };
+  }, [focusTimer.state.isRunning, activeProfile]);
   
   if (isLoading) {
     return (
@@ -179,6 +242,9 @@ const FocusSession: React.FC = () => {
       <footer className={`py-6 flex justify-center items-center ${focusTimer.state.isRunning ? 'opacity-30' : ''}`}>
         <BestSelfLogo />
       </footer>
+      
+      {/* Emergency Control Panel for direct timer control */}
+      <EmergencyControlPanel />
     </div>
   );
 };
