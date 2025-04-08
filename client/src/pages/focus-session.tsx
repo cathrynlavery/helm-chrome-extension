@@ -110,8 +110,8 @@ const FocusSession: React.FC = () => {
         )}
       </header>
       
-      <main className={`flex-grow flex flex-col items-center p-6 pt-12 
-        ${focusTimer.state.isRunning ? 'pt-8' : 'pt-12'}`}
+      <main className={`flex-grow flex flex-col items-center p-6 
+        ${focusTimer.state.isRunning ? 'pt-8' : 'pt-16'}`}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -126,7 +126,7 @@ const FocusSession: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="mb-12"
+              className="mb-16"
             >
               <h2 className="quote-text text-2xl md:text-3xl mb-3 leading-relaxed text-gray-800 dark:text-gray-200">
                 "{quote.text}"
@@ -138,7 +138,7 @@ const FocusSession: React.FC = () => {
           {/* Active profile indicator - moved inside focus timer component */}
           
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
-          <div className="mb-12 max-w-xl mx-auto">
+          <div className="mb-16 max-w-xl mx-auto">
             <FocusTimer 
               streakCount={stats.streaks.current} 
               showProfileSelector={!focusTimer.state.isRunning}
@@ -150,7 +150,7 @@ const FocusSession: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="max-w-lg mx-auto"
+            className="max-w-md mx-auto"
           >
             <DailyTargets editable={!focusTimer.state.isRunning} />
           </motion.div>

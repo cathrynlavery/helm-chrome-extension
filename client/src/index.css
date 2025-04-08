@@ -46,18 +46,37 @@
   body {
     @apply antialiased bg-background text-foreground;
     color: var(--color-text-primary);
+    background: linear-gradient(to bottom, #F7F7F5, #F1F1EF);
+  }
+  
+  .dark body {
+    background: linear-gradient(to bottom, #0E0E0E, #080808);
   }
   
   /* Button styling */
   button {
-    border-radius: 12px;
+    border-radius: 14px;
     font-family: 'IBM Plex Mono', monospace;
     font-weight: 500;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
   }
   
   button:hover {
     transform: translateY(-1px);
+  }
+  
+  /* Input styling for a more seamless look */
+  input {
+    border-radius: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 400;
+    transition: all 0.3s ease;
+  }
+  
+  /* Remove border outlines on focus for seamless feel */
+  *:focus-visible {
+    outline: none !important;
+    ring-color: transparent !important;
   }
 }
 
@@ -174,4 +193,44 @@
   background: linear-gradient(to right, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
   border: 1px solid rgba(245, 158, 11, 0.3);
   color: rgba(251, 191, 36, 0.9);
+}
+
+/* Enhanced borderless container styles */
+.borderless-card {
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Premium shadow styles for elevated elements */
+.premium-shadow {
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .premium-shadow {
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Subtle hover effects with minimal visual change */
+.subtle-hover {
+  transition: all 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.subtle-hover:hover {
+  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Apple-style gradient text */
+.gradient-text {
+  background: linear-gradient(to right, #d97706, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* Improved spacing and alignment for consistent visual hierarchy */
+.enhanced-spacing > * + * {
+  margin-top: 1.75rem;
 }

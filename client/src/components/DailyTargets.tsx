@@ -51,14 +51,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
   const allTasksCompleted = dailyTargets.length > 0 && dailyTargets.every(t => t.completed);
   
   return (
-    <div className={`w-full rounded-xl backdrop-blur-lg transition-all duration-500 ease-in-out
-      ${dailyTargets.some(t => t.completed) && !dailyTargets.every(t => t.completed)
-        ? 'bg-transparent shadow-md' 
-        : allTasksCompleted 
-          ? 'bg-transparent shadow-md' 
-          : 'bg-transparent shadow-sm'
-      }`}
-    >
+    <div className="w-full rounded-xl transition-all duration-500 ease-in-out bg-transparent">
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className={`heading-text text-lg 
@@ -130,10 +123,10 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                     }
                   }}
                   exit={{ opacity: 0, height: 0 }}
-                  className={`flex items-center p-4 rounded-lg transition-all duration-300 relative
+                  className={`flex items-center p-4 rounded-lg transition-all duration-300 relative border-0
                     ${target.completed 
-                      ? 'bg-amber-50/30 dark:bg-amber-900/10 shadow-sm' 
-                      : 'bg-gray-50/30 dark:bg-gray-800/20 shadow-sm hover:shadow'}`
+                      ? 'bg-transparent' 
+                      : 'bg-transparent hover:bg-gray-50/20 dark:hover:bg-gray-800/10'}`
                   }
                 >
                   {completedTaskId === target.id && (

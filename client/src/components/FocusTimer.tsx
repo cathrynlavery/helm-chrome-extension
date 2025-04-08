@@ -89,16 +89,16 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   return (
     <div className={`w-full ${state.isRunning ? 'dark' : ''}`}>
       <div 
-        className={`w-full rounded-xl backdrop-blur-xl transition-all duration-700 ease-in-out
+        className={`w-full rounded-xl transition-all duration-700 ease-in-out
           ${state.isRunning 
-            ? 'bg-transparent shadow-2xl' 
-            : 'bg-transparent shadow-lg'
+            ? 'bg-transparent' 
+            : 'bg-gradient-to-b from-[#F7F7F5] to-[#F1F1EF] dark:bg-gradient-to-b dark:from-gray-900 dark:to-gray-950'
           }`}
       >
-        <div className={`p-8 ${compact ? 'py-6' : 'py-10'}`}>
+        <div className={`p-8 ${compact ? 'py-6' : 'py-12'}`}>
           {showProfileSelector && !state.isRunning && (
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-lg font-medium">Focus Session</h3>
+            <div className="flex items-center justify-between mb-12">
+              <h3 className="heading-text text-lg">Focus Session</h3>
               <ProfileSelector />
             </div>
           )}
@@ -108,15 +108,15 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex items-center justify-center mb-6 ${state.isRunning ? 'text-amber-400' : 'text-amber-500'}`}
+              className={`flex items-center justify-center mb-10 ${state.isRunning ? 'text-amber-400' : 'text-amber-500'}`}
             >
-              <div className={`flex items-center px-3 py-1 rounded-full 
+              <div className={`flex items-center px-4 py-2 rounded-full 
                 ${state.isRunning 
                   ? 'bg-amber-950/30 text-amber-300' 
-                  : 'bg-amber-50 dark:bg-amber-900/20'}`}
+                  : 'bg-transparent'}`}
               >
-                <Flame className="h-4 w-4 mr-1" />
-                <span className="font-medium">{streakCount} Day Streak</span>
+                <Flame className="h-4 w-4 mr-2" />
+                <span className="ibm-plex-mono-medium">{streakCount} Day Streak</span>
               </div>
             </motion.div>
           )}
@@ -250,41 +250,44 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center"
               >
-                {/* Idle state circular placeholder */}
-                <div className="relative inline-flex items-center justify-center mb-8">
-                  <svg className={`${enhancedSize} transform -rotate-90`} viewBox="0 0 100 100">
+                {/* Idle state circular placeholder with subtle glow */}
+                <div className="relative inline-flex items-center justify-center mb-12 group">
+                  {/* Ambient soft glow behind circle */}
+                  <div className="absolute w-full h-full rounded-full blur-3xl opacity-5 bg-amber-500 group-hover:opacity-10 transition-opacity duration-700"></div>
+                  
+                  <svg className={`${enhancedSize} transform -rotate-90 transition-all duration-500 group-hover:scale-[1.02]`} viewBox="0 0 100 100">
                     <circle 
                       className="text-gray-200 dark:text-gray-700" 
-                      strokeWidth="2" 
+                      strokeWidth="1" 
                       stroke="currentColor" 
                       fill="transparent" 
-                      r="46" 
+                      r="47" 
                       cx="50" 
                       cy="50"
                     />
                   </svg>
                   <div className="absolute text-center">
-                    <div className={`${compact ? 'text-lg' : 'text-xl'} text-gray-400 dark:text-gray-300 font-medium mb-2`}>
+                    <div className={`${compact ? 'text-xl' : 'text-2xl'} ibm-plex-mono-medium text-gray-500 dark:text-gray-300 mb-2`}>
                       Ready to Focus
                     </div>
                   </div>
                 </div>
                 
-                <div className="text-center mb-8">
-                  <h3 className="text-lg font-medium mb-1">Select Focus Duration</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
+                <div className="text-center mb-12 max-w-sm mx-auto">
+                  <h3 className="ibm-plex-mono-medium text-lg mb-2">Select Focus Duration</h3>
+                  <p className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-70 mb-8">
                     How long would you like to focus?
                   </p>
                   
-                  <div className="grid grid-cols-3 gap-4 mb-6 w-full max-w-sm mx-auto">
+                  <div className="grid grid-cols-3 gap-4 mb-8 w-full mx-auto">
                     {PRESET_DURATIONS.map(duration => (
                       <Button
                         key={duration}
                         variant={selectedDuration === duration ? "default" : "outline"}
-                        className={`py-6 rounded-lg transition-all shadow-sm hover:shadow 
+                        className={`py-6 rounded-[14px] transition-all duration-300 ibm-plex-mono-medium
                           ${selectedDuration === duration 
-                            ? "bg-primary text-primary-foreground border-primary shadow-md" 
-                            : "border-gray-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-700"}`
+                            ? "bg-primary text-primary-foreground border-none" 
+                            : "bg-transparent border-gray-200 dark:border-gray-700/50 hover:border-amber-300 dark:hover:border-amber-700/60 hover:bg-gray-50/30 dark:hover:bg-gray-800/20"}`
                         }
                         onClick={() => handleSelectDuration(duration)}
                       >
@@ -293,8 +296,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     ))}
                   </div>
                   
-                  <div className="flex items-center justify-center gap-3 mb-8 w-full max-w-sm mx-auto">
-                    <div className="text-sm text-muted-foreground">Custom:</div>
+                  <div className="flex items-center justify-center gap-3 mb-10 w-full mx-auto">
+                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-70">Custom:</div>
                     <Input
                       type="number"
                       min="1"
@@ -302,14 +305,14 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                       value={customDuration}
                       onChange={handleCustomDurationChange}
                       placeholder="minutes"
-                      className="w-28 text-center border-gray-200 dark:border-gray-700 focus:border-amber-300 dark:focus:border-amber-600"
+                      className="w-28 text-center rounded-[14px] ibm-plex-mono-regular py-6 border-gray-200 dark:border-gray-700/50 focus:border-amber-300 dark:focus:border-amber-600 bg-transparent"
                     />
-                    <div className="text-sm text-muted-foreground">min</div>
+                    <div className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-70">min</div>
                   </div>
                 </div>
                 
                 {stats && stats.todayMinutes > 0 && (
-                  <div className="mb-6 text-sm text-muted-foreground">
+                  <div className="mb-8 text-sm text-muted-foreground ibm-plex-mono-regular opacity-70">
                     Today: {formatDuration(stats.todayMinutes)} focused
                   </div>
                 )}
@@ -318,7 +321,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   size="lg"
                   onClick={handleStartPause}
                   disabled={!activeProfile}
-                  className="py-6 px-10 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="py-7 px-12 rounded-[16px] bg-primary hover:bg-gradient-to-r hover:from-amber-500 hover:to-amber-400 text-primary-foreground transition-all duration-500 shadow-none ibm-plex-mono-medium text-base"
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Start Focus Session
