@@ -32,16 +32,30 @@ async function checkIfShouldBlock(tabId, url) {
     const activeProfile = focusProfiles.find(p => p.isActive);
     if (!activeProfile) return;
 
-    // Check if URL is in the blocked list
+    // Parse the URL
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.replace('www.', '');
 
-    // Check if any blocked site matches the hostname
-    const isBlocked = activeProfile.blockedSites.some(site => {
-      return hostname === site || hostname.endsWith('.' + site);
-    });
+    // Get the access style (default to blocklist if not specified)
+    const accessStyle = activeProfile.accessStyle || 'blocklist';
+    
+    // Determine if the site should be blocked based on access style
+    let shouldBlock = false;
+    
+    if (accessStyle === 'allowlist') {
+      // In allowlist mode, block everything EXCEPT sites in the list
+      const isAllowed = activeProfile.blockedSites.some(site => {
+        return hostname === site || hostname.endsWith('.' + site);
+      });
+      shouldBlock = !isAllowed;
+    } else {
+      // In blocklist mode (default), only block sites in the list
+      shouldBlock = activeProfile.blockedSites.some(site => {
+        return hostname === site || hostname.endsWith('.' + site);
+      });
+    }
 
-    if (isBlocked) {
+    if (shouldBlock) {
       // Redirect to blocked page
       chrome.tabs.update(tabId, {
         url: chrome.runtime.getURL('index.html#/blocked?url=' + encodeURIComponent(url))

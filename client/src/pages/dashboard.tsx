@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.4 }}
           >
             {/* Personalized greeting with date */}
-            <div className="mb-14 text-center"> {/* Increased spacing from 10 to 14 (added +24px) */}
+            <div className="mb-6 text-center"> {/* Reduced spacing to allow for button placement */}
               <h2 className="text-3xl libre-baskerville-bold mb-2 text-[#333333] dark:text-[#E0E0E0]">
                 Good {timeOfDay}
               </h2>
@@ -99,8 +99,21 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
 
-            {/* Stats Cards - Enhanced with better spacing */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-18"> {/* Increased bottom margin to 18 (+24px) */}
+            {/* Quick Start Button - MOVED directly below the greeting header */}
+            <div className="flex justify-center mb-8 mt-6"> {/* Added mt-6 for 24px spacing below header */}
+              <Link href="/">
+                <Button 
+                  className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-6 py-3.5 text-base hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
+                >
+                  <Target className="h-5 w-5 mr-2" />
+                  Start Focus Session
+                  <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Stats Cards - Added mt-8 for 32px spacing above metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-18 mt-8"> {/* Added mt-8 for spacing */}
               {/* Today's Focus */}
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
                 <CardHeader className="pb-2 p-6"> {/* Added p-6 for 24px padding */}
@@ -243,20 +256,6 @@ const Dashboard: React.FC = () => {
               </Card>
             </div>
 
-            {/* Quick Start Button */}
-            <div className="flex justify-center mb-20"> {/* Increased margin bottom (added +32px for more separation) */}
-              <Link href="/">
-                <Button 
-                  className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-6 py-3.5 text-base hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
-                  /* Changed py-6 to py-3.5 for better 14px vertical padding */
-                >
-                  <Target className="h-5 w-5 mr-2" />
-                  Start Focus Session
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
-            </div>
-            
             {/* Light divider for visual separation */}
             <div className="w-full max-w-4xl mx-auto h-px bg-[#CDAA7A]/10 mb-16"></div>
 

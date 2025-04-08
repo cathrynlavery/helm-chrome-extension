@@ -41,6 +41,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
     if (profile) {
       setName(profile.name);
       setBlockedSites([...profile.blockedSites]);
+      // Use existing access style or default to blocklist if not present
       setAccessStyle(profile.accessStyle || 'blocklist');
       
       // Initialize selected popular sites based on existing blocked sites
@@ -410,7 +411,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
                 className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] rounded-[8px] hover:scale-[1.02] transition-all duration-200"
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Add
+                {accessStyle === 'allowlist' ? 'Allow Site' : 'Block Site'}
               </Button>
             </div>
             

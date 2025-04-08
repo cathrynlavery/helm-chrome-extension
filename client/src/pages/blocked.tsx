@@ -82,6 +82,13 @@ const BlockedPage: React.FC = () => {
           <p className="text-primary font-medium text-lg">
             {activeProfile ? `${activeProfile.name} (${timerDisplay} remaining)` : 'No active profile'}
           </p>
+          {activeProfile && (
+            <p className="text-xs text-[#333333]/70 dark:text-[#E0E0E0]/70 mt-2">
+              Mode: {activeProfile.accessStyle === 'allowlist' 
+                ? 'Allow List (only selected sites are accessible)' 
+                : 'Block List (only distracting sites are blocked)'}
+            </p>
+          )}
         </div>
         
         <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">

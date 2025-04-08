@@ -71,6 +71,15 @@ const defaultData: StorageData = {
     },
     {
       id: 3,
+      name: "Writing Focus",
+      description: "Allows only writing tools and reference sites",
+      isActive: false,
+      blockedSites: ["docs.google.com", "notion.so", "dictionary.com", "thesaurus.com"],
+      lastUsed: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
+      accessStyle: 'allowlist'
+    },
+    {
+      id: 4,
       name: "Personal Profile",
       description: "Block distracting work-related sites during personal time",
       isActive: false,

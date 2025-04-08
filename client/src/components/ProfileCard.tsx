@@ -1,6 +1,6 @@
 import React from 'react';
 import { FocusProfile } from '../lib/chromeStorage';
-import { Pencil, Trash2, Shield, Clock } from 'lucide-react';
+import { Pencil, Trash2, Shield, Clock, ShieldCheck, Lock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface ProfileCardProps {
@@ -50,8 +50,16 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onSelect, onEdit, on
       
       <div className="mb-5 text-sm">
         <div className="flex items-center mb-2 text-[#333333]/80 dark:text-[#E0E0E0]/80">
-          <Shield className="h-4 w-4 mr-2 text-[#CDAA7A]" />
-          <span>{profile.blockedSites.length} site{profile.blockedSites.length !== 1 ? 's' : ''} blocked</span>
+          {profile.accessStyle === 'allowlist' ? (
+            <ShieldCheck className="h-4 w-4 mr-2 text-[#CDAA7A]" />
+          ) : (
+            <Lock className="h-4 w-4 mr-2 text-[#CDAA7A]" />
+          )}
+          <span>
+            {profile.accessStyle === 'allowlist' 
+              ? `Allow List: ${profile.blockedSites.length} site${profile.blockedSites.length !== 1 ? 's' : ''} allowed` 
+              : `Block List: ${profile.blockedSites.length} site${profile.blockedSites.length !== 1 ? 's' : ''} blocked`}
+          </span>
         </div>
         <div className="flex items-center text-[#333333]/80 dark:text-[#E0E0E0]/80">
           <Clock className="h-4 w-4 mr-2 text-[#CDAA7A]" />
