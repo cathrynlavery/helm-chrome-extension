@@ -43,7 +43,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
     <div className="w-full rounded-xl transition-all duration-500 ease-in-out bg-transparent">
       <div className="p-6">
         <div className="flex flex-col items-center justify-center mb-6">
-          <h3 className={`heading-text text-lg text-center libre-baskerville-regular text-[#333333] dark:text-[#333333]
+          <h3 className={`text-lg text-center libre-baskerville-regular text-[#333333] dark:text-[#333333]
             ${allTasksCompleted ? 'text-[#CDAA7A] dark:text-[#CDAA7A]' : ''}`}
           >
             Today's Targets:

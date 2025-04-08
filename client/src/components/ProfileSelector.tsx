@@ -19,10 +19,10 @@ const ProfileSelector: React.FC = () => {
   };
   
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center w-full text-center">
       <p className="text-sm text-center uppercase ibm-plex-mono-medium text-[#333333]/80 dark:text-[#333333]/80 mb-2">Focus Space</p>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger className="flex items-center text-[1.25rem] heading-text text-[#333333] dark:text-[#333333] focus:outline-none hover:text-[#CDAA7A] transition-colors">
+        <DropdownMenuTrigger className="flex items-center justify-center text-[1.25rem] heading-text text-[#333333] dark:text-[#333333] focus:outline-none hover:text-[#CDAA7A] transition-colors">
           <span>{activeProfile?.name || 'Select Profile'}</span>
           <ChevronDown className="ml-1 h-5 w-5" />
         </DropdownMenuTrigger>

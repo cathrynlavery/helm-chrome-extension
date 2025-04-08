@@ -70,15 +70,9 @@ const FocusSession: React.FC = () => {
           ? 'bg-transparent' 
           : 'bg-transparent'}`}
       >
-        <div className="flex items-center group cursor-pointer hover:opacity-85 transition-opacity pl-1 md:pl-2">
-          <HelmLogo size={32} className="group-hover:scale-105 transition-transform duration-300" />
-          <h1 className={`ml-3 text-xl ibm-plex-mono-regular tracking-wide transition-all duration-500
-            ${focusTimer.state.isRunning
-              ? 'text-[#CDAA7A]'
-              : 'text-[#333333] dark:text-[#333333]'}`}
-          >
-            Helm
-          </h1>
+        {/* Logo and app name are now handled by DynamicIcon component */}
+        <div className="invisible">
+          {/* Invisible placeholder to maintain header layout */}
         </div>
         
         {/* Stats summary removed - now only shown in the main timer component */}
@@ -112,12 +106,15 @@ const FocusSession: React.FC = () => {
           {/* Active profile indicator - moved inside focus timer component */}
           
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
-          <div className="mb-12 max-w-xl mx-auto">
+          <div className="mb-8 max-w-xl mx-auto">
             <FocusTimer 
               streakCount={stats.streaks.current} 
               showProfileSelector={!focusTimer.state.isRunning}
             />
           </div>
+          
+          {/* Subtle divider line */}
+          <div className="w-full max-w-md mx-auto h-px bg-gradient-to-r from-transparent via-[#CDAA7A]/20 to-transparent mb-6"></div>
           
           {/* Only show daily targets when in focus mode or on initial load */}
           <motion.div 
