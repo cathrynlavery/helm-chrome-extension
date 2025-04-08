@@ -35,15 +35,15 @@ const FocusSession: React.FC = () => {
     );
   }
   
-  // Enhanced background styles that transition from light to dark
+  // Enhanced seamless background styles that transition from light to dark
   const lightBackground = {
-    backgroundImage: 'linear-gradient(170deg, rgba(248, 248, 248, 1) 0%, rgba(232, 232, 232, 1) 100%)',
+    backgroundColor: '#f8f8f8',
     backgroundSize: 'cover',
     transition: 'all 0.8s ease-in-out'
   };
   
   const darkBackground = {
-    backgroundImage: 'radial-gradient(circle at center, rgba(30, 30, 35, 0.95) 0%, rgba(15, 15, 20, 0.98) 100%)',
+    backgroundColor: '#0E0E0E',
     backgroundSize: 'cover',
     transition: 'all 0.8s ease-in-out'
   };
@@ -55,10 +55,22 @@ const FocusSession: React.FC = () => {
       className={`min-h-screen flex flex-col ${focusTimer.state.isRunning ? 'dark' : ''}`}
       style={backgroundStyle}
     >
-      <header className={`py-4 px-6 flex items-center justify-between backdrop-blur-md transition-all duration-700
+      <div className="noise-overlay"></div>
+      
+      {/* Ambient glow behind timer - only visible in focus mode */}
+      {focusTimer.state.isRunning && (
+        <div 
+          className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-amber-500/10 blur-3xl"
+          style={{
+            background: 'radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, rgba(0, 0, 0, 0) 70%)'
+          }}
+        ></div>
+      )}
+      
+      <header className={`py-4 px-6 flex items-center justify-between backdrop-blur-sm transition-all duration-700
         ${focusTimer.state.isRunning 
-          ? 'bg-gray-900/20 border-b border-gray-800/40' 
-          : 'bg-white/60 dark:bg-gray-800/20 border-b border-gray-200/30 dark:border-gray-700/20 shadow-sm'}`}
+          ? 'bg-transparent' 
+          : 'bg-transparent'}`}
       >
         <div className="flex items-center">
           <HelmLogo size={28} />

@@ -51,12 +51,12 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
   const allTasksCompleted = dailyTargets.length > 0 && dailyTargets.every(t => t.completed);
   
   return (
-    <div className={`w-full rounded-xl backdrop-blur-2xl transition-all duration-500 ease-in-out
+    <div className={`w-full rounded-xl backdrop-blur-lg transition-all duration-500 ease-in-out
       ${dailyTargets.some(t => t.completed) && !dailyTargets.every(t => t.completed)
-        ? 'bg-white/80 dark:bg-gray-800/80 shadow-lg' 
+        ? 'bg-transparent shadow-md' 
         : allTasksCompleted 
-          ? 'bg-amber-50/90 dark:bg-amber-900/20 shadow-lg border border-amber-100 dark:border-amber-800/30' 
-          : 'bg-white/80 dark:bg-gray-800/80 shadow-md border border-gray-100/30 dark:border-gray-700/30'
+          ? 'bg-transparent shadow-md' 
+          : 'bg-transparent shadow-sm'
       }`}
     >
       <div className="p-6">
@@ -132,8 +132,8 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                   exit={{ opacity: 0, height: 0 }}
                   className={`flex items-center p-4 rounded-lg transition-all duration-300 relative
                     ${target.completed 
-                      ? 'bg-amber-50/70 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-800/30 shadow-sm' 
-                      : 'bg-white/70 dark:bg-gray-800/70 border border-gray-100 dark:border-gray-700 shadow hover:shadow-md'}`
+                      ? 'bg-amber-50/30 dark:bg-amber-900/10 shadow-sm' 
+                      : 'bg-gray-50/30 dark:bg-gray-800/20 shadow-sm hover:shadow'}`
                   }
                 >
                   {completedTaskId === target.id && (

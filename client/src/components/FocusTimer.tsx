@@ -91,8 +91,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       <div 
         className={`w-full rounded-xl backdrop-blur-xl transition-all duration-700 ease-in-out
           ${state.isRunning 
-            ? 'bg-gray-900/95 border border-gray-800 shadow-2xl' 
-            : 'bg-white/80 dark:bg-gray-800/80 border border-gray-100/30 dark:border-gray-700/30 shadow-lg'
+            ? 'bg-transparent shadow-2xl' 
+            : 'bg-transparent shadow-lg'
           }`}
       >
         <div className={`p-8 ${compact ? 'py-6' : 'py-10'}`}>
@@ -132,37 +132,45 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 className="flex flex-col items-center"
               >
                 <div className="relative inline-flex items-center justify-center mb-8">
-                  {/* Glow effect behind the timer */}
-                  <div className={`absolute inset-0 rounded-full blur-lg ${pulseEffect ? 'opacity-25' : 'opacity-15'} bg-amber-400 transition-opacity duration-2000`}></div>
+                  {/* Enhanced glow effect layers behind the timer */}
+                  <div className={`absolute w-full h-full rounded-full blur-3xl ${pulseEffect ? 'opacity-20' : 'opacity-10'} bg-amber-500 transition-opacity duration-2000`}></div>
+                  <div className={`absolute w-3/4 h-3/4 rounded-full blur-xl ${pulseEffect ? 'opacity-30' : 'opacity-20'} bg-amber-400 transition-opacity duration-2000`}></div>
                   
                   {/* Main timer circle */}
                   <svg className={`${enhancedSize} transform -rotate-90 relative z-10`} viewBox="0 0 100 100">
-                    {/* Background circle */}
+                    {/* Background circle - almost invisible */}
                     <circle 
-                      className="text-gray-700/30 dark:text-gray-600/30" 
-                      strokeWidth="3" 
+                      className="text-gray-800/10" 
+                      strokeWidth="1" 
                       stroke="currentColor" 
                       fill="transparent" 
-                      r="46" 
+                      r="47" 
                       cx="50" 
                       cy="50"
                     />
                     
-                    {/* Glow effect for the progress ring */}
-                    <filter id="glow">
-                      <feGaussianBlur stdDeviation="2.5" result="blur" />
-                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
+                    {/* Enhanced glow effects */}
+                    <defs>
+                      <filter id="outerGlow" height="300%" width="300%" x="-100%" y="-100%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feFlood floodColor="#b45309" floodOpacity="0.8" result="glowColor" />
+                        <feComposite in="glowColor" in2="blur" operator="in" result="softGlow" />
+                        <feMerge>
+                          <feMergeNode in="softGlow"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
+                    </defs>
                     
-                    {/* Animated progress with glow */}
+                    {/* Animated progress with enhanced glow */}
                     <motion.circle 
                       className="text-amber-400" 
-                      strokeWidth="3"
+                      strokeWidth="1.5"
                       strokeLinecap="round"
                       stroke="currentColor" 
-                      filter="url(#glow)"
+                      filter="url(#outerGlow)"
                       fill="transparent" 
-                      r="46" 
+                      r="47" 
                       cx="50" 
                       cy="50" 
                       strokeDasharray={circumference} 
