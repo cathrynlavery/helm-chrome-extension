@@ -27,6 +27,12 @@ export class FocusTimer {
   static getInstance(): FocusTimer {
     if (!FocusTimer.instance) {
       FocusTimer.instance = new FocusTimer();
+      // Make the instance and its getInstance method globally accessible for emergency recovery
+      if (typeof window !== 'undefined') {
+        (window as any).FocusTimer = {
+          getInstance: () => FocusTimer.getInstance()
+        };
+      }
     }
     return FocusTimer.instance;
   }
@@ -115,16 +121,25 @@ export class FocusTimer {
     console.log('FocusTimer.pause called, timerId:', this.timerId);
     if (this.timerId) {
       console.log('Clearing interval:', this.timerId);
-      window.clearInterval(this.timerId);
+      // Store the interval ID before clearing it
+      const intervalId = this.timerId;
+      // Clear the interval
+      window.clearInterval(intervalId);
       this.timerId = null;
       
-      // Calculate remaining time
+      // Calculate remaining time precisely
       const elapsed = (Date.now() - this.startTime) / 1000;
       this.pausedTimeRemaining = Math.max(this.pausedTimeRemaining - elapsed, 0);
       console.log('Updated pausedTimeRemaining:', this.pausedTimeRemaining);
       
-      // Notify listeners
-      this.notifyListeners();
+      // Set the start time for when we resume
+      this.startTime = Date.now();
+      
+      // Force update the UI immediately
+      setTimeout(() => {
+        this.notifyListeners();
+        console.log('Timer paused, notified listeners');
+      }, 0);
     } else {
       console.log('No timer running to pause');
     }
@@ -161,6 +176,17 @@ export class FocusTimer {
         console.log('Focus session ended successfully');
       } catch (error) {
         console.error('Error ending focus session:', error);
+        // Force clear active session in storage as fallback
+        try {
+          const data = await getStorageData();
+          if (data.activeFocusSession) {
+            console.log('Clearing active focus session from storage directly');
+            data.activeFocusSession = null;
+            await setStorageData(data);
+          }
+        } catch (innerError) {
+          console.error('Fallback storage clearing also failed:', innerError);
+        }
       }
       this.sessionId = null;
     } else {
@@ -172,6 +198,12 @@ export class FocusTimer {
     this.pausedTimeRemaining = DEFAULT_DURATION;
     console.log('Timer state reset to defaults');
     this.notifyListeners();
+    
+    // Force a page reload as last resort if we're on the focus session page
+    if (window.location.pathname === '/' || window.location.pathname === '/focus-session') {
+      console.log('Redirecting to dashboard after ending session');
+      window.location.href = '/dashboard';
+    }
   }
 
   // Get the current timer state

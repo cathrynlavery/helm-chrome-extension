@@ -20,12 +20,28 @@ import {
 const EmergencyReset: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  const handleEmergencyReset = () => {
-    console.log('Emergency reset triggered');
+  const handleEmergencyReset = async () => {
+    console.log('Emergency reset triggered from UI');
     
     try {
-      // Clear localStorage
-      console.log('Clearing local storage data');
+      // Try to use the FocusTimer instance if available globally
+      if ((window as any).FocusTimer?.getInstance) {
+        const timerInstance = (window as any).FocusTimer.getInstance();
+        if (timerInstance && typeof timerInstance.emergencyReset === 'function') {
+          console.log('Using FocusTimer instance for reset');
+          await timerInstance.emergencyReset();
+          console.log('FocusTimer emergency reset completed');
+          
+          // Short delay to allow the timer state to propagate
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+          return;
+        }
+      }
+      
+      // Fallback if FocusTimer instance not available
+      console.log('Fallback: Clearing local storage data directly');
       localStorage.removeItem('helmData');
       
       // Set a flag to indicate we're recovering from emergency

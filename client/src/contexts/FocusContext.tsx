@@ -57,13 +57,13 @@ interface FocusContextType {
 
 const FocusContext = createContext<FocusContextType | null>(null);
 
-export const useFocus = () => {
+export function useFocus() {
   const context = useContext(FocusContext);
   if (!context) {
     throw new Error('useFocus must be used within a FocusProvider');
   }
   return context;
-};
+}
 
 interface FocusProviderProps {
   children: ReactNode;
