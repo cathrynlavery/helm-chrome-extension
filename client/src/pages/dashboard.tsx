@@ -71,13 +71,27 @@ const Dashboard: React.FC = () => {
       {/* Main content - Cleaned up */}
       <main className="flex-grow py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Add Helm Logo aligned with main content */}
+          <div className="flex items-center mb-8 pl-1">
+            <img 
+              src="/icons/dark-icon.svg" 
+              alt="Helm" 
+              className="h-8 w-auto dark:hidden"
+            />
+            <img 
+              src="/icons/light-icon.svg" 
+              alt="Helm" 
+              className="h-8 w-auto hidden dark:block"
+            />
+          </div>
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
             {/* Just the greeting - removed redundant text */}
-            <div className="mb-10 text-center mt-8">
+            <div className="mb-14 text-center mt-8">
               <h2 className="text-3xl libre-baskerville-bold mb-2 text-[#333333] dark:text-[#E0E0E0]">
                 Good {timeOfDay}
               </h2>
@@ -86,8 +100,8 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
 
-            {/* Quick Start Button - with more spacing (32px) below greeting */}
-            <div className="flex justify-center mb-12 mt-6"> {/* Increased spacing */}
+            {/* Quick Start Button - with more spacing (40px) below greeting */}
+            <div className="flex justify-center mb-16 mt-10"> {/* Increased vertical spacing to 40px */}
               <Link href="/">
                 <Button 
                   className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-6 py-3.5 text-base hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
@@ -263,17 +277,17 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
       
-      {/* BestSelf Branding */}
-      <footer className="flex justify-center items-center py-8">
+      {/* BestSelf Branding with 48px spacing */}
+      <footer className="flex justify-center items-center py-12 mt-8 mb-6">
         <a 
           href="https://bestself.co" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center opacity-45 hover:opacity-70 transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:brightness-110"
+          className="flex items-center opacity-50 hover:opacity-70 transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:brightness-110"
         >
           <div className="h-[17px] w-auto">
             <img 
-              src="/icons/BestSelf-Text-Logo-black.png" 
+              src="/assets/BestSelf-Text-Logo-black.png" 
               alt="BestSelf.co" 
               className="h-full w-auto dark:invert"
             />
