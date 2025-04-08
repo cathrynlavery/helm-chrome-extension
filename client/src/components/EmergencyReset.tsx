@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash2 } from 'lucide-react';
+import { FocusTimer as FocusTimerClass } from '@/lib/focusTimer';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,23 +25,43 @@ const EmergencyReset: React.FC = () => {
     console.log('Emergency reset triggered from UI');
     
     try {
-      // Try to use the FocusTimer instance if available globally
-      if ((window as any).FocusTimer?.getInstance) {
-        const timerInstance = (window as any).FocusTimer.getInstance();
-        if (timerInstance && typeof timerInstance.emergencyReset === 'function') {
-          console.log('Using FocusTimer instance for reset');
-          await timerInstance.emergencyReset();
-          console.log('FocusTimer emergency reset completed');
-          
-          // Short delay to allow the timer state to propagate
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-          return;
-        }
+      // Use the directly imported FocusTimer class (most reliable)
+      try {
+        const timerInstance = FocusTimerClass.getInstance();
+        console.log('Using direct FocusTimerClass import for reset');
+        await timerInstance.emergencyReset();
+        console.log('FocusTimer emergency reset completed via direct import');
+        
+        // Short delay to allow the timer state to propagate
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+        return;
+      } catch (directError) {
+        console.error('Error using direct FocusTimerClass:', directError);
       }
       
-      // Fallback if FocusTimer instance not available
+      // Fallback to global instance if available
+      try {
+        if ((window as any).FocusTimer?.getInstance) {
+          const timerInstance = (window as any).FocusTimer.getInstance();
+          if (timerInstance && typeof timerInstance.emergencyReset === 'function') {
+            console.log('Using window.FocusTimer global instance for reset');
+            await timerInstance.emergencyReset();
+            console.log('FocusTimer emergency reset completed via global instance');
+            
+            // Short delay to allow the timer state to propagate
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+            return;
+          }
+        }
+      } catch (globalError) {
+        console.error('Error using global FocusTimer:', globalError);
+      }
+      
+      // Last resort: direct localStorage clearing
       console.log('Fallback: Clearing local storage data directly');
       localStorage.removeItem('helmData');
       
@@ -58,6 +79,7 @@ const EmergencyReset: React.FC = () => {
   return (
     <>
       <div className="fixed bottom-4 right-4 z-50 opacity-70 hover:opacity-100 transition-opacity duration-300">
+        {/* Primary button using Shadcn UI */}
         <Button
           variant="outline"
           size="sm"
@@ -67,6 +89,16 @@ const EmergencyReset: React.FC = () => {
           <AlertTriangle className="h-3 w-3" />
           Emergency Reset
         </Button>
+        
+        {/* Backup button that appears only if there are interactive issues with the primary button */}
+        <button
+          onClick={() => setIsDialogOpen(true)}
+          className="cursor-pointer mt-2 inline-flex items-center justify-center px-3 py-1 text-xs rounded-full bg-red-500 text-white hover:bg-red-600 active:bg-red-700 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-150"
+          style={{ display: 'none' }} // Hidden by default, can be shown with JS if needed
+          id="emergency-reset-backup"
+        >
+          Backup Reset Button
+        </button>
       </div>
       
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -81,16 +113,37 @@ const EmergencyReset: React.FC = () => {
               Use this only if you're stuck in a session that won't end normally.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl border border-zinc-200 dark:border-zinc-700">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleEmergencyReset}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-xl"
-            >
-              Yes, Reset Everything
-            </AlertDialogAction>
+          <AlertDialogFooter className="flex justify-end space-x-2">
+            {/* Fallback buttons that use native HTML for maximum reliability */}
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={() => setIsDialogOpen(false)}
+                className="px-4 py-2 cursor-pointer rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 transition-colors duration-150"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleEmergencyReset}
+                className="px-4 py-2 cursor-pointer rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors duration-150"
+              >
+                Yes, Reset Everything
+              </button>
+            </div>
+            
+            {/* Original styled buttons */}
+            <div className="hidden">
+              <AlertDialogCancel className="rounded-xl border border-zinc-200 dark:border-zinc-700">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleEmergencyReset}
+                className="bg-red-500 hover:bg-red-600 text-white rounded-xl"
+              >
+                Yes, Reset Everything
+              </AlertDialogAction>
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

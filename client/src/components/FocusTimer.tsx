@@ -32,6 +32,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
     console.log('🔍 handleStartPause triggered, active profile:', activeProfile?.name);
     if (!activeProfile) {
       console.log('⚠️ No active profile, cannot start/pause');
+      alert("Please select a focus profile first");
       return;
     }
     
@@ -42,15 +43,23 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
     });
     
     if (state.isRunning) {
-      console.log('⏸️ PAUSING TIMER - Current ID:', state.isRunning ? 'Running' : 'Not Running');
+      console.log('⏸️ PAUSING TIMER');
       try {
-        pause();
-        console.log('✅ Timer pause function called');
-        
-        // Force a re-render
-        console.log('🔄 Forcing component update after pause');
+        // Direct access to timer instance for most reliable pause
+        const timer = FocusTimerClass.getInstance();
+        timer.pause();
+        console.log('✅ Timer pause function called via direct timer instance');
       } catch (err) {
         console.error('❌ ERROR PAUSING TIMER:', err);
+        
+        // Fallback to context method
+        try {
+          pause();
+          console.log('✅ Timer pause function called via context (fallback)');
+        } catch (innerErr) {
+          console.error('💥 CRITICAL: Even fallback pause failed:', innerErr);
+          alert("Failed to pause timer. Try the emergency reset button.");
+        }
       }
     } else {
       // Convert to minutes
@@ -64,6 +73,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
         console.log('✅ Timer start function completed');
       } catch (error) {
         console.error('❌ ERROR STARTING TIMER:', error);
+        alert("Failed to start timer. Please try again.");
       }
     }
   };
@@ -82,20 +92,34 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       progress: state.progress
     });
     
+    // Direct approach with timer instance first (most reliable)
     try {
-      console.log('📝 Calling end() function directly');
+      const timer = FocusTimerClass.getInstance();
+      console.log('📝 Calling end() via direct timer instance');
+      await timer.end();
+      console.log('✅ End session function completed via direct timer instance');
+      return; // Exit early on success
+    } catch (directError) {
+      console.error('❌ ERROR ENDING SESSION (direct method):', directError);
+    }
+    
+    // Fallback to context method
+    try {
+      console.log('📝 Calling end() function via context (fallback)');
       await end();
-      console.log('✅ End session function completed');
-    } catch (error) {
-      console.error('❌ ERROR ENDING SESSION:', error);
-      // Try emergency reset as fallback
-      console.log('⚠️ Attempting emergency reset as fallback');
+      console.log('✅ End session function completed via context');
+    } catch (contextError) {
+      console.error('❌ ERROR ENDING SESSION (context method):', contextError);
+      
+      // Last resort: emergency reset
+      console.log('⚠️ Attempting emergency reset as final fallback');
       try {
         const timer = FocusTimerClass.getInstance();
         await timer.emergencyReset();
-        console.log('🆘 Emergency reset completed as fallback');
+        console.log('🆘 Emergency reset completed as final fallback');
       } catch (innerError) {
         console.error('💥 CRITICAL: Even emergency reset failed:', innerError);
+        alert("Failed to end session. Please try refreshing the page.");
       }
     }
   };
@@ -292,27 +316,25 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 {/* Controls */}
                 <div className="flex flex-col items-center">
                   <div className="flex justify-center space-x-6 mb-6">
-                    <Button
-                      variant="outline"
-                      size="lg"
+                    <button
+                      type="button"
                       onClick={() => {
                         console.log('END SESSION BUTTON CLICKED');
                         handleEndSession();
                       }}
-                      className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
+                      className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       <StopCircle className="h-5 w-5 mr-2" />
                       End Session
-                    </Button>
+                    </button>
                     
-                    <Button
-                      variant="outline"
-                      size="lg"
+                    <button
+                      type="button"
                       onClick={() => {
                         console.log('PAUSE/RESUME BUTTON CLICKED', state.isRunning ? 'PAUSING' : 'RESUMING');
                         handleStartPause();
                       }}
-                      className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
+                      className="inline-flex items-center justify-center cursor-pointer text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       {state.isRunning ? (
                         <>
@@ -325,7 +347,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                           Resume
                         </>
                       )}
-                    </Button>
+                    </button>
                   </div>
                   
                   {/* Note: Emergency Reset functionality now moved to global component */}
