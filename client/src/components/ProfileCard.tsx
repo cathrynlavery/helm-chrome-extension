@@ -1,6 +1,6 @@
 import React from 'react';
 import { FocusProfile } from '../lib/chromeStorage';
-import { Pencil, Trash2, Shield } from 'lucide-react';
+import { Pencil, Trash2, Shield, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface ProfileCardProps {
@@ -48,30 +48,32 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onSelect, onEdit, on
       </div>
       
       <div className="mb-5 text-sm">
-        <div className="flex items-center mb-2 text-[#333333]/70 dark:text-[#E0E0E0]/70">
-          <Shield className="h-3.5 w-3.5 mr-2 text-[#CDAA7A]" />
+        <div className="flex items-center mb-2 text-[#333333]/80 dark:text-[#E0E0E0]/80">
+          <Shield className="h-4 w-4 mr-2 text-[#CDAA7A]" />
           <span>{profile.blockedSites.length} site{profile.blockedSites.length !== 1 ? 's' : ''} blocked</span>
         </div>
-        <div className="flex items-center text-[#333333]/70 dark:text-[#E0E0E0]/70">
-          <div className="h-1.5 w-1.5 rounded-full bg-[#CDAA7A]/30 mr-2"></div>
+        <div className="flex items-center text-[#333333]/80 dark:text-[#E0E0E0]/80">
+          <Clock className="h-4 w-4 mr-2 text-[#CDAA7A]" />
           <span>Last used: {formatLastUsed(profile.lastUsed)}</span>
         </div>
       </div>
       
-      <div className="pt-2 mt-auto border-t border-[#CDAA7A]/10 flex justify-between">
+      <div className="pt-3 mt-auto border-t border-[#CDAA7A]/10 flex justify-between">
         <button 
-          className="text-xs text-[#333333]/50 dark:text-[#E0E0E0]/50 hover:text-[#CDAA7A] flex items-center transition-all duration-200 hover:underline" 
+          className="text-xs text-[#333333]/60 dark:text-[#E0E0E0]/60 hover:text-[#CDAA7A] flex items-center transition-all duration-200 hover:underline group px-2 py-1 rounded-md hover:bg-[#CDAA7A]/5" 
           onClick={handleEdit}
+          aria-label="Edit profile"
         >
-          <Pencil className="h-3 w-3 mr-1.5" />
+          <Pencil className="h-3.5 w-3.5 mr-2 group-hover:scale-110 transition-transform duration-200" />
           Edit
         </button>
         
         <button 
-          className="text-xs text-[#333333]/50 dark:text-[#E0E0E0]/50 hover:text-red-500 flex items-center transition-all duration-200 hover:underline" 
+          className="text-xs text-[#333333]/60 dark:text-[#E0E0E0]/60 hover:text-red-500 flex items-center transition-all duration-200 hover:underline group px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/10" 
           onClick={handleDelete}
+          aria-label="Delete profile"
         >
-          <Trash2 className="h-3 w-3 mr-1.5" />
+          <Trash2 className="h-3.5 w-3.5 mr-2 group-hover:scale-110 transition-transform duration-200" />
           Delete
         </button>
       </div>

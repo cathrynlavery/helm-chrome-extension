@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFocus } from '../contexts/FocusContext';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import ProfileCard from './ProfileCard';
 import ProfileEditor from './ProfileEditor';
 import { FocusProfile } from '../lib/chromeStorage';
@@ -64,17 +64,13 @@ const ProfilesManager: React.FC = () => {
   
   return (
     <>
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-10 flex justify-between items-center">
+        <h3 className="text-xl libre-baskerville-bold text-[#333333] dark:text-[#CDAA7A]">
+          Focus Profiles
+        </h3>
         <p className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
           {profiles.length} profile{profiles.length !== 1 ? 's' : ''} available
         </p>
-        <Button 
-          className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-4 py-2 text-sm hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
-          onClick={handleCreateProfile}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Profile
-        </Button>
       </div>
         
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -93,6 +89,28 @@ const ProfilesManager: React.FC = () => {
             />
           </motion.div>
         ))}
+        
+        {/* New Profile "Card" Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: (profiles.length * 0.05) + 0.05 }}
+        >
+          <div 
+            onClick={handleCreateProfile}
+            className="bg-transparent border-2 border-dashed border-[#CDAA7A]/30 rounded-[16px] p-5 h-full flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#CDAA7A]/50 hover:bg-[#CDAA7A]/5 transition-all duration-300 min-h-[180px] hover:scale-[1.01]"
+          >
+            <div className="w-12 h-12 rounded-full bg-[#CDAA7A]/10 flex items-center justify-center mb-3">
+              <Plus className="h-6 w-6 text-[#CDAA7A]" />
+            </div>
+            <h4 className="font-[500] text-[1rem] ibm-plex-mono-medium text-[#333333] dark:text-[#E0E0E0] mb-2">
+              New Profile
+            </h4>
+            <p className="text-sm text-[#333333]/60 dark:text-[#E0E0E0]/60">
+              Create a custom focus environment
+            </p>
+          </div>
+        </motion.div>
         
         {profiles.length === 0 && (
           <div className="col-span-full p-8 text-center">

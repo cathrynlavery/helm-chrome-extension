@@ -190,7 +190,6 @@ const Dashboard: React.FC = () => {
             <div className="mb-10">
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="text-xl libre-baskerville-bold text-[#333333] dark:text-[#CDAA7A]">Focus Profiles</CardTitle>
                   <CardDescription className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
                     Manage your focus profiles to customize your experience for different activities
                   </CardDescription>
