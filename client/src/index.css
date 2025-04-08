@@ -46,11 +46,11 @@
   body {
     @apply antialiased bg-background text-foreground;
     color: var(--color-text-primary);
-    background: linear-gradient(to bottom, #F7F7F5, #F1F1EF);
+    background: radial-gradient(circle at center, #F7F5F0 0%, #ECE7DF 100%);
   }
   
   .dark body {
-    background: linear-gradient(to bottom, #0E0E0E, #080808);
+    background: radial-gradient(circle at center, #151515 0%, #0A0A0A 100%);
   }
   
   /* Button styling */
@@ -169,6 +169,23 @@
 
 .pulse-glow {
   animation: pulse-glow 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Pulse animation for Start Focus Button */
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(205, 170, 122, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(205, 170, 122, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(205, 170, 122, 0);
+  }
+}
+
+.pulse-animation {
+  animation: pulse-animation 2s infinite cubic-bezier(0.66, 0, 0, 1);
 }
 
 /* Button style enhancements */

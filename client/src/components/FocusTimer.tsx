@@ -92,7 +92,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
         className={`w-full rounded-xl transition-all duration-700 ease-in-out
           ${state.isRunning 
             ? 'bg-transparent' 
-            : 'bg-gradient-to-b from-[#F7F7F5] to-[#F1F1EF] dark:bg-gradient-to-b dark:from-gray-900 dark:to-gray-950'
+            : 'bg-transparent'
           }`}
       >
         <div className={`p-8 ${compact ? 'py-6' : 'py-12'}`}>
@@ -279,8 +279,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   <div className="absolute text-center">
                     <div className={`${compact ? 'text-xl' : 'text-xl'} ibm-plex-mono-medium 
                       ${selectedDuration
-                        ? 'text-primary dark:text-primary transition-all duration-500'
-                        : 'text-gray-500 dark:text-gray-300'} mb-2`}>
+                        ? 'text-zinc-900 dark:text-zinc-900 transition-all duration-500'
+                        : 'text-zinc-900 dark:text-zinc-900'} mb-2`}>
                       Ready to Focus
                     </div>
                   </div>
@@ -299,8 +299,8 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                         variant={selectedDuration === duration ? "default" : "outline"}
                         className={`py-6 rounded-[16px] transition-all duration-400 ibm-plex-mono-medium
                           ${selectedDuration === duration 
-                            ? "bg-primary text-primary-foreground border-none hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]" 
-                            : "bg-transparent border-gray-200 dark:border-gray-700/50 hover:border-primary/70 hover:bg-gray-50/30 dark:hover:bg-gray-800/20 hover:scale-[1.02]"}`
+                            ? "bg-primary text-zinc-900 border-none hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]" 
+                            : "bg-transparent border-gray-200 dark:border-gray-700/50 hover:border-primary/60 hover:bg-primary/20 dark:hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02]"}`
                         }
                         onClick={() => handleSelectDuration(duration)}
                       >
@@ -334,7 +334,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   size="lg"
                   onClick={handleStartPause}
                   disabled={!activeProfile}
-                  className="py-7 px-12 rounded-[16px] bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-primary-foreground transition-all duration-300 ibm-plex-mono-medium text-base"
+                  className="py-7 px-12 rounded-[16px] bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
                 >
                   <Play className="h-5 w-5 mr-2" />
                   Start Focus Session
