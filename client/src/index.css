@@ -96,6 +96,11 @@
   font-weight: 400;
 }
 
+.libre-baskerville-bold {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+}
+
 .libre-baskerville-italic {
   font-family: 'Libre Baskerville', serif;
   font-weight: 400;

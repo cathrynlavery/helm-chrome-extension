@@ -20,18 +20,18 @@ const ProfileSelector: React.FC = () => {
   
   return (
     <div className="flex flex-col items-center justify-center w-full text-center">
-      <p className="text-sm text-center uppercase ibm-plex-mono-medium text-[#333333]/80 dark:text-[#333333]/80 mb-2">Focus Space</p>
+      <p className="text-sm text-center uppercase ibm-plex-mono-medium text-[#333333]/80 dark:text-[#333333]/80 mb-3 tracking-wider">Focus Space</p>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger className="flex items-center justify-center text-[1.25rem] heading-text text-[#333333] dark:text-[#333333] focus:outline-none hover:text-[#CDAA7A] transition-colors">
           <span>{activeProfile?.name || 'Select Profile'}</span>
           <ChevronDown className="ml-1 h-5 w-5" />
         </DropdownMenuTrigger>
         
-        <DropdownMenuContent align="center" className="w-48 bg-white/90 backdrop-blur-md rounded-[12px] border border-[#CDAA7A]/30">
+        <DropdownMenuContent align="center" className="w-48 bg-white/90 dark:bg-white/95 backdrop-blur-md rounded-[12px] border border-[#CDAA7A]/30">
           {profiles.map(profile => (
             <DropdownMenuItem 
               key={profile.id}
-              className="cursor-pointer ibm-plex-mono-regular hover:text-[#CDAA7A] hover:bg-[#CDAA7A]/10 transition-colors"
+              className="cursor-pointer ibm-plex-mono-regular text-[#333333] dark:text-[#333333] hover:text-[#CDAA7A] hover:bg-[#CDAA7A]/10 transition-colors"
               onClick={() => handleSelectProfile(profile.id)}
             >
               {profile.name}
@@ -40,7 +40,7 @@ const ProfileSelector: React.FC = () => {
           
           <DropdownMenuSeparator className="bg-[#CDAA7A]/20" />
           
-          <DropdownMenuItem className="text-[#CDAA7A] cursor-pointer ibm-plex-mono-regular hover:bg-[#CDAA7A]/10 transition-colors">
+          <DropdownMenuItem className="text-[#CDAA7A] cursor-pointer ibm-plex-mono-regular hover:text-[#CDAA7A]/80 hover:bg-[#CDAA7A]/10 transition-colors">
             Manage profiles...
           </DropdownMenuItem>
         </DropdownMenuContent>
