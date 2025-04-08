@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.4 }}
           >
             {/* Personalized greeting with date */}
-            <div className="mb-10 text-center">
+            <div className="mb-14 text-center"> {/* Increased spacing from 10 to 14 (added +24px) */}
               <h2 className="text-3xl libre-baskerville-bold mb-2 text-[#333333] dark:text-[#E0E0E0]">
                 Good {timeOfDay}
               </h2>
@@ -100,16 +100,16 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Stats Cards - Enhanced with better spacing */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-14">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-18"> {/* Increased bottom margin to 18 (+24px) */}
               {/* Today's Focus */}
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-2 p-6"> {/* Added p-6 for 24px padding */}
                   <CardTitle className="flex items-center gap-2 ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A]">
                     <Clock className="h-5 w-5 text-[#CDAA7A]" />
                     Today's Focus
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pb-6"> {/* Added px-6 pb-6 for 24px padding */}
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-4xl font-semibold text-[#333333] dark:text-[#E0E0E0]">
                       {todayFocusTime}
@@ -174,13 +174,13 @@ const Dashboard: React.FC = () => {
 
               {/* Weekly Activity */}
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-2 p-6"> {/* Added p-6 for 24px padding */}
                   <CardTitle className="flex items-center gap-2 ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A]">
                     <Calendar className="h-5 w-5 text-[#CDAA7A]" />
                     Weekly Activity
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pb-6"> {/* Added px-6 pb-6 for 24px padding */}
                   <div className="flex justify-between items-end mb-1 h-36 text-sm">
                     {stats.weeklyData.map((day, index) => (
                       <div key={index} className="flex flex-col items-center">
@@ -201,13 +201,13 @@ const Dashboard: React.FC = () => {
 
               {/* Streaks */}
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
-                <CardHeader className="pb-2">
+                <CardHeader className="pb-2 p-6"> {/* Added p-6 for 24px padding */}
                   <CardTitle className="flex items-center gap-2 ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A]">
                     <Flame className="h-5 w-5 text-[#CDAA7A]" />
                     Focus Streaks
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-6 pb-6"> {/* Added px-6 pb-6 for 24px padding */}
                   <div className="flex items-end mb-6">
                     <div className="mr-8">
                       <div className="flex items-center">
@@ -244,10 +244,11 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Quick Start Button */}
-            <div className="flex justify-center mb-14">
+            <div className="flex justify-center mb-20"> {/* Increased margin bottom (added +32px for more separation) */}
               <Link href="/">
                 <Button 
-                  className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-6 py-6 text-base hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
+                  className="bg-[#CDAA7A] hover:bg-[#CDAA7A]/90 text-[#333333] ibm-plex-mono-medium px-6 py-3.5 text-base hover:scale-[1.02] transition-all duration-300 rounded-[16px] shadow-md"
+                  /* Changed py-6 to py-3.5 for better 14px vertical padding */
                 >
                   <Target className="h-5 w-5 mr-2" />
                   Start Focus Session
@@ -255,16 +256,19 @@ const Dashboard: React.FC = () => {
                 </Button>
               </Link>
             </div>
+            
+            {/* Light divider for visual separation */}
+            <div className="w-full max-w-4xl mx-auto h-px bg-[#CDAA7A]/10 mb-16"></div>
 
             {/* Profiles Manager - Single column full width */}
-            <div className="mb-10">
+            <div className="mb-16"> {/* Increased margin (mb-10 to mb-16) for +32px spacing */}
               <Card className="backdrop-blur-sm bg-transparent border border-[#CDAA7A]/20 shadow-none hover:border-[#CDAA7A]/30 transition-all duration-300">
-                <CardHeader>
+                <CardHeader className="p-6"> {/* Added p-6 for 24px padding */}
                   <CardDescription className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
                     Manage your focus profiles to customize your experience for different activities
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6"> {/* Added p-6 for 24px padding */}
                   <ProfilesManager />
                 </CardContent>
               </Card>

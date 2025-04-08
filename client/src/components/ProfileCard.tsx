@@ -27,11 +27,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onSelect, onEdit, on
   
   return (
     <div 
-      className={`bg-white dark:bg-transparent rounded-[16px] p-5 cursor-pointer transition-all duration-300 border ${
+      className={`bg-white dark:bg-transparent rounded-[16px] p-6 cursor-pointer transition-all duration-300 border w-full ${
         profile.isActive 
           ? 'border-[#CDAA7A]/50 shadow-md hover:shadow-lg' 
           : 'border-[#CDAA7A]/20 hover:border-[#CDAA7A]/30'
-      } hover:scale-[1.01]`}
+      } hover:scale-[1.02]`} 
+      // Updated padding from p-5 to p-6 (24px), added w-full to fill container, and increased hover scale for consistency
       onClick={handleClick}
     >
       <div className="flex items-center justify-between mb-4">

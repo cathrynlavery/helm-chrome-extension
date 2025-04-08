@@ -73,13 +73,15 @@ const ProfilesManager: React.FC = () => {
         </p>
       </div>
         
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Increased gap from 6 to 8, added px-1 for better spacing */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-1">
         {profiles.map((profile, index) => (
           <motion.div
             key={profile.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="flex" // Added flex to ensure full height
           >
             <ProfileCard
               profile={profile}
@@ -90,15 +92,16 @@ const ProfilesManager: React.FC = () => {
           </motion.div>
         ))}
         
-        {/* New Profile "Card" Button */}
+        {/* New Profile "Card" Button - Now centered in its grid cell */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: (profiles.length * 0.05) + 0.05 }}
+          className="flex" // Added flex to ensure full height and proper centering
         >
           <div 
             onClick={handleCreateProfile}
-            className="bg-transparent border-2 border-dashed border-[#CDAA7A]/30 rounded-[16px] p-5 h-full flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#CDAA7A]/50 hover:bg-[#CDAA7A]/5 transition-all duration-300 min-h-[180px] hover:scale-[1.01]"
+            className="bg-transparent border-2 border-dashed border-[#CDAA7A]/30 rounded-[16px] p-6 w-full flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#CDAA7A]/50 hover:bg-[#CDAA7A]/5 transition-all duration-300 min-h-[180px] hover:scale-[1.01]"
           >
             <div className="w-12 h-12 rounded-full bg-[#CDAA7A]/10 flex items-center justify-center mb-3">
               <Plus className="h-6 w-6 text-[#CDAA7A]" />

@@ -198,11 +198,11 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent 
-        className="sm:max-w-md bg-white dark:bg-gray-900 border border-[#CDAA7A]/20 p-6"
+        className="sm:max-w-md bg-white dark:bg-gray-900 border border-[#CDAA7A]/20 p-8 rounded-[16px]" /* Increased padding and rounded corners */
         aria-describedby="profile-editor-description"
       >
-        <DialogHeader>
-          <DialogTitle className="text-xl ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A]">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-xl libre-baskerville-bold text-[#333333] dark:text-[#CDAA7A]"> {/* Changed to Libre Baskerville for headings */}
             {profile ? `Edit Profile: ${profile.name}` : 'Create New Profile'}
           </DialogTitle>
           <div id="profile-editor-description" className="sr-only">
