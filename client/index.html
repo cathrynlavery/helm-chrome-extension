@@ -8,9 +8,81 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/icons/helm-icon.svg" />
+    <style>
+      .emergency-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        background: red;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        z-index: 9999;
+        font-family: system-ui, sans-serif;
+      }
+      
+      .emergency-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 20px;
+        font-family: system-ui, sans-serif;
+      }
+      
+      .emergency-overlay h1 {
+        color: red;
+        margin-bottom: 20px;
+      }
+      
+      .emergency-overlay button {
+        padding: 10px 20px;
+        background: blue;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 10px;
+      }
+    </style>
   </head>
   <body>
+    <!-- Base React app container -->
     <div id="root"></div>
+    
+    <!-- Emergency button outside React -->
+    <button class="emergency-button" onclick="document.getElementById('emergencyOverlay').style.display='flex'">
+      Emergency UI Override
+    </button>
+    
+    <!-- Emergency overlay with pure HTML buttons -->
+    <div id="emergencyOverlay" class="emergency-overlay">
+      <h1>Emergency UI Controls</h1>
+      <p>This is a fallback UI for testing button functionality</p>
+      
+      <div>
+        <button onclick="alert('Button 1 clicked!')">Test Button 1</button>
+        <button onclick="alert('Button 2 clicked!')">Test Button 2</button>
+        <button onclick="window.location.href='/test.html'">Go to Test HTML Page</button>
+      </div>
+      
+      <button onclick="document.getElementById('emergencyOverlay').style.display='none'" style="margin-top: 40px; background: red;">
+        Close Emergency UI
+      </button>
+    </div>
+    
+    <!-- Load React app -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

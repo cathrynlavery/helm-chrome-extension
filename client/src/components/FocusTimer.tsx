@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFocus } from '../contexts/FocusContext';
 import { Button } from '@/components/ui/button';
 import { Pause, Play, StopCircle } from 'lucide-react';
 import ProfileSelector from './ProfileSelector';
-import { AnimatePresence, motion } from 'framer-motion';
 
 interface FocusTimerProps {
   compact?: boolean;
@@ -19,6 +18,78 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   const { focusTimer, activeProfile } = useFocus();
   const { state, start, pause, end } = focusTimer;
   const [selectedDuration, setSelectedDuration] = useState<number>(45);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  // Ensure component is fully mounted before attaching event handlers
+  useEffect(() => {
+    setIsMounted(true);
+    console.log("FocusTimer component mounted");
+    
+    // Cleanup on unmount
+    return () => {
+      console.log("FocusTimer component unmounting");
+      setIsMounted(false);
+    };
+  }, []);
+  
+  // Manually attach click handlers on mount
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    const attachClickHandlers = () => {
+      console.log("Attaching click handlers to buttons");
+      
+      // End session button
+      const endButton = document.getElementById('end-session-button');
+      if (endButton) {
+        console.log("Found end button, attaching handler");
+        endButton.addEventListener('click', handleEndSession);
+      }
+      
+      // Pause/resume button
+      const pauseButton = document.getElementById('pause-resume-button');
+      if (pauseButton) {
+        console.log("Found pause button, attaching handler");
+        pauseButton.addEventListener('click', handleStartPause);
+      }
+      
+      // Start session button
+      const startButton = document.getElementById('start-session-button');
+      if (startButton) {
+        console.log("Found start button, attaching handler");
+        startButton.addEventListener('click', handleStartPause);
+      }
+      
+      // Duration buttons
+      [15, 30, 45, 60].forEach(min => {
+        const button = document.getElementById(`duration-${min}`);
+        if (button) {
+          console.log(`Found duration button ${min}, attaching handler`);
+          button.addEventListener('click', () => handleSelectDuration(min));
+        }
+      });
+    };
+    
+    // Delay to ensure DOM is ready
+    setTimeout(attachClickHandlers, 500);
+    
+    return () => {
+      // Clean up event listeners
+      const endButton = document.getElementById('end-session-button');
+      if (endButton) endButton.removeEventListener('click', handleEndSession);
+      
+      const pauseButton = document.getElementById('pause-resume-button');
+      if (pauseButton) pauseButton.removeEventListener('click', handleStartPause);
+      
+      const startButton = document.getElementById('start-session-button');
+      if (startButton) startButton.removeEventListener('click', handleStartPause);
+      
+      [15, 30, 45, 60].forEach(min => {
+        const button = document.getElementById(`duration-${min}`);
+        if (button) button.removeEventListener('click', () => handleSelectDuration(min));
+      });
+    };
+  }, [isMounted, state.isRunning]);
   
   const handleStartPause = async () => {
     console.log('handleStartPause triggered', state.isRunning ? 'PAUSE' : 'START');
@@ -61,115 +132,85 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   };
   
   const handleSelectDuration = (minutes: number) => {
+    console.log('Duration selected:', minutes);
     setSelectedDuration(minutes);
   };
   
-  return (
-    <div className="w-full">
-      <div className="w-full p-8">
-        {showProfileSelector && !state.isRunning && (
-          <div className="flex items-center justify-between mb-12">
-            <div className="profile-label">
-              <ProfileSelector />
-            </div>
+  // Generate a simple render for testing
+  if (state.isRunning) {
+    return (
+      <div className="w-full p-8 border border-amber-200 bg-white/5 rounded-xl" style={{position: 'relative', zIndex: 5}}>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl mb-4 font-semibold">{focusTimer.formattedTime}</h2>
+          <p>Time Remaining</p>
+        </div>
+        
+        {activeProfile && (
+          <div className="text-center mb-6">
+            <h3 className="text-xl">{activeProfile.name}</h3>
           </div>
         )}
         
-        <AnimatePresence mode="wait">
-          {state.isRunning ? (
-            <motion.div 
-              key="timer-running"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center"
+        <div className="flex justify-center gap-4 my-6">
+          <button 
+            id="end-session-button"
+            className="px-6 py-3 bg-red-500 text-white rounded-lg flex items-center gap-2 interactive"
+            onClick={handleEndSession}
+          >
+            <StopCircle size={20} />
+            End Session
+          </button>
+          
+          <button 
+            id="pause-resume-button"
+            className="px-6 py-3 bg-amber-500 text-white rounded-lg flex items-center gap-2 interactive"
+            onClick={handleStartPause}
+          >
+            <Pause size={20} />
+            Pause
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="w-full p-8 border border-amber-100 rounded-xl" style={{position: 'relative', zIndex: 5}}>
+      {showProfileSelector && (
+        <div className="mb-8">
+          <ProfileSelector />
+        </div>
+      )}
+      
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold mb-4">
+          Select Focus Duration
+        </h2>
+        <div className="flex flex-wrap justify-center gap-4">
+          {[15, 30, 45, 60].map((minutes) => (
+            <button
+              key={minutes}
+              id={`duration-${minutes}`}
+              className={`px-5 py-2 ${selectedDuration === minutes 
+                ? 'bg-amber-500 text-white' 
+                : 'bg-gray-100 text-gray-800'} rounded-lg interactive`}
+              onClick={() => handleSelectDuration(minutes)}
             >
-              <div className="relative inline-flex items-center justify-center mb-8">
-                <div className="text-center">
-                  <div className="text-4xl">
-                    {focusTimer.formattedTime}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    Time Remaining
-                  </div>
-                </div>
-              </div>
-              
-              {activeProfile && (
-                <div className="mb-8 text-center">
-                  <div className="text-center">
-                    <span className="text-xl">{activeProfile.name}</span>
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex justify-center space-x-6 mb-6">
-                <Button 
-                  id="end-session-button"
-                  onClick={handleEndSession}
-                  className="rounded-lg"
-                >
-                  <StopCircle className="h-5 w-5 mr-2" />
-                  End Session
-                </Button>
-                
-                <Button 
-                  id="pause-resume-button"
-                  onClick={handleStartPause}
-                  className="rounded-lg"
-                >
-                  {state.isRunning ? (
-                    <>
-                      <Pause className="h-5 w-5 mr-2" />
-                      Pause
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-5 w-5 mr-2" />
-                      Resume
-                    </>
-                  )}
-                </Button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="timer-setup"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center"
-            >
-              <div className="mb-8 text-center">
-                <h2 className="text-2xl font-semibold mb-4">
-                  Select Focus Duration
-                </h2>
-                <div className="flex space-x-4 justify-center">
-                  {[15, 30, 45, 60].map((minutes) => (
-                    <Button
-                      key={minutes}
-                      onClick={() => handleSelectDuration(minutes)}
-                      variant={selectedDuration === minutes ? "default" : "outline"}
-                      className="rounded-lg"
-                    >
-                      {minutes} min
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              <Button
-                id="start-session-button"
-                onClick={handleStartPause}
-                className="mt-6 rounded-lg"
-                size="lg"
-              >
-                <Play className="h-5 w-5 mr-2" />
-                Start Focus Session
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {minutes} min
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      <div className="text-center">
+        <button
+          id="start-session-button"
+          className="px-8 py-4 bg-green-500 text-white rounded-lg flex items-center gap-2 mx-auto interactive"
+          onClick={handleStartPause}
+        >
+          <Play size={20} />
+          Start Focus Session
+        </button>
       </div>
     </div>
   );

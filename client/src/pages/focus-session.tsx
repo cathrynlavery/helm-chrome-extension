@@ -53,9 +53,10 @@ const FocusSession: React.FC = () => {
   return (
     <div 
       className={`min-h-screen flex flex-col ${focusTimer.state.isRunning ? 'dark' : ''}`}
-      style={backgroundStyle}
+      style={{...backgroundStyle, position: 'relative'}}
     >
-      <div className="noise-overlay"></div>
+      {/* Ensure this doesn't capture clicks */}
+      <div className="noise-overlay pointer-events-none"></div>
       
       {/* Ambient glow behind timer - only visible in focus mode */}
       {focusTimer.state.isRunning && (
