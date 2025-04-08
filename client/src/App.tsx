@@ -7,7 +7,6 @@ import Dashboard from "@/pages/dashboard";
 import BlockedPage from "@/pages/blocked";
 import FocusSession from "@/pages/focus-session";
 import { FocusProvider } from "./contexts/FocusContext";
-import EmergencyReset from "./components/EmergencyReset";
 
 function Router() {
   return (
@@ -26,7 +25,6 @@ function App() {
       <FocusProvider>
         <Router />
         <Toaster />
-        <EmergencyReset />
       </FocusProvider>
     </QueryClientProvider>
   );
