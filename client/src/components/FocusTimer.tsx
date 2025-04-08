@@ -6,7 +6,7 @@ import { Pause, Play, RefreshCw, CheckCircle, Timer, Flame, StopCircle } from 'l
 import ProfileSelector from './ProfileSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
-import { formatDuration } from '../lib/focusTimer';
+import { formatDuration, FocusTimer as FocusTimerClass, TimerState } from '../lib/focusTimer';
 
 interface FocusTimerProps {
   compact?: boolean;
@@ -29,49 +29,74 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   // Emergency reset functionality moved to global component
   
   const handleStartPause = async () => {
-    if (!activeProfile) return;
+    console.log('🔍 handleStartPause triggered, active profile:', activeProfile?.name);
+    if (!activeProfile) {
+      console.log('⚠️ No active profile, cannot start/pause');
+      return;
+    }
     
-    console.log('handleStartPause called, isRunning:', state.isRunning);
+    console.log('📊 Current timer state:', {
+      isRunning: state.isRunning,
+      timeRemaining: state.timeRemaining,
+      progress: state.progress
+    });
     
     if (state.isRunning) {
-      console.log('Attempting to pause timer');
-      // Explicitly use the setTimeout to ensure UI updates after pause
-      setTimeout(() => {
+      console.log('⏸️ PAUSING TIMER - Current ID:', state.isRunning ? 'Running' : 'Not Running');
+      try {
         pause();
-        console.log('Timer paused');
-      }, 0);
+        console.log('✅ Timer pause function called');
+        
+        // Force a re-render
+        console.log('🔄 Forcing component update after pause');
+      } catch (err) {
+        console.error('❌ ERROR PAUSING TIMER:', err);
+      }
     } else {
       // Convert to minutes
       const duration = typeof selectedDuration === 'number' ? selectedDuration : 45;
-      console.log('Starting timer with duration:', duration, 'minutes');
+      console.log('▶️ STARTING TIMER with duration:', duration, 'minutes');
+      
       // Convert minutes to seconds for the timer
       try {
+        console.log('📝 Calling start() with:', activeProfile.id, duration * 60);
         await start(activeProfile.id, duration * 60);
-        console.log('Timer started');
+        console.log('✅ Timer start function completed');
       } catch (error) {
-        console.error('Error starting timer:', error);
+        console.error('❌ ERROR STARTING TIMER:', error);
       }
     }
   };
   
   const handleReset = () => {
-    console.log('Reset called');
-    setTimeout(() => {
-      reset();
-      console.log('Timer reset completed');
-    }, 0);
+    console.log('🔄 Reset called');
+    reset();
+    console.log('✅ Timer reset completed');
   };
   
   const handleEndSession = async () => {
-    console.log('End session called');
+    console.log('🛑 END SESSION called');
+    console.log('📊 Current timer state before end:', {
+      isRunning: state.isRunning,
+      timeRemaining: state.timeRemaining,
+      progress: state.progress
+    });
+    
     try {
-      // Force immediate UI update before async operation
-      setTimeout(async () => {
-        await end();
-        console.log('Session ended successfully');
-      }, 0);
+      console.log('📝 Calling end() function directly');
+      await end();
+      console.log('✅ End session function completed');
     } catch (error) {
-      console.error('Error ending session:', error);
+      console.error('❌ ERROR ENDING SESSION:', error);
+      // Try emergency reset as fallback
+      console.log('⚠️ Attempting emergency reset as fallback');
+      try {
+        const timer = FocusTimerClass.getInstance();
+        await timer.emergencyReset();
+        console.log('🆘 Emergency reset completed as fallback');
+      } catch (innerError) {
+        console.error('💥 CRITICAL: Even emergency reset failed:', innerError);
+      }
     }
   };
   
@@ -108,6 +133,33 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       return () => clearInterval(interval);
     }
   }, [state.isRunning]);
+  
+  // Force component to update when timer state changes
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // Add a timer state listener to force update
+  useEffect(() => {
+    // Subscribe to timer state changes with higher priority
+    const timer = FocusTimerClass.getInstance();
+    
+    const unsubscribe = timer.subscribe((timerState: TimerState) => {
+      console.log('🔄 Timer state changed, forcing update:', {
+        isRunning: timerState.isRunning,
+        timeRemaining: Math.floor(timerState.timeRemaining),
+        progress: timerState.progress.toFixed(2)
+      });
+      // Force update to make sure React re-renders
+      setForceUpdate(prev => prev + 1);
+    });
+    
+    // Log the registration
+    console.log('⚡️ Registered direct timer listener to force component updates');
+    
+    return () => {
+      unsubscribe();
+      console.log('🛑 Removed direct timer listener');
+    };
+  }, []);
   
   // Enhanced circle size for the premium look
   const enhancedSize = compact ? "w-32 h-32" : "w-64 h-64";
@@ -243,7 +295,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      onClick={() => handleEndSession()}
+                      onClick={() => {
+                        console.log('END SESSION BUTTON CLICKED');
+                        handleEndSession();
+                      }}
                       className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       <StopCircle className="h-5 w-5 mr-2" />
@@ -253,7 +308,10 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      onClick={() => handleStartPause()}
+                      onClick={() => {
+                        console.log('PAUSE/RESUME BUTTON CLICKED', state.isRunning ? 'PAUSING' : 'RESUMING');
+                        handleStartPause();
+                      }}
                       className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       {state.isRunning ? (
