@@ -7,6 +7,7 @@ import Dashboard from "@/pages/dashboard";
 import BlockedPage from "@/pages/blocked";
 import FocusSession from "@/pages/focus-session";
 import { FocusProvider } from "./contexts/FocusContext";
+import TestButtons from "./components/TestButtons";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <FocusProvider>
+        <TestButtons />
         <Router />
         <Toaster />
       </FocusProvider>

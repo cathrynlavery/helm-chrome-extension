@@ -60,7 +60,7 @@ const FocusSession: React.FC = () => {
       {/* Ambient glow behind timer - only visible in focus mode */}
       {focusTimer.state.isRunning && (
         <div 
-          className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-amber-500/10 blur-3xl"
+          className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-amber-500/10 blur-3xl pointer-events-none"
           style={{
             background: 'radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, rgba(0, 0, 0, 0) 70%)'
           }}
