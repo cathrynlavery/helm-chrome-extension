@@ -13,6 +13,7 @@ import {
   deleteProfile as deleteStorageProfile,
   getFocusHistory,
   getFocusGoal,
+  setFocusGoal as setStorageFocusGoal,
   getWeeklyFocusGoal,
   getStreaks,
   getActiveFocusSession,
@@ -45,6 +46,7 @@ interface FocusContextType {
     streaks: { current: number, best: number };
   };
   setDailyIntention: (intention: string) => Promise<void>;
+  setFocusGoal: (minutes: number) => Promise<void>;
   setActiveProfile: (id: number) => Promise<void>;
   createProfile: (profile: Omit<FocusProfile, 'id' | 'lastUsed'>) => Promise<void>;
   updateProfile: (id: number, updates: Partial<FocusProfile>) => Promise<void>;
@@ -179,6 +181,21 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     setDailyIntentionState(intention);
   };
   
+  // Set focus goal
+  const handleSetFocusGoal = async (minutes: number) => {
+    await setStorageFocusGoal(minutes);
+    
+    // Update stats with new goal
+    setStats(prevStats => {
+      const updatedPercentage = Math.min(Math.round((prevStats.todayMinutes / minutes) * 100), 100);
+      return {
+        ...prevStats,
+        todayGoal: minutes,
+        todayPercentage: updatedPercentage
+      };
+    });
+  };
+  
   // Set active profile
   const handleSetActiveProfile = async (id: number) => {
     await updateProfile(id, { isActive: true });
@@ -267,6 +284,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     },
     stats,
     setDailyIntention: handleSetDailyIntention,
+    setFocusGoal: handleSetFocusGoal,
     setActiveProfile: handleSetActiveProfile,
     createProfile: handleCreateProfile,
     updateProfile: handleUpdateProfile,

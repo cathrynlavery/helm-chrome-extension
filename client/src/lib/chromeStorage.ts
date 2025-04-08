@@ -395,6 +395,13 @@ export const getFocusGoal = async (): Promise<number> => {
   return data.focusGoal;
 };
 
+export const setFocusGoal = async (minutes: number): Promise<number> => {
+  const data = await getStorageData();
+  data.focusGoal = minutes;
+  await setStorageData(data);
+  return minutes;
+};
+
 export const getWeeklyFocusGoal = async (): Promise<number> => {
   const data = await getStorageData();
   return data.weeklyFocusGoal;

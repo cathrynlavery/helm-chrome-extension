@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'wouter';
 import { useFocus } from '../contexts/FocusContext';
 import ProfilesManager from '../components/ProfilesManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatDuration } from '../lib/focusTimer';
-import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check } from 'lucide-react';
 import HelmLogo from '../components/HelmLogo';
 import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
 
 const Dashboard: React.FC = () => {
   const { 
     stats,
-    isLoading
+    isLoading,
+    setFocusGoal
   } = useFocus();
+  
+  const [editingGoal, setEditingGoal] = useState(false);
+  const [goalHours, setGoalHours] = useState((stats?.todayGoal / 60).toString());
   
   if (isLoading) {
     return (
@@ -26,8 +31,26 @@ const Dashboard: React.FC = () => {
     );
   }
   
-  const greeting = getGreeting();
   const todayFocusTime = formatDuration(stats.todayMinutes);
+  
+  // Get personalized greeting based on time of day
+  const hour = new Date().getHours();
+  let timeOfDay = 'morning';
+  if (hour >= 12 && hour < 18) {
+    timeOfDay = 'afternoon';
+  } else if (hour >= 18) {
+    timeOfDay = 'evening';
+  }
+  
+  // Format current date nicely
+  const now = new Date();
+  const options: Intl.DateTimeFormatOptions = { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric',
+    year: 'numeric'
+  };
+  const formattedDate = now.toLocaleDateString(undefined, options);
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -37,7 +60,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center">
             <HelmLogo size={30} className="text-[#CDAA7A]" />
             <h1 className="ml-3 text-xl ibm-plex-mono-medium text-[#333333] dark:text-[#E0E0E0]">
-              Mission Control
+              Helm
             </h1>
           </div>
           <div className="flex items-center space-x-4">
@@ -63,9 +86,14 @@ const Dashboard: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {/* Simple greeting with welcome text */}
+            {/* Personalized greeting with date */}
             <div className="mb-10 text-center">
-              <h2 className="text-3xl libre-baskerville-bold mb-3 text-[#333333] dark:text-[#E0E0E0]">{greeting}</h2>
+              <h2 className="text-3xl libre-baskerville-bold mb-2 text-[#333333] dark:text-[#E0E0E0]">
+                Good {timeOfDay}
+              </h2>
+              <p className="text-sm ibm-plex-mono-regular text-[#333333]/60 dark:text-[#E0E0E0]/60 mb-3">
+                {formattedDate}
+              </p>
               <p className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular max-w-xl mx-auto">
                 View your focus metrics and manage your profiles. Return to the focus session when you're ready to start working.
               </p>
@@ -87,7 +115,49 @@ const Dashboard: React.FC = () => {
                       {todayFocusTime}
                     </span>
                     <div className="text-right">
-                      <div className="text-sm text-[#333333]/70 dark:text-[#E0E0E0]/70">Goal: {stats.todayGoal / 60}h</div>
+                      <div className="text-sm text-[#333333]/70 dark:text-[#E0E0E0]/70 flex items-center justify-end">
+                        {editingGoal ? (
+                          <div className="flex items-center">
+                            <Input
+                              type="number"
+                              min="0.5"
+                              max="12"
+                              step="0.5"
+                              value={goalHours}
+                              onChange={(e) => setGoalHours(e.target.value)}
+                              className="w-16 h-7 mr-1 px-2 text-sm text-[#333333] dark:text-[#E0E0E0] bg-transparent border-[#CDAA7A]/30"
+                            />
+                            <span className="mr-2">h</span>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 text-[#CDAA7A] hover:text-[#CDAA7A]/80 hover:bg-transparent"
+                              onClick={() => {
+                                const hours = parseFloat(goalHours);
+                                if (!isNaN(hours) && hours >= 0.5 && hours <= 12) {
+                                  const minutes = Math.round(hours * 60);
+                                  setFocusGoal(minutes);
+                                  setEditingGoal(false);
+                                }
+                              }}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            Goal: {stats.todayGoal / 60}h
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 ml-1 text-[#333333]/60 dark:text-[#E0E0E0]/60 hover:text-[#CDAA7A] hover:bg-transparent"
+                              onClick={() => setEditingGoal(true)}
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
                       <div className="text-xl text-[#CDAA7A] font-medium">
                         {stats.todayPercentage}%
                       </div>
