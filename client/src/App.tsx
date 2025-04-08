@@ -6,14 +6,12 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import BlockedPage from "@/pages/blocked";
 import FocusSession from "@/pages/focus-session";
-import ButtonTest from "@/pages/button-test";
 import { FocusProvider } from "./contexts/FocusContext";
-import TestButtons from "./components/TestButtons";
+import EmergencyReset from "./components/EmergencyReset";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/test" component={ButtonTest} />
       <Route path="/" component={FocusSession} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/blocked" component={BlockedPage} />
@@ -26,9 +24,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <FocusProvider>
-        <TestButtons />
         <Router />
         <Toaster />
+        <EmergencyReset />
       </FocusProvider>
     </QueryClientProvider>
   );

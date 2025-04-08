@@ -4,12 +4,11 @@ import FocusTimer from '../components/FocusTimer';
 import { DailyTargets } from '../components/DailyTargets';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { BarChart2 } from 'lucide-react';
+import { BarChart2, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getRandomQuote } from '../lib/quotes';
 import HelmLogo from '../components/HelmLogo';
 import BestSelfLogo from '../components/BestSelfLogo';
-import EmergencyReset from '../components/EmergencyReset';
 
 const FocusSession: React.FC = () => {
   const { activeProfile, isLoading, stats, focusTimer } = useFocus();
@@ -53,15 +52,14 @@ const FocusSession: React.FC = () => {
   return (
     <div 
       className={`min-h-screen flex flex-col ${focusTimer.state.isRunning ? 'dark' : ''}`}
-      style={{...backgroundStyle, position: 'relative'}}
+      style={backgroundStyle}
     >
-      {/* Ensure this doesn't capture clicks */}
-      <div className="noise-overlay pointer-events-none"></div>
+      <div className="noise-overlay"></div>
       
       {/* Ambient glow behind timer - only visible in focus mode */}
       {focusTimer.state.isRunning && (
         <div 
-          className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-amber-500/10 blur-3xl pointer-events-none"
+          className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-[350px] h-[350px] rounded-full bg-amber-500/10 blur-3xl"
           style={{
             background: 'radial-gradient(circle, rgba(217, 119, 6, 0.08) 0%, rgba(0, 0, 0, 0) 70%)'
           }}
@@ -88,6 +86,8 @@ const FocusSession: React.FC = () => {
           </span>
         </div>
         
+        {/* Stats summary removed - now only shown in the main timer component */}
+        
         {/* Only show dashboard link when not in focus mode */}
         {!focusTimer.state.isRunning && (
           <Link href="/dashboard">
@@ -112,6 +112,10 @@ const FocusSession: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="max-w-2xl mx-auto w-full text-center"
         >
+          {/* Quote moved below Daily Targets */}
+          
+          {/* Active profile indicator - moved inside focus timer component */}
+          
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
           <div className="mb-8 max-w-xl mx-auto">
             <FocusTimer 
@@ -155,9 +159,6 @@ const FocusSession: React.FC = () => {
       <footer className={`py-6 flex justify-center items-center ${focusTimer.state.isRunning ? 'opacity-30' : ''}`}>
         <BestSelfLogo />
       </footer>
-      
-      {/* Emergency Reset only shown during active focus sessions */}
-      {focusTimer.state.isRunning && <EmergencyReset />}
     </div>
   );
 };
