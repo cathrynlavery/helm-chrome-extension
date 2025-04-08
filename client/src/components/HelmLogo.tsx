@@ -5,7 +5,7 @@ interface HelmLogoProps {
   size?: number;
 }
 
-const HelmLogo: React.FC<HelmLogoProps> = ({ className = "", size = 24 }) => {
+const HelmLogo: React.FC<HelmLogoProps> = ({ className = "", size = 28 }) => {
   return (
     <svg 
       width={size} 

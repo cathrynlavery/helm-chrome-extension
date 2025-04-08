@@ -8,6 +8,8 @@ import {
   FocusProfile
 } from '../lib/chromeStorage';
 import { FocusTimer } from '../lib/focusTimer';
+import HelmLogo from '../components/HelmLogo';
+import BestSelfLogo from '../components/BestSelfLogo';
 
 const BlockedPage: React.FC = () => {
   const [, setLocation] = useLocation();
@@ -69,12 +71,11 @@ const BlockedPage: React.FC = () => {
       {/* Helm Logo aligned with main content */}
       <div className="absolute top-6 left-6">
         <div className="flex items-center">
-          <img 
-            src="/icons/dark-icon.svg" 
-            alt="Helm" 
-            className="h-6 w-auto"
+          <HelmLogo 
+            size={28} 
+            className={`text-[#333333] transition-colors duration-300`}
           />
-          <span className="ml-2 text-[#1A1A1A] ibm-plex-mono-medium text-[16px]">
+          <span className="ml-3 text-[#1A1A1A] ibm-plex-mono-medium text-lg">
             Helm
           </span>
         </div>
@@ -129,6 +130,11 @@ const BlockedPage: React.FC = () => {
           </Button>
         </div>
       </div>
+      
+      {/* BestSelf footer with proper linking */}
+      <footer className="absolute bottom-6 w-full flex justify-center items-center">
+        <BestSelfLogo />
+      </footer>
     </div>
   );
 };

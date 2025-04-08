@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { FocusTimer as FocusTimerClass } from '@/lib/focusTimer';
+import { useFocus } from '@/contexts/FocusContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +18,12 @@ import {
  * Emergency Reset component - a force exit of any stuck focus sessions
  * This component provides a last resort way to exit a stuck focus session
  * by directly clearing localStorage and forcing a page reload
+ * Only shows during active focus sessions
  */
 const EmergencyReset: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { focusTimer } = useFocus();
+  const isSessionActive = focusTimer.state.isRunning;
   
   const handleEmergencyReset = async () => {
     console.log('Emergency reset triggered from UI');
@@ -76,6 +80,11 @@ const EmergencyReset: React.FC = () => {
     }
   };
 
+  // Don't render anything if no active session
+  if (!isSessionActive) {
+    return null;
+  }
+  
   return (
     <>
       <div className="fixed bottom-4 right-4 z-50 opacity-70 hover:opacity-100 transition-opacity duration-300">

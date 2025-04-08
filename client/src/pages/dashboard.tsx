@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check } 
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import BestSelfLogo from '../components/BestSelfLogo';
+import HelmLogo from '../components/HelmLogo';
 
 const Dashboard: React.FC = () => {
   const { 
@@ -73,12 +74,11 @@ const Dashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Helm Logo aligned with main content */}
           <div className="flex items-center mb-8 pl-1">
-            <img 
-              src="/icons/dark-icon.svg" 
-              alt="Helm" 
-              className="h-6 w-auto"
+            <HelmLogo 
+              size={28} 
+              className={`text-[#333333] transition-colors duration-300`}
             />
-            <span className="ml-2 text-[#1A1A1A] ibm-plex-mono-medium text-[16px] dark:text-[#E0E0E0]">
+            <span className="ml-3 text-[#1A1A1A] ibm-plex-mono-medium text-lg dark:text-[#E0E0E0]">
               Helm
             </span>
           </div>
@@ -275,7 +275,10 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
       
-      {/* Removed BestSelf footer completely as requested */}
+      {/* BestSelf footer with proper linking */}
+      <footer className="py-6 flex justify-center items-center">
+        <BestSelfLogo />
+      </footer>
     </div>
   );
 };

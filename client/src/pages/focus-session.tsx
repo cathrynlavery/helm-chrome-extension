@@ -8,6 +8,7 @@ import { BarChart2, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getRandomQuote } from '../lib/quotes';
 import HelmLogo from '../components/HelmLogo';
+import BestSelfLogo from '../components/BestSelfLogo';
 
 const FocusSession: React.FC = () => {
   const { activeProfile, isLoading, stats, focusTimer } = useFocus();
@@ -72,17 +73,11 @@ const FocusSession: React.FC = () => {
       >
         {/* Helm Logo aligned with main content */}
         <div className="flex items-center ml-1">
-          <img 
-            src="/icons/dark-icon.svg" 
-            alt="Helm" 
-            className={`h-6 w-auto ${focusTimer.state.isRunning ? 'hidden' : ''}`}
+          <HelmLogo 
+            size={28} 
+            className={`text-[#333333] dark:text-[#CDAA7A] transition-colors duration-300`}
           />
-          <img 
-            src="/icons/light-icon.svg" 
-            alt="Helm" 
-            className={`h-6 w-auto ${focusTimer.state.isRunning ? '' : 'hidden'}`}
-          />
-          <span className={`ml-2 ibm-plex-mono-medium text-[16px] ${
+          <span className={`ml-3 ibm-plex-mono-medium text-lg ${
             focusTimer.state.isRunning 
               ? 'text-[#E0E0E0]' 
               : 'text-[#1A1A1A]'
@@ -159,6 +154,11 @@ const FocusSession: React.FC = () => {
           )}
         </motion.div>
       </main>
+      
+      {/* BestSelf footer with proper linking */}
+      <footer className={`py-6 flex justify-center items-center ${focusTimer.state.isRunning ? 'opacity-30' : ''}`}>
+        <BestSelfLogo />
+      </footer>
     </div>
   );
 };

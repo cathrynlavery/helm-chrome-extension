@@ -7,13 +7,19 @@ interface BestSelfLogoProps {
 
 const BestSelfLogo: React.FC<BestSelfLogoProps> = ({ className = '' }) => {
   return (
-    <div className={`flex items-center ${className}`}>
-      <div className="text-[#333333] dark:text-white font-semibold ibm-plex-mono-medium tracking-wide flex items-center">
-        <span>BEST</span>
-        <span className="text-[#CDAA7A]">SELF</span>
-        <ExternalLink className="h-3 w-3 ml-1 mt-[1px]" />
-      </div>
-    </div>
+    <a 
+      href="https://bestself.co" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className={`flex items-center ${className} opacity-50 hover:opacity-70 transition-opacity duration-300`}
+    >
+      <img 
+        src="/icons/BestSelf-Text-Logo-black.png" 
+        alt="BestSelf" 
+        className="h-5" 
+      />
+      <ExternalLink className="h-3 w-3 ml-1 text-gray-600" />
+    </a>
   );
 };
 
