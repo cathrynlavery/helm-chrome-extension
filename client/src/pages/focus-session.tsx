@@ -112,7 +112,7 @@ const FocusSession: React.FC = () => {
           {/* Active profile indicator - moved inside focus timer component */}
           
           {/* Focus Timer - Now the centerpiece with enhanced UI */}
-          <div className="mb-16 max-w-xl mx-auto">
+          <div className="mb-12 max-w-xl mx-auto">
             <FocusTimer 
               streakCount={stats.streaks.current} 
               showProfileSelector={!focusTimer.state.isRunning}

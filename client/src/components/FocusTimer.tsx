@@ -402,10 +402,27 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   </div>
                 </div>
                 
-                <div className="text-center mb-8 max-w-sm mx-auto">
+                <Button
+                  size="lg"
+                  onClick={() => handleStartPause()}
+                  disabled={!activeProfile}
+                  className="py-7 px-12 rounded-[16px] mb-4 bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+                >
+                  <Play className="h-5 w-5 mr-2" />
+                  Start Session
+                </Button>
+                
+                {stats && stats.todayMinutes > 0 && (
+                  <div className="mb-8 text-sm ibm-plex-mono-regular">
+                    {/* higher contrast gray */}
+                    <span className="text-[#8E8E8E]">Today: {formatDuration(stats.todayMinutes)} focused</span>
+                  </div>
+                )}
+                
+                <div className="text-center mb-10 max-w-sm mx-auto">
                   {/* Removed "Select Focus Duration" label per requirements */}
                   
-                  <div className="grid grid-cols-3 gap-4 mb-8 w-full mx-auto">
+                  <div className="grid grid-cols-3 gap-4 mb-6 w-full mx-auto">
                     {PRESET_DURATIONS.map(duration => (
                       <Button
                         key={duration}
@@ -422,7 +439,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     ))}
                   </div>
                   
-                  <div className="flex items-center justify-center gap-3 mb-4 w-full mx-auto">
+                  <div className="flex items-center justify-center gap-3 mb-2 w-full mx-auto">
                     {/* higher contrast gray */}
                     <div className="ibm-plex-mono-regular text-sm text-[#8E8E8E]">Custom:</div>
                     <Input
@@ -438,23 +455,6 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     <div className="ibm-plex-mono-regular text-sm text-[#8E8E8E]">min</div>
                   </div>
                 </div>
-                
-                <Button
-                  size="lg"
-                  onClick={() => handleStartPause()}
-                  disabled={!activeProfile}
-                  className="py-7 px-12 rounded-[16px] mb-6 bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
-                >
-                  <Play className="h-5 w-5 mr-2" />
-                  Start Session
-                </Button>
-                
-                {stats && stats.todayMinutes > 0 && (
-                  <div className="mb-10 text-sm ibm-plex-mono-regular">
-                    {/* higher contrast gray */}
-                    <span className="text-[#8E8E8E]">Today: {formatDuration(stats.todayMinutes)} focused</span>
-                  </div>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
