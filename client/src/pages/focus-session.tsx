@@ -37,14 +37,12 @@ const FocusSession: React.FC = () => {
   
   // Enhanced seamless background styles that transition from light to dark
   const lightBackground = {
-    backgroundColor: '#f8f8f8',
-    backgroundSize: 'cover',
+    background: 'radial-gradient(circle at center, #F7F5F0 0%, #ECE7DF 100%)',
     transition: 'all 0.8s ease-in-out'
   };
   
   const darkBackground = {
-    backgroundColor: '#0E0E0E',
-    backgroundSize: 'cover',
+    background: '#0E0E0E',
     transition: 'all 0.8s ease-in-out'
   };
   
@@ -87,9 +85,9 @@ const FocusSession: React.FC = () => {
         {!focusTimer.state.isRunning && (
           <div className="hidden md:flex items-center space-x-4 text-sm">
             {stats.streaks.current > 0 && (
-              <div className="flex items-center text-amber-500 px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20">
+              <div className="flex items-center text-primary px-2 py-1 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-all duration-300">
                 <Flame className="h-4 w-4 mr-1" />
-                <span className="font-medium">{stats.streaks.current} day streak</span>
+                <span className="font-medium ibm-plex-mono-medium text-xs">{stats.streaks.current} day streak</span>
               </div>
             )}
           </div>
@@ -99,9 +97,9 @@ const FocusSession: React.FC = () => {
         {!focusTimer.state.isRunning && (
           <Link href="/dashboard">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="flex items-center bg-white/40 dark:bg-gray-800/40 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-all duration-300"
+              className="flex items-center bg-transparent border-gray-200 hover:border-primary/70 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 rounded-[12px] ibm-plex-mono-regular"
             >
               <BarChart2 className="h-4 w-4 mr-2" />
               View Dashboard
