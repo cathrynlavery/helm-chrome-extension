@@ -35,28 +35,41 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
     
     if (state.isRunning) {
       console.log('Attempting to pause timer');
-      pause();
-      console.log('Timer paused');
+      // Explicitly use the setTimeout to ensure UI updates after pause
+      setTimeout(() => {
+        pause();
+        console.log('Timer paused');
+      }, 0);
     } else {
       // Convert to minutes
       const duration = typeof selectedDuration === 'number' ? selectedDuration : 45;
       console.log('Starting timer with duration:', duration, 'minutes');
       // Convert minutes to seconds for the timer
-      await start(activeProfile.id, duration * 60);
-      console.log('Timer started');
+      try {
+        await start(activeProfile.id, duration * 60);
+        console.log('Timer started');
+      } catch (error) {
+        console.error('Error starting timer:', error);
+      }
     }
   };
   
   const handleReset = () => {
     console.log('Reset called');
-    reset();
+    setTimeout(() => {
+      reset();
+      console.log('Timer reset completed');
+    }, 0);
   };
   
   const handleEndSession = async () => {
     console.log('End session called');
     try {
-      await end();
-      console.log('Session ended successfully');
+      // Force immediate UI update before async operation
+      setTimeout(async () => {
+        await end();
+        console.log('Session ended successfully');
+      }, 0);
     } catch (error) {
       console.error('Error ending session:', error);
     }
@@ -230,7 +243,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      onClick={handleEndSession}
+                      onClick={() => handleEndSession()}
                       className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       <StopCircle className="h-5 w-5 mr-2" />
@@ -240,7 +253,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      onClick={handleStartPause}
+                      onClick={() => handleStartPause()}
                       className="text-zinc-900 dark:text-zinc-100 rounded-[16px] py-6 px-6 border border-zinc-300 dark:border-zinc-600 hover:border-primary/70 hover:bg-primary/20 hover:text-zinc-900 dark:hover:text-zinc-900 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 ibm-plex-mono-medium"
                     >
                       {state.isRunning ? (
@@ -355,7 +368,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                 
                 <Button
                   size="lg"
-                  onClick={handleStartPause}
+                  onClick={() => handleStartPause()}
                   disabled={!activeProfile}
                   className="py-7 px-12 rounded-[16px] bg-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] text-zinc-900 transition-all duration-300 ibm-plex-mono-medium text-base pulse-animation focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
                 >

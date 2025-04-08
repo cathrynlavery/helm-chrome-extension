@@ -119,30 +119,39 @@ export class FocusTimer {
   // Pause the timer
   pause(): void {
     console.log('FocusTimer.pause called, timerId:', this.timerId);
+    
+    // Always notify listeners, even if we think there's no timer
+    // This ensures UI gets updated properly
+    const timerWasRunning = Boolean(this.timerId);
+    
     if (this.timerId) {
       console.log('Clearing interval:', this.timerId);
-      // Store the interval ID before clearing it
-      const intervalId = this.timerId;
-      // Clear the interval
-      window.clearInterval(intervalId);
-      this.timerId = null;
+      try {
+        // Store the interval ID before clearing it
+        const intervalId = this.timerId;
+        // Clear the interval
+        window.clearInterval(intervalId);
+        
+        // Calculate remaining time precisely
+        const elapsed = (Date.now() - this.startTime) / 1000;
+        this.pausedTimeRemaining = Math.max(this.pausedTimeRemaining - elapsed, 0);
+        console.log('Updated pausedTimeRemaining:', this.pausedTimeRemaining);
+      } catch (error) {
+        console.error('Error clearing timer:', error);
+      }
       
-      // Calculate remaining time precisely
-      const elapsed = (Date.now() - this.startTime) / 1000;
-      this.pausedTimeRemaining = Math.max(this.pausedTimeRemaining - elapsed, 0);
-      console.log('Updated pausedTimeRemaining:', this.pausedTimeRemaining);
+      // Always set timerId to null regardless of any errors
+      this.timerId = null;
       
       // Set the start time for when we resume
       this.startTime = Date.now();
-      
-      // Force update the UI immediately
-      setTimeout(() => {
-        this.notifyListeners();
-        console.log('Timer paused, notified listeners');
-      }, 0);
     } else {
       console.log('No timer running to pause');
     }
+    
+    // Always notify listeners regardless of whether we thought there was a timer
+    this.notifyListeners();
+    console.log('Timer paused, notified listeners, was running:', timerWasRunning);
   }
 
   // Reset the timer
@@ -163,13 +172,25 @@ export class FocusTimer {
   // End the current focus session
   async end(): Promise<void> {
     console.log('FocusTimer.end called');
+    
+    // Always clear the interval first for immediate UI feedback
     if (this.timerId) {
       console.log('Clearing interval for end:', this.timerId);
       window.clearInterval(this.timerId);
       this.timerId = null;
     }
     
-    if (this.sessionId) {
+    // Reset state variables immediately to ensure UI updates
+    const hadSession = Boolean(this.sessionId);
+    this.profileId = null;
+    this.totalDuration = DEFAULT_DURATION;
+    this.pausedTimeRemaining = DEFAULT_DURATION;
+    
+    // Notify listeners right away to update UI
+    this.notifyListeners();
+    
+    // Then handle async operations
+    if (hadSession) {
       console.log('Ending focus session with ID:', this.sessionId);
       try {
         await endFocusSession();
@@ -193,17 +214,10 @@ export class FocusTimer {
       console.log('No active session to end');
     }
     
-    this.profileId = null;
-    this.totalDuration = DEFAULT_DURATION;
-    this.pausedTimeRemaining = DEFAULT_DURATION;
     console.log('Timer state reset to defaults');
-    this.notifyListeners();
     
-    // Force a page reload as last resort if we're on the focus session page
-    if (window.location.pathname === '/' || window.location.pathname === '/focus-session') {
-      console.log('Redirecting to dashboard after ending session');
-      window.location.href = '/dashboard';
-    }
+    // Notify listeners again after async operations
+    this.notifyListeners();
   }
 
   // Get the current timer state
