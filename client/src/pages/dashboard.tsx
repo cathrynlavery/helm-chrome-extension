@@ -5,8 +5,7 @@ import ProfilesManager from '../components/ProfilesManager';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatDuration } from '../lib/focusTimer';
-import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check } from 'lucide-react';
-import HelmLogo from '../components/HelmLogo';
+import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 
@@ -54,48 +53,35 @@ const Dashboard: React.FC = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      {/* Header - Simplified */}
-      <header className="backdrop-blur-sm bg-white/50 dark:bg-black/20 border-b border-[#CDAA7A]/30 dark:border-[#CDAA7A]/20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 flex items-center justify-between">
-          <div className="flex items-center">
-            <HelmLogo size={30} className="text-[#CDAA7A]" />
-            <h1 className="ml-3 text-xl ibm-plex-mono-medium text-[#333333] dark:text-[#E0E0E0]">
-              Helm
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center bg-transparent border border-[#CDAA7A]/30 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Return to Focus
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Clean layout without header */}
+      <div className="absolute top-4 right-4 z-10">
+        <Link href="/">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center bg-transparent border border-[#CDAA7A]/30 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Return to Focus
+          </Button>
+        </Link>
+      </div>
 
       {/* Main content - Cleaned up */}
-      <main className="flex-grow py-10">
+      <main className="flex-grow py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {/* Personalized greeting with date */}
-            <div className="mb-6 text-center"> {/* Reduced spacing to allow for button placement */}
+            {/* Just the greeting - removed redundant text */}
+            <div className="mb-6 text-center mt-8">
               <h2 className="text-3xl libre-baskerville-bold mb-2 text-[#333333] dark:text-[#E0E0E0]">
                 Good {timeOfDay}
               </h2>
               <p className="text-sm ibm-plex-mono-regular text-[#333333]/60 dark:text-[#E0E0E0]/60 mb-3">
                 {formattedDate}
-              </p>
-              <p className="text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular max-w-xl mx-auto">
-                View your focus metrics and manage your profiles. Return to the focus session when you're ready to start working.
               </p>
             </div>
 
@@ -275,6 +261,25 @@ const Dashboard: React.FC = () => {
           </motion.div>
         </div>
       </main>
+      
+      {/* BestSelf Branding */}
+      <footer className="flex justify-center items-center py-8">
+        <a 
+          href="https://bestself.co" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="flex items-center opacity-40 hover:opacity-70 transition-all duration-300 hover:transform hover:translate-y-[-2px]"
+        >
+          <div className="h-[18px] w-auto flex">
+            <img 
+              src="/assets/BestSelf-Text-Logo-black.svg" 
+              alt="BestSelf.co" 
+              className="h-full w-auto dark:invert"
+            />
+            <ExternalLink className="h-3 w-3 ml-1 mt-[2px]" />
+          </div>
+        </a>
+      </footer>
     </div>
   );
 };
