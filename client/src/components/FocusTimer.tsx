@@ -29,22 +29,35 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   const handleStartPause = async () => {
     if (!activeProfile) return;
     
+    console.log('handleStartPause called, isRunning:', state.isRunning);
+    
     if (state.isRunning) {
+      console.log('Attempting to pause timer');
       pause();
+      console.log('Timer paused');
     } else {
       // Convert to minutes
       const duration = typeof selectedDuration === 'number' ? selectedDuration : 45;
+      console.log('Starting timer with duration:', duration, 'minutes');
       // Convert minutes to seconds for the timer
       await start(activeProfile.id, duration * 60);
+      console.log('Timer started');
     }
   };
   
   const handleReset = () => {
+    console.log('Reset called');
     reset();
   };
   
   const handleEndSession = async () => {
-    await end();
+    console.log('End session called');
+    try {
+      await end();
+      console.log('Session ended successfully');
+    } catch (error) {
+      console.error('Error ending session:', error);
+    }
   };
   
   const handleSelectDuration = (minutes: number) => {

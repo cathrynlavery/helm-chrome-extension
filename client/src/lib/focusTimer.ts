@@ -72,23 +72,37 @@ export class FocusTimer {
 
   // Start the timer
   async start(profileId?: number, duration: number = DEFAULT_DURATION): Promise<void> {
+    console.log('FocusTimer.start called, profileId:', profileId, 'duration:', duration);
+    
     // If already running, do nothing
-    if (this.timerId) return;
+    if (this.timerId) {
+      console.log('Timer already running, not starting again');
+      return;
+    }
     
     // If specific profile provided, use it
     if (profileId) {
+      console.log('Setting profile and duration:', profileId, duration);
       this.profileId = profileId;
       this.totalDuration = duration;
       this.pausedTimeRemaining = duration;
       
       // Create a new focus session
-      const session = await startFocusSession(profileId);
-      this.sessionId = session.id;
+      try {
+        console.log('Creating new focus session');
+        const session = await startFocusSession(profileId);
+        this.sessionId = session.id;
+        console.log('Focus session created with ID:', this.sessionId);
+      } catch (error) {
+        console.error('Error creating focus session:', error);
+      }
     }
     
     // Start the timer
     this.startTime = Date.now();
+    console.log('Starting timer at:', new Date(this.startTime).toISOString());
     this.timerId = window.setInterval(() => this.tick(), 1000);
+    console.log('Created interval with ID:', this.timerId);
     
     // Notify listeners
     this.notifyListeners();
@@ -96,45 +110,65 @@ export class FocusTimer {
 
   // Pause the timer
   pause(): void {
+    console.log('FocusTimer.pause called, timerId:', this.timerId);
     if (this.timerId) {
-      clearInterval(this.timerId);
+      console.log('Clearing interval:', this.timerId);
+      window.clearInterval(this.timerId);
       this.timerId = null;
       
       // Calculate remaining time
       const elapsed = (Date.now() - this.startTime) / 1000;
       this.pausedTimeRemaining = Math.max(this.pausedTimeRemaining - elapsed, 0);
+      console.log('Updated pausedTimeRemaining:', this.pausedTimeRemaining);
       
       // Notify listeners
       this.notifyListeners();
+    } else {
+      console.log('No timer running to pause');
     }
   }
 
   // Reset the timer
   reset(duration: number = DEFAULT_DURATION): void {
+    console.log('FocusTimer.reset called');
     if (this.timerId) {
-      clearInterval(this.timerId);
+      console.log('Clearing interval for reset:', this.timerId);
+      window.clearInterval(this.timerId);
       this.timerId = null;
     }
     
     this.totalDuration = duration;
     this.pausedTimeRemaining = duration;
+    console.log('Timer reset to duration:', duration);
     this.notifyListeners();
   }
 
   // End the current focus session
   async end(): Promise<void> {
+    console.log('FocusTimer.end called');
     if (this.timerId) {
-      clearInterval(this.timerId);
+      console.log('Clearing interval for end:', this.timerId);
+      window.clearInterval(this.timerId);
       this.timerId = null;
     }
     
     if (this.sessionId) {
-      await endFocusSession();
+      console.log('Ending focus session with ID:', this.sessionId);
+      try {
+        await endFocusSession();
+        console.log('Focus session ended successfully');
+      } catch (error) {
+        console.error('Error ending focus session:', error);
+      }
       this.sessionId = null;
+    } else {
+      console.log('No active session to end');
     }
     
+    this.profileId = null;
     this.totalDuration = DEFAULT_DURATION;
     this.pausedTimeRemaining = DEFAULT_DURATION;
+    console.log('Timer state reset to defaults');
     this.notifyListeners();
   }
 
@@ -168,8 +202,14 @@ export class FocusTimer {
   private tick(): void {
     const { timeRemaining } = this.getState();
     
+    // Log every 15 seconds to avoid console spam
+    if (Math.floor(timeRemaining) % 15 === 0) {
+      console.log('Tick: time remaining:', timeRemaining.toFixed(1), 'seconds');
+    }
+    
     // If time is up, stop the timer and end the session
     if (timeRemaining <= 0) {
+      console.log('Timer completed, ending session');
       this.end();
       return;
     }

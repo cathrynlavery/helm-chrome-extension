@@ -231,7 +231,23 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
   
   // Create wrapper functions to properly handle the function parameters
   const startTimer = async (profileId?: number, duration?: number) => {
+    console.log('Context startTimer called with:', profileId, duration);
     return timer.start(profileId, duration);
+  };
+  
+  const pauseTimer = () => {
+    console.log('Context pauseTimer called');
+    timer.pause();
+  };
+  
+  const resetTimer = () => {
+    console.log('Context resetTimer called');
+    timer.reset();
+  };
+  
+  const endTimer = async () => {
+    console.log('Context endTimer called');
+    return timer.end();
   };
   
   // Context value
@@ -244,9 +260,9 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     focusTimer: {
       state: timerState,
       start: startTimer,
-      pause: timer.pause.bind(timer),
-      reset: timer.reset.bind(timer),
-      end: timer.end.bind(timer),
+      pause: pauseTimer,
+      reset: resetTimer,
+      end: endTimer,
       formattedTime
     },
     stats,
