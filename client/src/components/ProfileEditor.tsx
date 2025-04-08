@@ -4,7 +4,6 @@ import { X, Globe, Plus, CheckSquare, Square, Check, Lock, ShieldCheck } from 'l
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { motion } from 'framer-motion';
@@ -31,7 +30,6 @@ const popularSites = [
 
 const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, profile }) => {
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   const [blockedSites, setBlockedSites] = useState<string[]>([]);
   const [newSite, setNewSite] = useState('');
   const [selectedPopularSites, setSelectedPopularSites] = useState<string[]>([]);
@@ -42,7 +40,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
   useEffect(() => {
     if (profile) {
       setName(profile.name);
-      setDescription(profile.description || '');
       setBlockedSites([...profile.blockedSites]);
       setAccessStyle(profile.accessStyle || 'blocklist');
       
@@ -57,7 +54,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
     } else {
       // New profile defaults
       setName('');
-      setDescription('');
       setBlockedSites([]);
       setSelectedPopularSites([]);
       setBlockAll(false);
@@ -179,7 +175,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
     
     await onSave({
       name,
-      description,
+      description: '', // Empty string for description
       blockedSites,
       isActive: profile?.isActive || false,
       accessStyle
@@ -201,15 +197,21 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
   
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-white dark:bg-gray-900 border border-[#CDAA7A]/20 p-6">
+      <DialogContent 
+        className="sm:max-w-md bg-white dark:bg-gray-900 border border-[#CDAA7A]/20 p-6"
+        aria-describedby="profile-editor-description"
+      >
         <DialogHeader>
           <DialogTitle className="text-xl ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A]">
             {profile ? `Edit Profile: ${profile.name}` : 'Create New Profile'}
           </DialogTitle>
+          <div id="profile-editor-description" className="sr-only">
+            {profile ? 'Edit your focus profile settings.' : 'Create a new focus profile to manage distractions.'}
+          </div>
         </DialogHeader>
         
         <div className="py-4">
-          <div className="mb-5">
+          <div className="mb-6">
             <Label htmlFor="profileName" className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-2">
               Profile Name
             </Label>
@@ -219,20 +221,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ isOpen, onClose, onSave, 
               onChange={e => setName(e.target.value)}
               className="w-full bg-transparent border border-[#CDAA7A]/30 focus:border-[#CDAA7A] text-[#333333] dark:text-[#E0E0E0] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-[8px]"
               placeholder="Enter profile name"
-            />
-          </div>
-          
-          <div className="mb-6">
-            <Label htmlFor="profileDescription" className="block ibm-plex-mono-medium text-sm text-[#333333] dark:text-[#E0E0E0] mb-2">
-              Description (optional)
-            </Label>
-            <Textarea
-              id="profileDescription"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className="w-full bg-transparent border border-[#CDAA7A]/30 focus:border-[#CDAA7A] text-[#333333] dark:text-[#E0E0E0] focus-visible:ring-0 focus-visible:ring-offset-0 rounded-[8px]"
-              placeholder="Add a description for this profile"
-              rows={2}
             />
           </div>
           
