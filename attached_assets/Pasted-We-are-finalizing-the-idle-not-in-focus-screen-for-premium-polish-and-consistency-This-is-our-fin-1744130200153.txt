@@ -1,0 +1,78 @@
+We are finalizing the idle (not-in-focus) screen for premium polish and consistency.
+This is our final pass for elegance and usability.
+
+1. Remove the Extra Quote
+Currently, two quotes are showing.
+
+✅ Keep only one quote, placed below the "Today's Targets" section.
+
+Apply .libre-baskerville-regular-italic styling.
+
+Optional: set text opacity to ~70% for subtlety.
+
+2. Update Color Palette to Brass Tone
+Update all primary action and highlight colors to match:
+
+✅ Hex: #CDAA7A (brass tone)
+
+Apply to:
+
+"Start Focus Session" button
+
+Selected focus duration button (e.g., "45 min")
+
+"+" icon in the "Today's Targets" section
+
+Optional: any hover states / active states for consistency.
+
+3. Improve Hover States & Readability
+Hover states for all buttons:
+
+✅ Darken the brass color slightly on hover for contrast.
+
+✅ Ensure text remains fully readable (adjust contrast).
+
+Optionally: add a soft shadow or subtle lift effect on hover for feedback.
+
+For inactive time selections (e.g., "30 min"), make sure text color remains legible — avoid low contrast grays.
+
+4. Button Text & Font Weight
+Ensure button text uses IBM Plex Mono Medium for clarity and consistency.
+
+Increase font weight if necessary for better visibility.
+
+5. Input Field ("Today's Targets") Improvements
+✅ Retain the "+" icon in the button.
+
+✅ Increase horizontal padding inside the input for comfort.
+
+Optional: On hover/focus of input field, add subtle border highlight in #CDAA7A for consistency.
+
+6. Timer Circle Refinement
+✅ Maintain the ambient glow / inner shadow in idle state.
+
+✅ Optional: On selecting a focus time, animate a slight pulse in the circle to indicate readiness.
+
+7. General Spacing & Layout
+✅ Ensure spacing between "Today's Targets" and quote feels balanced.
+
+✅ Maintain clean vertical alignment of all elements.
+
+✅ No container backgrounds or shadows — keep the background seamless and unified.
+
+Optional (Polish Layer)
+Smooth background transition when switching from idle to focus mode.
+
+Allow "Enter" key to trigger "Start Focus Session."
+
+Add hover effect to time duration buttons (soft glow or highlight).
+
+Outcome Expected
+✅ Single, elegant quote beneath the targets section.
+
+✅ Consistent brass tone across buttons, highlights, and iconography.
+
+✅ Improved hover and active states for clarity and readability.
+
+✅ No visual clutter, clean Apple-level finish.
+

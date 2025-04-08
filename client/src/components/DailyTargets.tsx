@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DailyTarget } from '../lib/chromeStorage';
 import { useFocus } from '../contexts/FocusContext';
 import { Button } from './ui/button';
@@ -7,7 +7,6 @@ import { Checkbox } from './ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { X, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getRandomQuote } from '../lib/quotes';
 
 interface DailyTargetsProps {
   editable?: boolean;
@@ -17,16 +16,6 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
   const { dailyTargets, addTarget, updateTarget, deleteTarget } = useFocus();
   const [newTargetText, setNewTargetText] = useState('');
   const [completedTaskId, setCompletedTaskId] = useState<number | null>(null);
-  const [quote, setQuote] = useState(getRandomQuote());
-  
-  useEffect(() => {
-    // Rotate quotes every 30 seconds
-    const interval = setInterval(() => {
-      setQuote(getRandomQuote());
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
   
   const handleAddTarget = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +44,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className={`heading-text text-lg 
-            ${allTasksCompleted ? 'text-amber-600 dark:text-amber-400' : ''}`}
+            ${allTasksCompleted ? 'text-primary dark:text-primary' : ''}`}
           >
             Today's Targets
           </h3>
@@ -63,7 +52,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
             <motion.span 
               initial={{ opacity: 0, scale: 0.8, x: -5 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
-              className="metadata-label text-amber-600 dark:text-amber-400 flex items-center"
+              className="metadata-label text-primary dark:text-primary flex items-center opacity-80"
             >
               <CheckCircle2 className="h-4 w-4 mr-1" />
               All completed
@@ -77,19 +66,19 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               placeholder="What will you focus on today?"
               value={newTargetText}
               onChange={(e) => setNewTargetText(e.target.value)}
-              className="flex-1 rounded-[14px] ibm-plex-mono-regular border-gray-200 dark:border-gray-700 focus:border-amber-300 dark:focus:border-amber-600 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md py-6 px-6"
+              className="flex-1 rounded-[16px] ibm-plex-mono-regular border-gray-200 dark:border-gray-700 focus:border-primary hover:border-primary/60 dark:focus:border-primary dark:hover:border-primary/60 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md py-6 px-8"
               autoComplete="off"
             />
             <Button 
               type="submit" 
               disabled={dailyTargets.length >= 3}
-              className={`transition-all duration-300 rounded-[14px] ibm-plex-mono-medium flex items-center justify-center w-12 h-12 ${
+              className={`transition-all duration-300 rounded-[16px] ibm-plex-mono-medium flex items-center justify-center w-12 h-12 ${
                 dailyTargets.length >= 3 
                   ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-                  : 'bg-primary hover:bg-primary/90 hover:scale-[1.03] active:scale-[0.98]'
+                  : 'bg-primary hover:bg-gradient-to-r hover:from-amber-600 hover:to-amber-500 hover:scale-[1.05] active:scale-[0.98]'
               }`}
             >
-              <span className="text-xl font-medium">+</span>
+              <span className="text-xl font-medium text-primary-foreground">+</span>
             </Button>
           </form>
         )}
@@ -102,8 +91,9 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
               exit={{ opacity: 0 }}
               className="text-center py-8"
             >
-              <p className="quote-text text-lg mb-2 text-gray-500 dark:text-gray-400">{quote.text}</p>
-              <p className="libre-baskerville-regular text-sm text-muted-foreground">— {quote.author}</p>
+              <p className="ibm-plex-mono-regular text-sm text-muted-foreground opacity-60">
+                No targets set for today
+              </p>
             </motion.div>
           ) : (
             <motion.div className="space-y-4">
@@ -142,7 +132,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                           y: [0, -30]
                         }}
                         transition={{ duration: 1.2 }}
-                        className="text-amber-500 text-2xl"
+                        className="text-primary text-2xl"
                       >
                         ✓
                       </motion.div>
@@ -155,7 +145,7 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                           opacity: [0.8, 0]
                         }}
                         transition={{ duration: 0.8 }}
-                        className="absolute w-24 h-24 rounded-full bg-gradient-to-r from-amber-200 to-amber-400 blur-2xl"
+                        className="absolute w-24 h-24 rounded-full bg-gradient-to-r from-primary/30 to-primary/70 blur-2xl"
                       />
                     </motion.div>
                   )}
@@ -168,15 +158,15 @@ export function DailyTargets({ editable = true }: DailyTargetsProps) {
                     }}
                     className={`mr-4 transition-all duration-200 h-5 w-5 
                       ${target.completed 
-                        ? 'border-amber-500 bg-amber-500 text-white' 
-                        : 'border-gray-300 dark:border-gray-600'}`
+                        ? 'border-primary bg-primary text-white' 
+                        : 'border-gray-300 dark:border-gray-600 hover:border-primary/70'}`
                     }
                   />
                   <label 
                     htmlFor={`target-${target.id}`}
                     className={`flex-1 transition-all duration-300 text-base ibm-plex-mono-regular ${
                       target.completed 
-                        ? 'line-through text-amber-600 dark:text-amber-400 font-medium' 
+                        ? 'line-through text-primary dark:text-primary font-medium' 
                         : 'text-gray-800 dark:text-gray-200'
                     }`}
                   >

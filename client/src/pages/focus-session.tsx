@@ -141,7 +141,7 @@ const FocusSession: React.FC = () => {
             <DailyTargets editable={!focusTimer.state.isRunning} />
           </motion.div>
           
-          {/* Inspirational Quote moved below targets - Only show when not in a focus session */}
+          {/* Single Inspirational Quote below targets - Only show when not in a focus session */}
           {!focusTimer.state.isRunning && (
             <motion.div 
               key={quote.text}
