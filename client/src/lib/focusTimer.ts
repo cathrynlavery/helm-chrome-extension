@@ -1,337 +1,245 @@
 import { getActiveFocusSession, startFocusSession, endFocusSession } from './chromeStorage';
 
-export interface TimerState {
+export type TimerState = {
   isRunning: boolean;
+  isPaused: boolean;
   timeRemaining: number; // in seconds
   progress: number; // 0 to 1
   totalDuration: number; // in seconds
-}
+  profileId: number | null;
+};
 
 // Default focus session duration (45 minutes)
 const DEFAULT_DURATION = 45 * 60;
 
 import { getStorageData, setStorageData } from './chromeStorage';
 
-// Timer class to handle focus session timing
+type StateChangeListener = (state: TimerState) => void;
+
+// Utility to format time (MM:SS)
+export const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+};
+
+// Utility to format duration (e.g., 1h 30m)
+export const formatDuration = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  let result = '';
+  if (hours > 0) {
+    result += `${hours}h `;
+  }
+  if (mins > 0 || hours === 0) {
+    result += `${mins}m`;
+  }
+  return result.trim();
+};
+
 export class FocusTimer {
-  private static instance: FocusTimer | null = null;
-  private timerId: number | null = null;
-  private startTime: number = 0;
-  private pausedTimeRemaining: number = DEFAULT_DURATION;
-  private totalDuration: number = DEFAULT_DURATION;
-  private sessionId: number | null = null;
-  private profileId: number | null = null;
-  private listeners: Set<(state: TimerState) => void> = new Set();
+  private intervalId: NodeJS.Timeout | null = null;
+  private state: TimerState;
+  private listeners: StateChangeListener[] = [];
+  private sessionStartTime: number | null = null;
+  private pauseStartTime: number | null = null; // Track when pause started
+  private totalPausedTime: number = 0; // Track total time paused in seconds
 
-  // Singleton pattern
-  static getInstance(): FocusTimer {
-    if (!FocusTimer.instance) {
-      FocusTimer.instance = new FocusTimer();
-      // Make the instance and its getInstance method globally accessible for emergency recovery
-      if (typeof window !== 'undefined') {
-        (window as any).FocusTimer = {
-          getInstance: () => FocusTimer.getInstance()
-        };
-      }
-    }
-    return FocusTimer.instance;
+  constructor(initialState?: Partial<TimerState>) {
+    this.state = {
+      isRunning: false,
+      isPaused: false,
+      timeRemaining: 0,
+      totalDuration: 0,
+      progress: 0,
+      profileId: null,
+      ...initialState,
+    };
+    console.log("FocusTimer initialized with state:", this.state);
   }
 
-  private constructor() {
-    // Initialize and check for active session
-    this.init();
-  }
-
-  private async init() {
-    const activeSession = await getActiveFocusSession();
-    
-    if (activeSession) {
-      this.sessionId = activeSession.id;
-      this.profileId = activeSession.profileId;
-      
-      // Calculate remaining time
-      const startTime = new Date(activeSession.startTime).getTime();
-      const elapsed = (Date.now() - startTime) / 1000;
-      
-      // Use the session duration if provided (fallback to default)
-      const sessionDuration = activeSession.duration || DEFAULT_DURATION;
-      this.totalDuration = sessionDuration;
-      this.pausedTimeRemaining = Math.max(sessionDuration - elapsed, 0);
-      
-      if (this.pausedTimeRemaining > 0) {
-        this.start();
-      } else {
-        // If time already expired, end the session
-        await endFocusSession();
-      }
-    }
-  }
-
-  // Subscribe to timer updates
-  subscribe(callback: (state: TimerState) => void): () => void {
-    this.listeners.add(callback);
-    
-    // Immediately call with current state
-    callback(this.getState());
-    
-    // Return unsubscribe function
-    return () => this.listeners.delete(callback);
-  }
-
-  // Start the timer
-  async start(profileId?: number, duration: number = DEFAULT_DURATION): Promise<void> {
-    console.log('FocusTimer.start called, profileId:', profileId, 'duration:', duration);
-    
-    // If already running, do nothing
-    if (this.timerId) {
-      console.log('Timer already running, not starting again');
-      return;
-    }
-    
-    // If specific profile provided, use it
-    if (profileId) {
-      console.log('Setting profile and duration:', profileId, duration);
-      this.profileId = profileId;
-      this.totalDuration = duration;
-      this.pausedTimeRemaining = duration;
-      
-      // Create a new focus session
-      try {
-        console.log('Creating new focus session');
-        const session = await startFocusSession(profileId);
-        this.sessionId = session.id;
-        console.log('Focus session created with ID:', this.sessionId);
-      } catch (error) {
-        console.error('Error creating focus session:', error);
-      }
-    }
-    
-    // Start the timer
-    this.startTime = Date.now();
-    console.log('Starting timer at:', new Date(this.startTime).toISOString());
-    this.timerId = window.setInterval(() => this.tick(), 1000);
-    console.log('Created interval with ID:', this.timerId);
-    
-    // Notify listeners
-    this.notifyListeners();
-  }
-
-  // Pause the timer
-  pause(): void {
-    console.log('FocusTimer.pause called, timerId:', this.timerId);
-    
-    // Always notify listeners, even if we think there's no timer
-    // This ensures UI gets updated properly
-    const timerWasRunning = Boolean(this.timerId);
-    
-    if (this.timerId) {
-      console.log('Clearing interval:', this.timerId);
-      try {
-        // Store the interval ID before clearing it
-        const intervalId = this.timerId;
-        // Clear the interval
-        window.clearInterval(intervalId);
-        
-        // Calculate remaining time precisely
-        const elapsed = (Date.now() - this.startTime) / 1000;
-        this.pausedTimeRemaining = Math.max(this.pausedTimeRemaining - elapsed, 0);
-        console.log('Updated pausedTimeRemaining:', this.pausedTimeRemaining);
-      } catch (error) {
-        console.error('Error clearing timer:', error);
-      }
-      
-      // Always set timerId to null regardless of any errors
-      this.timerId = null;
-      
-      // Set the start time for when we resume
-      this.startTime = Date.now();
-    } else {
-      console.log('No timer running to pause');
-    }
-    
-    // Always notify listeners regardless of whether we thought there was a timer
-    this.notifyListeners();
-    console.log('Timer paused, notified listeners, was running:', timerWasRunning);
-  }
-
-  // Reset the timer
-  reset(duration: number = DEFAULT_DURATION): void {
-    console.log('FocusTimer.reset called');
-    if (this.timerId) {
-      console.log('Clearing interval for reset:', this.timerId);
-      window.clearInterval(this.timerId);
-      this.timerId = null;
-    }
-    
-    this.totalDuration = duration;
-    this.pausedTimeRemaining = duration;
-    console.log('Timer reset to duration:', duration);
-    this.notifyListeners();
-  }
-
-  // End the current focus session
-  async end(): Promise<void> {
-    console.log('FocusTimer.end called');
-    
-    // Always clear the interval first for immediate UI feedback
-    if (this.timerId) {
-      console.log('Clearing interval for end:', this.timerId);
-      window.clearInterval(this.timerId);
-      this.timerId = null;
-    }
-    
-    // Reset state variables immediately to ensure UI updates
-    const hadSession = Boolean(this.sessionId);
-    this.profileId = null;
-    this.totalDuration = DEFAULT_DURATION;
-    this.pausedTimeRemaining = DEFAULT_DURATION;
-    
-    // Notify listeners right away to update UI
-    this.notifyListeners();
-    
-    // Then handle async operations
-    if (hadSession) {
-      console.log('Ending focus session with ID:', this.sessionId);
-      try {
-        await endFocusSession();
-        console.log('Focus session ended successfully');
-      } catch (error) {
-        console.error('Error ending focus session:', error);
-        // Force clear active session in storage as fallback
-        try {
-          const data = await getStorageData();
-          if (data.activeFocusSession) {
-            console.log('Clearing active focus session from storage directly');
-            data.activeFocusSession = null;
-            await setStorageData(data);
-          }
-        } catch (innerError) {
-          console.error('Fallback storage clearing also failed:', innerError);
-        }
-      }
-      this.sessionId = null;
-    } else {
-      console.log('No active session to end');
-    }
-    
-    console.log('Timer state reset to defaults');
-    
-    // Notify listeners again after async operations
-    this.notifyListeners();
-  }
-
-  // Get the current timer state
-  getState(): TimerState {
-    let timeRemaining = this.pausedTimeRemaining;
-    
-    // If running, calculate actual time remaining
-    if (this.timerId) {
-      const elapsed = (Date.now() - this.startTime) / 1000;
-      timeRemaining = Math.max(this.pausedTimeRemaining - elapsed, 0);
-    }
-    
-    return {
-      isRunning: Boolean(this.timerId),
-      timeRemaining,
-      progress: 1 - (timeRemaining / this.totalDuration),
-      totalDuration: this.totalDuration
+  subscribe(listener: StateChangeListener): () => void {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
     };
   }
 
-  // Get formatted time remaining (MM:SS)
-  getFormattedTimeRemaining(): string {
-    const { timeRemaining } = this.getState();
-    const minutes = Math.floor(timeRemaining / 60);
-    const seconds = Math.floor(timeRemaining % 60);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  private notifyListeners(): void {
+    const currentState = this.getState();
+    // console.log("Notifying listeners with state:", currentState);
+    this.listeners.forEach(listener => listener(currentState));
   }
 
-  // Timer tick function
-  private tick(): void {
-    const { timeRemaining } = this.getState();
-    
-    // Log every 15 seconds to avoid console spam
-    if (Math.floor(timeRemaining) % 15 === 0) {
-      console.log('Tick: time remaining:', timeRemaining.toFixed(1), 'seconds');
-    }
-    
-    // If time is up, stop the timer and end the session
-    if (timeRemaining <= 0) {
-      console.log('Timer completed, ending session');
-      this.end();
+  async start(profileId: number, durationSeconds: number): Promise<void> {
+    console.log(`FocusTimer: start called - profileId: ${profileId}, duration: ${durationSeconds}s`);
+    if (this.state.isRunning && !this.state.isPaused) {
+      console.log("FocusTimer: Already running and not paused.");
       return;
     }
-    
-    // Notify listeners
-    this.notifyListeners();
-  }
 
-  // Notify all listeners with the current state
-  private notifyListeners(): void {
-    const state = this.getState();
-    this.listeners.forEach(listener => listener(state));
-  }
-
-  // Get active profile ID
-  getActiveProfileId(): number | null {
-    return this.profileId;
-  }
-  
-  // Emergency reset function to force clear any stuck timers
-  async emergencyReset(): Promise<void> {
-    console.log('EMERGENCY RESET triggered');
-    
-    // Clear any running timers
-    if (this.timerId) {
-      console.log('Clearing interval for emergency reset:', this.timerId);
-      window.clearInterval(this.timerId);
-      this.timerId = null;
-    }
-    
-    // Reset all internal state
-    this.sessionId = null;
-    this.profileId = null;
-    this.totalDuration = DEFAULT_DURATION;
-    this.pausedTimeRemaining = DEFAULT_DURATION;
-    
-    try {
-      // Force clear active session in storage
-      const data = await getStorageData();
-      if (data.activeFocusSession) {
-        console.log('Clearing active focus session from storage');
-        data.activeFocusSession = null;
-        await setStorageData(data);
+    if (this.state.isRunning && this.state.isPaused) {
+      // Resuming from pause
+      console.log("FocusTimer: Resuming timer.");
+      if (this.pauseStartTime) {
+        const pausedDuration = (Date.now() - this.pauseStartTime) / 1000;
+        this.totalPausedTime += pausedDuration;
+        this.pauseStartTime = null; // Clear pause start time
       }
-      
-      // Force clear localStorage as a last resort
-      localStorage.removeItem('helmData');
-    } catch (error) {
-      console.error('Error during emergency reset of storage:', error);
+      this.state.isPaused = false;
+      this.startIntervalTimer(); // Restart the interval timer
+      this.notifyListeners();
+      // No need to update session duration on resume based on chromeStorage
+    } else {
+      // Starting a new session or starting after being stopped
+      console.log("FocusTimer: Starting new or previously stopped timer.");
+      this.stop(); // Clear any existing interval
+      this.state = {
+        ...this.state,
+        isRunning: true,
+        isPaused: false, // Ensure not paused when starting
+        timeRemaining: durationSeconds,
+        totalDuration: durationSeconds,
+        progress: 0,
+        profileId: profileId,
+      };
+      this.sessionStartTime = Date.now();
+      this.totalPausedTime = 0; // Reset paused time for new session
+      this.pauseStartTime = null;
+      this.startIntervalTimer();
+      this.notifyListeners();
+      console.log("FocusTimer: New session started, state:", this.getState());
+
+      // Persist session start to storage - only needs profileId
+      try {
+        await startFocusSession(profileId);
+        console.log("FocusTimer: Session start persisted.");
+      } catch (error) {
+        console.error("FocusTimer: Failed to persist session start:", error);
+        // Optionally revert state or notify user
+      }
     }
-    
-    // Notify listeners with reset state
-    this.notifyListeners();
-    console.log('Emergency reset completed');
   }
-}
 
-// Format seconds to MM:SS
-export function formatTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
+  pause(): void {
+    console.log("FocusTimer: pause called");
+    if (!this.state.isRunning || this.state.isPaused) {
+      console.log("FocusTimer: Not running or already paused.");
+      return;
+    }
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.state.isPaused = true;
+    this.pauseStartTime = Date.now(); // Record when pause started
+    this.notifyListeners();
+    console.log("FocusTimer: Timer paused, state:", this.getState());
+     // No storage update needed on pause based on chromeStorage
+  }
 
-// Format minutes to human readable string (e.g. "2h 15m")
-export function formatDuration(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  
-  if (hours === 0) {
-    return `${mins}m`;
-  } else if (mins === 0) {
-    return `${hours}h`;
-  } else {
-    return `${hours}h ${mins}m`;
+  async end(saveProgress: boolean = true): Promise<void> {
+    console.log(`FocusTimer: end called with saveProgress=${saveProgress}`);
+    const wasRunningOrPaused = this.state.isRunning; // Check before stopping
+    this.stop();
+
+    // Only try to end in storage if a session was actually active
+    if (wasRunningOrPaused) {
+      try {
+        if (saveProgress) {
+          await endFocusSession(); // Save progress to storage
+          console.log("FocusTimer: Session end persisted with progress saved.");
+        } else {
+          // Just clear the session without saving progress
+          await endFocusSession(false); // Pass false to indicate no progress should be saved
+          console.log("FocusTimer: Session ended without saving progress.");
+        }
+      } catch (error) {
+        console.error("FocusTimer: Failed to persist session end:", error);
+        // Handle error appropriately
+      }
+    } else {
+      console.warn("FocusTimer: Tried to end session but it wasn't running or paused.");
+    }
+  }
+
+  stop(): void {
+     console.log("FocusTimer: stop called (internal cleanup)");
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    this.state = {
+      ...this.state,
+      isRunning: false,
+      isPaused: false, // Ensure not paused when stopped
+      timeRemaining: 0, // Reset time remaining on stop, or keep last value? Resetting seems cleaner.
+      progress: 0,
+      // Keep profileId until a new session starts? Or clear it? Let's clear for now.
+      // profileId: null,
+    };
+    this.sessionStartTime = null;
+    this.pauseStartTime = null;
+    this.totalPausedTime = 0;
+    this.notifyListeners();
+    console.log("FocusTimer: Timer stopped, state reset:", this.getState());
+  }
+
+  private tick(): void {
+    if (!this.state.isRunning || this.state.isPaused || !this.sessionStartTime) {
+      return; // Don't tick if not running, paused, or session hasn't started
+    }
+
+    const now = Date.now();
+    const elapsedSeconds = (now - this.sessionStartTime) / 1000 - this.totalPausedTime;
+    const newTimeRemaining = Math.max(0, this.state.totalDuration - elapsedSeconds);
+
+    this.state.timeRemaining = newTimeRemaining;
+    this.state.progress = Math.max(0, Math.min(1, elapsedSeconds / this.state.totalDuration));
+
+    // console.log(`Tick: Elapsed=${elapsedSeconds.toFixed(1)}s, Paused=${this.totalPausedTime.toFixed(1)}s, Remaining=${newTimeRemaining.toFixed(1)}s, Progress=${this.state.progress.toFixed(2)}`);
+
+    if (this.state.timeRemaining <= 0) {
+      console.log("FocusTimer: Time reached zero.");
+      this.end(); // Automatically end the session when time runs out
+    } else {
+      this.notifyListeners(); // Notify listeners on each tick
+    }
+  }
+
+  private startIntervalTimer(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId); // Clear existing interval just in case
+    }
+    // Initial tick to update state immediately
+    this.tick();
+    this.intervalId = setInterval(() => this.tick(), 1000); // Update every second
+    console.log("FocusTimer: Interval timer started.");
+  }
+
+  getState(): TimerState {
+    // Ensure calculated state is up-to-date if needed, but tick should handle it
+     if (this.state.isRunning && !this.state.isPaused && this.sessionStartTime) {
+        const now = Date.now();
+        const elapsedSeconds = (now - this.sessionStartTime) / 1000 - this.totalPausedTime;
+        const currentTimeRemaining = Math.max(0, this.state.totalDuration - elapsedSeconds);
+        const currentProgress = Math.max(0, Math.min(1, elapsedSeconds / this.state.totalDuration));
+
+        // Only return updated state if significantly different? Or always return calculated?
+        // Let's return the calculated state for accuracy.
+         return {
+             ...this.state,
+             timeRemaining: currentTimeRemaining,
+             progress: currentProgress,
+         };
+     }
+    return { ...this.state }; // Return a copy
+  }
+
+   // Cleanup function for React components
+   cleanup(): void {
+    console.log("FocusTimer: Cleanup called.");
+    this.stop(); // Ensure timer is stopped
+    this.listeners = []; // Clear listeners
   }
 }

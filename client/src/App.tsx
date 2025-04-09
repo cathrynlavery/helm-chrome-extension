@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -7,9 +7,19 @@ import Dashboard from "@/pages/dashboard";
 import BlockedPage from "@/pages/blocked";
 import FocusSession from "@/pages/focus-session";
 import { FocusProvider } from "./contexts/FocusContext";
-import EmergencyReset from "./components/EmergencyReset";
+import EmergencyExit from "./components/EmergencyExit";
 
+// Use useLocation hook from wouter
 function Router() {
+  // Initialize current location and setter
+  const [location, setLocation] = useLocation();
+  
+  // Use hash-based routing for Chrome extensions
+  if (typeof window !== 'undefined') {
+    // Make sure navigation uses hash-based URLs
+    console.log('Current location:', location);
+  }
+
   return (
     <Switch>
       <Route path="/" component={FocusSession} />
@@ -26,7 +36,7 @@ function App() {
       <FocusProvider>
         <Router />
         <Toaster />
-        <EmergencyReset />
+        <EmergencyExit />
       </FocusProvider>
     </QueryClientProvider>
   );

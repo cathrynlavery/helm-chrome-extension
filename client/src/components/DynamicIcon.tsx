@@ -5,14 +5,13 @@ import HelmLogo from './HelmLogo';
 
 // Component for dynamically switching between dark and light icons based on focus state
 const DynamicIcon: React.FC = () => {
-  const { focusTimer } = useFocus();
-  const { state } = focusTimer;
+  const { timerState } = useFocus();
   const [iconPath, setIconPath] = useState('/icons/dark-icon.svg');
   
   // Update icon based on focus state
   useEffect(() => {
     // Use dark icon for idle state (light background), light icon for focus state (dark background)
-    const newPath = state.isRunning ? '/icons/light-icon.svg' : '/icons/dark-icon.svg';
+    const newPath = timerState.isRunning ? '/icons/light-icon.svg' : '/icons/dark-icon.svg';
     setIconPath(newPath);
     
     // Also update the favicon
@@ -20,7 +19,7 @@ const DynamicIcon: React.FC = () => {
     if (favicon) {
       favicon.setAttribute('href', newPath);
     }
-  }, [state.isRunning]);
+  }, [timerState.isRunning]);
   
   return (
     <div className="absolute top-6 left-6 z-10 opacity-90 flex items-center group cursor-pointer hover:opacity-85 transition-opacity">
@@ -38,7 +37,7 @@ const DynamicIcon: React.FC = () => {
             className="group-hover:scale-105 transition-transform duration-300" 
           />
           <h1 className={`ml-3 text-xl ibm-plex-mono-regular tracking-wide transition-all duration-500
-            ${state.isRunning
+            ${timerState.isRunning
               ? 'text-[#CDAA7A]'
               : 'text-[#333333] dark:text-[#333333]'}`}
           >
