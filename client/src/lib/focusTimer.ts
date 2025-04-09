@@ -67,7 +67,7 @@ export class FocusTimer {
 
   private notifyListeners(): void {
     const currentState = this.getState();
-    // console.log("Notifying listeners with state:", currentState);
+    console.log("FocusTimer: Notifying listeners with state:", currentState);
     this.listeners.forEach(listener => listener(currentState));
   }
 
@@ -88,7 +88,8 @@ export class FocusTimer {
       }
       this.state.isPaused = false;
       this.startIntervalTimer(); // Restart the interval timer
-      this.notifyListeners();
+      console.log("FocusTimer: Timer resumed, state:", this.getState());
+      this.notifyListeners(); // Ensure listeners are notified after state change
       // No need to update session duration on resume based on chromeStorage
     } else {
       // Starting a new session or starting after being stopped
@@ -107,8 +108,8 @@ export class FocusTimer {
       this.totalPausedTime = 0; // Reset paused time for new session
       this.pauseStartTime = null;
       this.startIntervalTimer();
-      this.notifyListeners();
       console.log("FocusTimer: New session started, state:", this.getState());
+      this.notifyListeners(); // Ensure listeners are notified after state change
 
       // Persist session start to storage - only needs profileId
       try {
@@ -133,9 +134,9 @@ export class FocusTimer {
     }
     this.state.isPaused = true;
     this.pauseStartTime = Date.now(); // Record when pause started
-    this.notifyListeners();
     console.log("FocusTimer: Timer paused, state:", this.getState());
-     // No storage update needed on pause based on chromeStorage
+    this.notifyListeners(); // Ensure listeners are notified after state change
+    // No storage update needed on pause based on chromeStorage
   }
 
   async end(saveProgress: boolean = true): Promise<void> {
@@ -181,8 +182,8 @@ export class FocusTimer {
     this.sessionStartTime = null;
     this.pauseStartTime = null;
     this.totalPausedTime = 0;
-    this.notifyListeners();
     console.log("FocusTimer: Timer stopped, state reset:", this.getState());
+    this.notifyListeners(); // Ensure listeners are notified after state change
   }
 
   private tick(): void {

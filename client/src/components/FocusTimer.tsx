@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useFocus } from '../contexts/FocusContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { formatDuration, formatTime } from '../lib/focusTimer';
 import DynamicIcon from './DynamicIcon';
-import { useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
 import {
   Popover,
@@ -27,7 +26,6 @@ import {
 import {
   PlayCircle,
   PauseCircle,
-  XCircle,
 } from "lucide-react";
 import { toast } from 'sonner';
 import {
@@ -58,12 +56,11 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   showProfileSelector = true,
   streakCount 
 }) => {
-  const { timerState, startTimer, pauseTimer, endTimer, activeProfile, stats, profiles, setActiveProfile } = useFocus();
+  const { timerState, startTimer, pauseTimer, activeProfile, stats, profiles, setActiveProfile } = useFocus();
   const [customDuration, setCustomDuration] = useState<number | string>("");
   const [selectedDuration, setSelectedDuration] = useState<number>(25);
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [, navigate] = useLocation();
   const [isCustomDuration, setIsCustomDuration] = useState<boolean>(false);
   const [emptyStateMessageIndex, setEmptyStateMessageIndex] = useState(
     Math.floor(Math.random() * EMPTY_STATE_MESSAGES.length)
@@ -72,6 +69,11 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   const [pauseTimeRemaining, setPauseTimeRemaining] = useState(300); // 5 minutes in seconds
   const [isInPauseCountdown, setIsInPauseCountdown] = useState(false);
   const [showResumeConfirmation, setShowResumeConfirmation] = useState(false);
+  const [buttonScale, setButtonScale] = useState<number | string | null>(null);
+  
+  // Debug logs for timer state
+  console.log("Timer State:", timerState.isRunning, timerState.isPaused);
+  console.log("Has Paused Once:", hasPausedOnce);
   
   // Rotate through empty state messages
   useEffect(() => {
@@ -112,29 +114,39 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   }, [isInPauseCountdown, timerState.isPaused]);
   
   const handleStartPause = async () => {
+    console.log("handleStartPause called", { 
+      isRunning: timerState.isRunning, 
+      isPaused: timerState.isPaused,
+      hasPausedOnce
+    });
+    
     if (!activeProfile) return;
 
     if (timerState.isRunning) {
       if (timerState.isPaused) {
         // Resuming from pause
+        console.log("Resuming from pause");
         setIsInPauseCountdown(false);
         setPauseTimeRemaining(300); // Reset pause timer
-        await pauseTimer(); // Toggle pause state
+        await startTimer(activeProfile.id, selectedDuration * 60); // Use startTimer to resume
         setShowResumeConfirmation(true);
         setTimeout(() => setShowResumeConfirmation(false), 5000); // Hide after 5 seconds
+        toast.success("Session resumed. Stay focused!");
       } else {
         // Attempting to pause
+        console.log("Attempting to pause");
         if (hasPausedOnce) {
           toast.error("You've already used your pause for this session!");
           return;
         }
         setHasPausedOnce(true);
         setIsInPauseCountdown(true);
-        await pauseTimer();
+        await pauseTimer(); // Call pauseTimer to pause the session
         toast.info("Session paused. You have 5 minutes to resume.");
       }
     } else {
       // Starting new session
+      console.log("Starting new session");
       setHasPausedOnce(false);
       setPauseTimeRemaining(300);
       setIsInPauseCountdown(false);
@@ -143,18 +155,13 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
     }
   };
   
-  const handleEndSession = async () => {
-    console.log('🛑 Ending session');
-    await endTimer();
-    
-    // After ending, navigate back to idle focus page
-    // This ensures we return to the idle state UI
-    navigate('/');
-  };
-  
   const handleSelectDuration = (duration: number) => {
     setSelectedDuration(duration);
     setIsCustomDuration(!PRESET_DURATIONS.includes(duration));
+    
+    // Add micro-interaction effect
+    setButtonScale(duration);
+    setTimeout(() => setButtonScale(null), 300);
   };
   
   const handleCustomDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,9 +247,28 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // Add a ref for the parent container
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Add event listeners for debugging
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const handleContainerClick = (e: MouseEvent) => {
+      console.log("Container click event captured", e);
+    };
+    
+    container.addEventListener('click', handleContainerClick, true); // true for capturing phase
+    
+    return () => {
+      container.removeEventListener('click', handleContainerClick, true);
+    };
+  }, []);
+
   return (
     <div className={`w-full ${timerState.isRunning ? 'dark' : ''}`}>
-      <div className="flex flex-col items-center max-w-[500px] mx-auto">
+      <div ref={containerRef} className="flex flex-col items-center max-w-[500px] mx-auto">
         {/* Visual Group 1: Profile + Streak */}
         <div className="flex flex-col items-center mb-6">
           {/* Profile selector with improved styling */}
@@ -290,7 +316,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
 
         {/* Visual Group 2: Focus Circle (Hero Element) with premium enhancements */}
-        <div className={`relative ${enhancedSize} mb-8 group cursor-pointer`}>
+        <div className={`relative ${enhancedSize} mb-8 group cursor-pointer flex justify-center items-center`}>
           {/* Premium ambient glow with larger radius and enhanced opacity */}
           <div className="absolute inset-0 rounded-full blur-[60px] bg-[#CDAA7A]/20 group-hover:bg-[#CDAA7A]/25 transition-all duration-700"></div>
           
@@ -482,7 +508,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
         
         {/* Visual Group 3: Action Controls - Enhanced */}
-        <div className="mt-6 flex flex-col items-center">
+        <div className="mt-6 md:mt-6 sm:mt-4 flex flex-col items-center">
           {/* Duration Selection - Only show when timer is not running */}
           {!timerState.isRunning && (
             <div className="w-full">
@@ -493,30 +519,51 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
               </div>
               <div className="flex justify-center flex-wrap gap-2 mb-4">
                 {PRESET_DURATIONS.map((duration) => (
-                  <button
+                  <motion.button
                     key={duration}
                     onClick={() => handleSelectDuration(duration)}
-                    className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-300 ${
+                    className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ease-in-out ${
                       selectedDuration === duration
-                        ? "bg-gradient-to-r from-[#CDAA7A] to-[#E4CA8C] text-zinc-900 font-medium shadow-sm"
+                        ? "bg-transparent border-2 border-[#CDAA7A] text-zinc-900 font-medium shadow-sm hover:shadow-md hover:border-[#D4AF37] relative"
                         : "bg-zinc-100/10 hover:bg-zinc-100/15 dark:bg-zinc-800/30 dark:hover:bg-zinc-800/40 border border-zinc-200/20 dark:border-zinc-700/30"
                     }`}
+                    animate={buttonScale === duration ? { scale: 0.95 } : { scale: 1 }}
+                    transition={{ duration: 0.2 }}
                   >
                     {duration} min
-                  </button>
+                    {selectedDuration === duration && (
+                      <motion.div 
+                        className="absolute inset-0 rounded-xl bg-[#CDAA7A]/5 blur-sm -z-10"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    )}
+                  </motion.button>
                 ))}
                 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button
-                      className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-300 ${
+                    <motion.button
+                      className={`px-4 py-1.5 rounded-xl text-sm transition-all duration-200 ease-in-out ${
                         isCustomDuration
-                          ? "bg-transparent border-2 border-[#CDAA7A] text-[#CDAA7A] font-medium"
+                          ? "bg-transparent border-2 border-[#CDAA7A] text-zinc-900 font-medium shadow-sm hover:shadow-md hover:border-[#D4AF37] relative"
                           : "bg-zinc-100/10 hover:bg-zinc-100/15 dark:bg-zinc-800/30 dark:hover:bg-zinc-800/40 border border-zinc-200/20 dark:border-zinc-700/30"
                       }`}
+                      animate={buttonScale === 'custom' ? { scale: 0.95 } : { scale: 1 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => handleSelectDuration(selectedDuration)}
                     >
                       Custom
-                    </button>
+                      {isCustomDuration && (
+                        <motion.div 
+                          className="absolute inset-0 rounded-xl bg-[#CDAA7A]/5 blur-sm -z-10"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
+                    </motion.button>
                   </PopoverTrigger>
                   <PopoverContent className="w-72 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md">
                     <div className="space-y-4">
@@ -556,42 +603,36 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
             ) : (
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={handleStartPause}
-                          className={`w-full py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center ${
-                            timerState.isPaused
-                              ? "bg-gradient-to-r from-[#CDAA7A] to-[#E4CA8C] hover:from-[#D4AF37] hover:to-[#CDAA7A] text-zinc-900 font-medium shadow-md hover:shadow-lg"
-                              : "bg-white/10 hover:bg-white/15 text-white border border-white/20"
-                          }`}
-                        >
-                          {timerState.isPaused ? (
-                            <>
-                              <PlayCircle className="h-5 w-5 mr-2 text-zinc-900/80" />
-                              Resume Session
-                            </>
-                          ) : (
-                            <>
-                              <PauseCircle className="h-5 w-5 mr-2" />
-                              Pause Session
-                            </>
-                          )}
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-[#CDAA7A]/30 text-xs p-2 max-w-[200px]">
-                        {timerState.isPaused 
-                          ? "Resume your focus session" 
-                          : "Take a short 5-min break. You'll only get one pause per session."}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  
-                  {!timerState.isPaused && !hasPausedOnce && (
-                    <p className="text-xs text-center text-zinc-400/80 dark:text-zinc-500/80">
-                      One break allowed per session
-                    </p>
+                  {timerState.isPaused ? (
+                    // Show Resume Session button when timer is paused
+                    <button
+                      onClick={handleStartPause}
+                      data-testid="resume-button"
+                      className="w-full py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center cursor-pointer bg-white/10 hover:bg-white/15 text-white border border-white/20"
+                    >
+                      <PlayCircle className="h-5 w-5 mr-2 text-white/80" />
+                      Resume Session
+                    </button>
+                  ) : hasPausedOnce ? (
+                    // Show disabled state when pause has already been used
+                    <button
+                      disabled
+                      data-testid="pause-disabled-button"
+                      className="w-full py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center cursor-not-allowed bg-white/5 text-white/60 border border-white/10"
+                    >
+                      <PauseCircle className="h-5 w-5 mr-2 text-white/40" />
+                      Pause already used — stay focused!
+                    </button>
+                  ) : (
+                    // Show active Pause Session button
+                    <button
+                      onClick={handleStartPause}
+                      data-testid="pause-button"
+                      className="w-full py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center cursor-pointer bg-white/10 hover:bg-white/15 text-white border border-white/20"
+                    >
+                      <PauseCircle className="h-5 w-5 mr-2 text-white/80" />
+                      Pause Session
+                    </button>
                   )}
                   
                   {showResumeConfirmation && (
@@ -605,14 +646,6 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     </motion.p>
                   )}
                 </div>
-                
-                <button
-                  onClick={handleEndSession}
-                  className="w-full py-3 px-4 rounded-xl transition-all duration-300 border border-red-500/30 bg-red-500/10 hover:bg-red-500/15 text-red-500 font-medium flex items-center justify-center"
-                >
-                  <XCircle className="h-5 w-5 mr-2" />
-                  End Session
-                </button>
               </div>
             )}
           </div>

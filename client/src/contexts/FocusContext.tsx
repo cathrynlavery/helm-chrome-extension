@@ -183,7 +183,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
      console.log("FocusContext: Subscribing to timer updates.");
      // The state from the timer library might have a different shape (FocusTimerLibState)
     const unsubscribe = focusTimer.subscribe((timerLibState: FocusTimerLibState) => {
-      // console.log("FocusContext: Received timer state update from lib:", timerLibState);
+      console.log("FocusContext: Received timer state update from lib:", timerLibState);
       // Map the library state to the context state
       setTimerState({
         isRunning: timerLibState.isRunning,
@@ -207,48 +207,78 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
    const startTimerHandler = useCallback(async (profileId: number, durationSeconds: number) => {
     console.log(`FocusContext: startTimer called - profileId: ${profileId}, duration: ${durationSeconds}s`);
     await focusTimer.start(profileId, durationSeconds);
+    // Explicitly update React state after starting/resuming
+    const currentState = focusTimer.getState();
+    setTimerState({
+      isRunning: currentState.isRunning,
+      isPaused: currentState.isPaused,
+      timeRemaining: currentState.timeRemaining,
+      totalDuration: currentState.totalDuration,
+      progress: currentState.progress,
+      profileId: currentState.profileId,
+    });
   }, [focusTimer]);
 
   const pauseTimerHandler = useCallback(() => {
     console.log("FocusContext: pauseTimer called");
     focusTimer.pause();
+    // Explicitly update React state after pausing
+    const currentState = focusTimer.getState();
+    setTimerState({
+      isRunning: currentState.isRunning,
+      isPaused: currentState.isPaused,
+      timeRemaining: currentState.timeRemaining,
+      totalDuration: currentState.totalDuration,
+      progress: currentState.progress,
+      profileId: currentState.profileId,
+    });
   }, [focusTimer]);
 
   const endTimerHandler = useCallback(async (saveProgress: boolean = true) => {
     console.log(`FocusContext: endTimer called with saveProgress=${saveProgress}`);
     await focusTimer.end(saveProgress);
-    // State update will happen via subscription
-     // Optionally update stats immediately after ending
-     const data = await getStorageData();
-     const today = new Date().toISOString().split('T')[0];
-     const todayMinutes = data.focusHistory?.[today] || 0;
-     const weeklyMinutes = Object.values(data.focusHistory || {}).reduce((sum, mins) => sum + mins, 0);
-     
-     // Calculate percentage of goal
-     const focusGoal = data.focusGoal || 240; // Default to 4 hours
-     const todayPercentage = focusGoal > 0 ? Math.min(100, Math.round((todayMinutes / focusGoal) * 100)) : 0;
-     
-     // Generate weekly data
-     const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-     const weeklyData = days.map((day, index) => {
-       const date = new Date();
-       // Get data for the past 7 days
-       date.setDate(date.getDate() - (6 - index));
-       const dateStr = date.toISOString().split('T')[0];
-       return {
-         day,
-         minutes: data.focusHistory?.[dateStr] || 0
-       };
-     });
-     
-     setStats({
-       todayMinutes,
-       weeklyMinutes,
-       todayGoal: focusGoal,
-       todayPercentage,
-       weeklyData,
-       streaks: data.streaks || { current: 0, best: 0 },
-     });
+    // Explicitly update React state after ending
+    const currentState = focusTimer.getState();
+    setTimerState({
+      isRunning: currentState.isRunning,
+      isPaused: currentState.isPaused,
+      timeRemaining: currentState.timeRemaining,
+      totalDuration: currentState.totalDuration,
+      progress: currentState.progress,
+      profileId: currentState.profileId,
+    });
+    
+    // Optionally update stats immediately after ending
+    const data = await getStorageData();
+    const today = new Date().toISOString().split('T')[0];
+    const todayMinutes = data.focusHistory?.[today] || 0;
+    const weeklyMinutes = Object.values(data.focusHistory || {}).reduce((sum, mins) => sum + mins, 0);
+    
+    // Calculate percentage of goal
+    const focusGoal = data.focusGoal || 240; // Default to 4 hours
+    const todayPercentage = focusGoal > 0 ? Math.min(100, Math.round((todayMinutes / focusGoal) * 100)) : 0;
+    
+    // Generate weekly data
+    const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const weeklyData = days.map((day, index) => {
+      const date = new Date();
+      // Get data for the past 7 days
+      date.setDate(date.getDate() - (6 - index));
+      const dateStr = date.toISOString().split('T')[0];
+      return {
+        day,
+        minutes: data.focusHistory?.[dateStr] || 0
+      };
+    });
+    
+    setStats({
+      todayMinutes,
+      weeklyMinutes,
+      todayGoal: focusGoal,
+      todayPercentage,
+      weeklyData,
+      streaks: data.streaks || { current: 0, best: 0 },
+    });
   }, [focusTimer]);
 
   // Profile management functions
