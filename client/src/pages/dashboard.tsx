@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
           variant="outline" 
           size="sm"
           onClick={handleReturnToFocus}
-          className="flex items-center bg-transparent border border-[#CDAA7A]/40 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300 z-20 relative shadow-sm hover:shadow-md"
+          className="flex items-center bg-transparent hover:text-[#000] border border-[#CDAA7A]/40 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300 z-20 relative shadow-sm hover:shadow-md"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Return to Focus

@@ -295,7 +295,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   <DropdownMenuSeparator className="bg-[#CDAA7A]/20" />
                   
                   <DropdownMenuItem className="text-[#CDAA7A] cursor-pointer ibm-plex-mono-regular hover:text-[#CDAA7A]/80 hover:bg-[#CDAA7A]/10 transition-colors text-xs">
-                    Manage profiles...
+                    <a href="/dashboard" >Manage profiles...</a>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
