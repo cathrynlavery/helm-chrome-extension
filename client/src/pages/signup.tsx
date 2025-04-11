@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabaseClient";
+import { getDefaultHelmData } from "@/lib/utils";
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,25 +12,45 @@ const SignUp: React.FC = () => {
   const [_, navigate] = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
-
-    const { error } = await supabase.auth.signUp({
+  
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
-
-    setLoading(false);
-
-    if (error) {
-      setError(error.message);
+  
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
       return;
     }
-
+  
+    const userId = data?.user?.id;
+    const today = new Date().toISOString().split("T")[0];
+  
+    if (userId) {
+      const newKey = `helmData-${userId}`;
+      const anonymousData = localStorage.getItem("helmData");
+  
+      if (anonymousData) {
+        // 👇 Міграція старих даних
+        localStorage.setItem(newKey, anonymousData);
+        localStorage.removeItem("helmData");
+        console.log("✅ Migrated anonymous helmData to:", newKey);
+      } else {
+        // 👇 Якщо нічого не було — сетай дефолт
+        const defaultData = getDefaultHelmData();
+        localStorage.setItem(newKey, JSON.stringify(defaultData));
+        console.log("🆕 Created new helmData for:", newKey);
+      }
+    }
+  
+    setLoading(false);
     navigate("/email-verification");
   };
+  
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#fbfcfc]">

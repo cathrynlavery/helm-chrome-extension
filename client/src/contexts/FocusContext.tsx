@@ -237,7 +237,8 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
   const endTimerHandler = useCallback(async (saveProgress: boolean = true) => {
     console.log(`FocusContext: endTimer called with saveProgress=${saveProgress}`);
     await focusTimer.end(saveProgress);
-    // Explicitly update React state after ending
+  
+    // Update timer state
     const currentState = focusTimer.getState();
     setTimerState({
       isRunning: currentState.isRunning,
@@ -247,22 +248,55 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
       progress: currentState.progress,
       profileId: currentState.profileId,
     });
-    
-    // Optionally update stats immediately after ending
+  
+    // Load updated storage
     const data = await getStorageData();
+  
+    // 🔥 Update streaks before updating stats
     const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  
+    const lastActive = data.streaks?.lastActiveDate;
+    const isTodayAlreadyCounted = lastActive === today;
+  
+    let currentStreak = data.streaks?.current || 0;
+    let bestStreak = data.streaks?.best || 0;
+  
+    if (!isTodayAlreadyCounted) {
+      if (lastActive === yesterday) {
+        currentStreak += 1;
+      } else {
+        currentStreak = 1;
+      }
+  
+      if (currentStreak > bestStreak) bestStreak = currentStreak;
+  
+      await setStorageData({
+        ...data,
+        streaks: {
+          current: currentStreak,
+          best: bestStreak,
+          lastActiveDate: today,
+        }
+      });
+  
+      setStats(prev => ({
+        ...prev,
+        streaks: {
+          current: currentStreak,
+          best: bestStreak,
+        }
+      }));
+    }
     const todayMinutes = data.focusHistory?.[today] || 0;
     const weeklyMinutes = Object.values(data.focusHistory || {}).reduce((sum, mins) => sum + mins, 0);
-    
-    // Calculate percentage of goal
-    const focusGoal = data.focusGoal || 240; // Default to 4 hours
+  
+    const focusGoal = data.focusGoal || 240;
     const todayPercentage = focusGoal > 0 ? Math.min(100, Math.round((todayMinutes / focusGoal) * 100)) : 0;
-    
-    // Generate weekly data
+  
     const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     const weeklyData = days.map((day, index) => {
       const date = new Date();
-      // Get data for the past 7 days
       date.setDate(date.getDate() - (6 - index));
       const dateStr = date.toISOString().split('T')[0];
       return {
@@ -270,16 +304,17 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
         minutes: data.focusHistory?.[dateStr] || 0
       };
     });
-    
-    setStats({
+  
+    setStats(prev => ({
+      ...prev,
       todayMinutes,
       weeklyMinutes,
       todayGoal: focusGoal,
       todayPercentage,
       weeklyData,
-      streaks: data.streaks || { current: 0, best: 0 },
-    });
+    }));
   }, [focusTimer]);
+  
 
   // Profile management functions
   const setActiveProfileHandler = useCallback(async (profile: StorageFocusProfile) => {

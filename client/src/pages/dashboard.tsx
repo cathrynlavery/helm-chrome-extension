@@ -1,35 +1,50 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'wouter';
-import { useFocus } from '../contexts/FocusContext';
-import ProfilesManager from '../components/ProfilesManager';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { formatDuration } from '../lib/focusTimer';
-import { ArrowLeft, ArrowRight, Flame, Target, Clock, Calendar, Pencil, Check, CheckCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import BestSelfLogo from '../components/BestSelfLogo';
-import HelmLogo from '../components/HelmLogo';
+import React, { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { useFocus } from "../contexts/FocusContext";
+import ProfilesManager from "../components/ProfilesManager";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { formatDuration } from "../lib/focusTimer";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Flame,
+  Target,
+  Clock,
+  Calendar,
+  Pencil,
+  Check,
+  CheckCircle,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import BestSelfLogo from "../components/BestSelfLogo";
+import HelmLogo from "../components/HelmLogo";
+import { getTodayFocusMinutes } from "@/lib/utils";
 
 const Dashboard: React.FC = () => {
-  const { 
-    stats,
-    isLoading,
-    setFocusGoal
-  } = useFocus();
-  
+  const { stats, isLoading, setFocusGoal } = useFocus();
+
   const [editingGoal, setEditingGoal] = useState(false);
-  const [goalHours, setGoalHours] = useState((stats?.todayGoal / 60).toString());
+  const [goalHours, setGoalHours] = useState(
+    (stats?.todayGoal / 60).toString()
+  );
   const [, navigate] = useLocation();
-  
+
   // Return to focus handler
   const handleReturnToFocus = (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log('🔍 Return to Focus button clicked');
+    console.log("🔍 Return to Focus button clicked");
     // Use wouter navigate for consistent routing
-    navigate('/');
+    navigate("/");
   };
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfcfc] dark:bg-gray-900">
@@ -40,40 +55,42 @@ const Dashboard: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-xl font-medium mb-2">Loading...</h2>
-            <p className="text-muted-foreground">Setting up your focus environment</p>
+            <p className="text-muted-foreground">
+              Setting up your focus environment
+            </p>
           </motion.div>
         </div>
       </div>
     );
   }
-  
-  const todayFocusTime = formatDuration(stats.todayMinutes);
-  
+  const todayFocusMinutes = getTodayFocusMinutes();
+  const todayFocusTime = formatDuration(todayFocusMinutes);
+
   // Get personalized greeting based on time of day
   const hour = new Date().getHours();
-  let timeOfDay = 'morning';
+  let timeOfDay = "morning";
   if (hour >= 12 && hour < 18) {
-    timeOfDay = 'afternoon';
+    timeOfDay = "afternoon";
   } else if (hour >= 18) {
-    timeOfDay = 'evening';
+    timeOfDay = "evening";
   }
-  
+
   // Format current date nicely
   const now = new Date();
-  const options: Intl.DateTimeFormatOptions = { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric',
-    year: 'numeric'
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   };
   const formattedDate = now.toLocaleDateString(undefined, options);
-  
+
   return (
     <div className="min-h-screen flex flex-col bg-[#fbfcfc] dark:bg-gray-900">
       {/* Top navigation with return button */}
       <div className="fixed top-5 right-5 z-10">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           onClick={handleReturnToFocus}
           className="flex items-center bg-transparent hover:text-[#000] border border-[#CDAA7A]/40 text-[#333333] dark:text-[#E0E0E0] hover:bg-[#CDAA7A]/10 transition-all duration-300 z-20 relative shadow-sm hover:shadow-md"
@@ -87,23 +104,23 @@ const Dashboard: React.FC = () => {
       <main className="flex-grow pt-10 pb-8">
         <div className="max-w-5xl mx-auto px-6 sm:px-8">
           {/* Helm Logo - larger and more prominent */}
-          <motion.div 
+          <motion.div
             className="flex items-center mb-12 mt-4"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <HelmLogo 
-              size={36} 
+            <HelmLogo
+              size={36}
               className={`text-[#333333] transition-colors duration-300`}
             />
             <span className="ml-3 text-[#1A1A1A] ibm-plex-mono-medium text-xl dark:text-[#E0E0E0]">
               Helm
             </span>
           </motion.div>
-          
+
           {/* VISUAL GROUP 1: Hero Section - Greeting + Button */}
-          <motion.div 
+          <motion.div
             className="mb-14"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -114,12 +131,12 @@ const Dashboard: React.FC = () => {
               <h2 className="text-3xl libre-baskerville-bold mb-3 text-[#333333] dark:text-[#E0E0E0]">
                 Good {timeOfDay}
               </h2>
-              <motion.p 
+              <motion.p
                 className="text-sm ibm-plex-mono-regular text-[#333333]/70 dark:text-[#E0E0E0]/70 relative inline-block"
                 whileHover={{ scale: 1.02 }}
               >
                 {formattedDate}
-                <motion.span 
+                <motion.span
                   className="absolute -bottom-1 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#CDAA7A]/50 to-transparent"
                   initial={{ scaleX: 0, opacity: 0 }}
                   animate={{ scaleX: 1, opacity: 1 }}
@@ -130,15 +147,15 @@ const Dashboard: React.FC = () => {
 
             {/* Quick Start Button - with premium styling */}
             <div className="flex justify-center mb-6">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Button 
+                <Button
                   onClick={(e) => {
                     e.preventDefault();
-                    console.log('🔍 Start Focus Session button clicked');
-                    navigate('/');
+                    console.log("🔍 Start Focus Session button clicked");
+                    navigate("/");
                   }}
                   className="bg-gradient-to-r from-[#CDAA7A] to-[#E4CA8C] hover:from-[#D4AF37] hover:to-[#CDAA7A] text-[#333333] ibm-plex-mono-medium px-6 py-3.5 text-base transition-all duration-300 rounded-[16px] shadow-md hover:shadow-lg group"
                 >
@@ -151,14 +168,17 @@ const Dashboard: React.FC = () => {
           </motion.div>
 
           {/* VISUAL GROUP 2: Stats Cards with enhanced styling */}
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 mx-2"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
           >
             {/* Card 1: Today's Focus */}
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.3 }}>
+            <motion.div
+              whileHover={{ y: -5, scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+            >
               <Card className="backdrop-blur-sm bg-white/50 dark:bg-zinc-900/40 border border-[#CDAA7A]/20 shadow-sm hover:shadow-md hover:border-[#CDAA7A]/40 transition-all duration-300 overflow-hidden">
                 <CardHeader className="pb-1.5 pt-5 px-5">
                   <CardTitle className="flex items-center gap-2 ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A] text-[15px]">
@@ -191,7 +211,11 @@ const Dashboard: React.FC = () => {
                               className="h-6 w-6 text-[#CDAA7A] hover:text-[#CDAA7A]/80 hover:bg-transparent"
                               onClick={() => {
                                 const hours = parseFloat(goalHours);
-                                if (!isNaN(hours) && hours >= 0.5 && hours <= 12) {
+                                if (
+                                  !isNaN(hours) &&
+                                  hours >= 0.5 &&
+                                  hours <= 12
+                                ) {
                                   const minutes = Math.round(hours * 60);
                                   setFocusGoal(minutes);
                                   setEditingGoal(false);
@@ -216,13 +240,19 @@ const Dashboard: React.FC = () => {
                         )}
                       </div>
                       <div className="text-xl text-[#CDAA7A] font-medium">
-                        {stats.todayPercentage}%
+                        {Math.min(
+                          100,
+                          Math.round(
+                            (todayFocusMinutes / stats.todayGoal) * 100
+                          )
+                        )}
+                        %
                       </div>
                     </div>
                   </div>
                   {/* Progress bar with premium gradient */}
                   <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       className="h-full bg-gradient-to-r from-[#CDAA7A] to-[#E4CA8C] rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${stats.todayPercentage}%` }}
@@ -234,7 +264,10 @@ const Dashboard: React.FC = () => {
             </motion.div>
 
             {/* Card 2: Weekly Activity */}
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.3 }}>
+            <motion.div
+              whileHover={{ y: -5, scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+            >
               <Card className="backdrop-blur-sm bg-white/50 dark:bg-zinc-900/40 border border-[#CDAA7A]/20 shadow-sm hover:shadow-md hover:border-[#CDAA7A]/40 transition-all duration-300 overflow-hidden">
                 <CardHeader className="pb-1.5 pt-5 px-5">
                   <CardTitle className="flex items-center gap-2 ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A] text-[15px]">
@@ -247,15 +280,25 @@ const Dashboard: React.FC = () => {
                     {stats.weeklyData.map((day, index) => (
                       <div key={index} className="flex flex-col items-center">
                         <div className="h-24 w-8 bg-gray-100 dark:bg-gray-700 rounded-md relative mb-1">
-                          <motion.div 
+                          <motion.div
                             initial={{ height: 0 }}
-                            animate={{ height: `${Math.min((day.minutes / 240) * 100, 100)}%` }}
-                            transition={{ duration: 0.5, delay: index * 0.05 + 0.4 }}
+                            animate={{
+                              height: `${Math.min(
+                                (day.minutes / 240) * 100,
+                                100
+                              )}%`,
+                            }}
+                            transition={{
+                              duration: 0.5,
+                              delay: index * 0.05 + 0.4,
+                            }}
                             className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#CDAA7A] to-[#E4CA8C]/80 rounded-md"
                             whileHover={{ opacity: 0.85 }}
                           ></motion.div>
                         </div>
-                        <span className="text-xs ibm-plex-mono-regular text-[#333333]/70 dark:text-[#E0E0E0]/70">{day.day}</span>
+                        <span className="text-xs ibm-plex-mono-regular text-[#333333]/70 dark:text-[#E0E0E0]/70">
+                          {day.day}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -264,7 +307,10 @@ const Dashboard: React.FC = () => {
             </motion.div>
 
             {/* Card 3: Streaks */}
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.3 }}>
+            <motion.div
+              whileHover={{ y: -5, scale: 1.02 }}
+              transition={{ duration: 0.3 }}
+            >
               <Card className="backdrop-blur-sm bg-white/50 dark:bg-zinc-900/40 border border-[#CDAA7A]/20 shadow-sm hover:shadow-md hover:border-[#CDAA7A]/40 transition-all duration-300 overflow-hidden">
                 <CardHeader className="pb-1.5 pt-5 px-5">
                   <CardTitle className="flex items-center gap-2 ibm-plex-mono-medium text-[#333333] dark:text-[#CDAA7A] text-[15px]">
@@ -276,32 +322,37 @@ const Dashboard: React.FC = () => {
                   <div className="flex items-end mb-4">
                     <div className="mr-8">
                       <div className="flex items-center">
-                        <span className="text-4xl font-bold text-[#CDAA7A] mr-2">{stats.streaks.current}</span>
+                        <span className="text-4xl font-bold text-[#CDAA7A] mr-2">
+                          {stats.streaks.current}
+                        </span>
                         <Flame className="h-6 w-6 text-[#CDAA7A]" />
                       </div>
-                      <div className="text-xs text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">current streak</div>
+                      <div className="text-xs text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
+                        current streak
+                      </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-medium text-[#333333] dark:text-[#E0E0E0]">{stats.streaks.best}</div>
-                      <div className="text-xs text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">best streak</div>
+                      <div className="text-2xl font-medium text-[#333333] dark:text-[#E0E0E0]">
+                        {stats.streaks.best}
+                      </div>
+                      <div className="text-xs text-[#333333]/70 dark:text-[#E0E0E0]/70 ibm-plex-mono-regular">
+                        best streak
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-1 mt-4">
+                  <div className="flex gap-2 mt-4">
                     {[...Array(7)].map((_, i) => (
-                      <motion.div 
+                      <motion.div
                         key={i}
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ 
-                          scale: 1, 
-                          opacity: 1,
-                        }}
-                        transition={{ duration: 0.2, delay: i * 0.1 + 0.5 }}
-                        className={`h-3 w-full rounded-md ${
-                          i < stats.streaks.current ? 
-                            `bg-gradient-to-r from-[#CDAA7A] to-[#E4CA8C] opacity-${100 - (i * 10)}` : 
-                            'bg-gray-200 dark:bg-gray-700'
+                        initial={{ scale: 0.7, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.2, delay: i * 0.05 + 0.3 }}
+                        className={`h-3 w-6 rounded-full ${
+                          i < stats.streaks.current
+                            ? "bg-gradient-to-r from-[#CDAA7A] to-[#E4CA8C]"
+                            : "bg-gray-200 dark:bg-gray-700"
                         }`}
-                      ></motion.div>
+                      />
                     ))}
                   </div>
                 </CardContent>
@@ -310,7 +361,7 @@ const Dashboard: React.FC = () => {
           </motion.div>
 
           {/* Divider with subtle glow */}
-          <motion.div 
+          <motion.div
             className="relative w-full max-w-4xl mx-auto h-px bg-[#CDAA7A]/10 mb-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -320,8 +371,8 @@ const Dashboard: React.FC = () => {
           </motion.div>
 
           {/* VISUAL GROUP 3: Focus Profiles section with clear heading */}
-          <motion.div 
-            className="mb-16 px-2" 
+          <motion.div
+            className="mb-16 px-2"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
@@ -334,7 +385,7 @@ const Dashboard: React.FC = () => {
                 Manage your custom focus environments for different activities
               </p>
             </div>
-            
+
             <Card className="backdrop-blur-sm bg-white/50 dark:bg-zinc-900/40 border border-[#CDAA7A]/20 shadow-sm hover:shadow-md transition-all duration-300 p-1">
               <CardContent className="p-5">
                 <ProfilesManager />
@@ -343,7 +394,7 @@ const Dashboard: React.FC = () => {
           </motion.div>
         </div>
       </main>
-      
+
       {/* Enhanced footer with BestSelf branding */}
       <footer className="py-5 flex flex-col justify-center items-center">
         <div className="text-xs text-center text-[#333333]/40 dark:text-[#E0E0E0]/40 mb-2 ibm-plex-mono-regular">
