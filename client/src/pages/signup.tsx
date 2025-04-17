@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabaseClient";
 import { getDefaultHelmData } from "@/lib/utils";
+import { setStorageData } from "@/lib/chromeStorage";
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -12,45 +13,46 @@ const SignUp: React.FC = () => {
   const [_, navigate] = useLocation();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
-  
+
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
-  
+
     if (signUpError) {
       setError(signUpError.message);
       setLoading(false);
       return;
     }
-  
+
     const userId = data?.user?.id;
     const today = new Date().toISOString().split("T")[0];
-  
+
     if (userId) {
       const newKey = `helmData-${userId}`;
       const anonymousData = localStorage.getItem("helmData");
-  
+
       if (anonymousData) {
-        // 👇 Міграція старих даних
-        localStorage.setItem(newKey, anonymousData);
+        const parsed = JSON.parse(anonymousData);
+        localStorage.clear();
+        await setStorageData(newKey, parsed);
         localStorage.removeItem("helmData");
         console.log("✅ Migrated anonymous helmData to:", newKey);
       } else {
-        // 👇 Якщо нічого не було — сетай дефолт
+        localStorage.clear();
         const defaultData = getDefaultHelmData();
-        localStorage.setItem(newKey, JSON.stringify(defaultData));
-        console.log("🆕 Created new helmData for:", newKey);
+        await setStorageData(newKey, defaultData);
+        console.log("🆕 Created EMPTY helmData for:", newKey);
       }
     }
-  
+
     setLoading(false);
     navigate("/email-verification");
   };
-  
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#fbfcfc]">

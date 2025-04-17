@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
 import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
+import { setStorageData } from "@/lib/chromeStorage";
+import { getDefaultHelmData } from "@/lib/utils";
 
 const EmailVerification: React.FC = () => {
   const [checking, setChecking] = useState(false);
@@ -44,6 +46,27 @@ const EmailVerification: React.FC = () => {
       type: "signup",
       email: user.email,
     });
+
+    const userId = data?.user?.id;
+    const today = new Date().toISOString().split("T")[0];
+
+    if (userId) {
+      const newKey = `helmData-${userId}`;
+      const anonymousData = localStorage.getItem("helmData");
+
+      if (anonymousData) {
+        const parsed = JSON.parse(anonymousData);
+        localStorage.clear();
+        await setStorageData(newKey, parsed);
+        localStorage.removeItem("helmData");
+        console.log("✅ Migrated anonymous helmData to:", newKey);
+      } else {
+        localStorage.clear();
+        const defaultData = getDefaultHelmData();
+        await setStorageData(newKey, defaultData);
+        console.log("🆕 Created EMPTY helmData for:", newKey);
+      }
+    }
 
     if (error) {
       setError(error.message);

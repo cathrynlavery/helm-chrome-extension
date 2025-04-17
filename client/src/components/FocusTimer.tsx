@@ -34,6 +34,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getStorageData, setStorageData } from '@/lib/chromeStorage';
 
 interface FocusTimerProps {
   compact?: boolean;
@@ -112,7 +113,38 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       }
     };
   }, [isInPauseCountdown, timerState.isPaused]);
+  useEffect(() => {
+    if (timerState.isRunning && timerState.timeRemaining === 0) {
+      const handleComplete = async () => {
+        console.log("⏱️ Session complete. Saving data...");
+        await endTimer(true); // Завершуємо зберігаючи прогрес
   
+        const today = new Date().toISOString().split('T')[0];
+        const storage = await getStorageData();
+  
+        const minutesToAdd = Math.floor(timerState.totalDuration / 60);
+  
+        storage.focusHistory[today] = (storage.focusHistory[today] || 0) + minutesToAdd;
+  
+        // 🔥 Оновлюємо streak
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        if (storage.streaks.lastActiveDate !== today) {
+          if (storage.streaks.lastActiveDate === yesterday) {
+            storage.streaks.current += 1;
+            storage.streaks.best = Math.max(storage.streaks.current, storage.streaks.best);
+          } else {
+            storage.streaks.current = 1;
+          }
+          storage.streaks.lastActiveDate = today;
+        }
+  
+        await setStorageData('helmData', storage);
+        console.log("✅ Focus session stats updated.");
+      };
+  
+      handleComplete();
+    }
+  }, [timerState.timeRemaining, timerState.isRunning]);
   const handleStartPause = async () => {
     console.log("handleStartPause called", { 
       isRunning: timerState.isRunning, 
@@ -656,3 +688,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
 };
 
 export default FocusTimer;
+function endTimer(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}
+

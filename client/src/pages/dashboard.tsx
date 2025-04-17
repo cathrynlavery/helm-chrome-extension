@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
       </div>
     );
   }
-  const todayFocusMinutes = getTodayFocusMinutes();
+  const todayFocusMinutes = stats?.todayMinutes;
   const todayFocusTime = formatDuration(todayFocusMinutes);
 
   // Get personalized greeting based on time of day

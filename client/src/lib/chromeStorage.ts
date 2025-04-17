@@ -60,33 +60,6 @@ const defaultData: StorageData = {
       lastUsed: new Date().toISOString(),
       accessStyle: 'blocklist'
     },
-    {
-      id: 2,
-      name: "Study Profile",
-      description: "For focused study time without gaming and entertainment sites",
-      isActive: false,
-      blockedSites: ["youtube.com", "twitch.tv"],
-      lastUsed: new Date(Date.now() - 86400000).toISOString(), // yesterday
-      accessStyle: 'blocklist'
-    },
-    {
-      id: 3,
-      name: "Writing Focus",
-      description: "Allows only writing tools and reference sites",
-      isActive: false,
-      blockedSites: ["docs.google.com", "notion.so", "dictionary.com", "thesaurus.com", "wikipedia.org", "grammarly.com"],
-      lastUsed: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
-      accessStyle: 'allowlist'
-    },
-    {
-      id: 4,
-      name: "Personal Profile",
-      description: "Block distracting work-related sites during personal time",
-      isActive: false,
-      blockedSites: ["linkedin.com"],
-      lastUsed: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-      accessStyle: 'blocklist'
-    }
   ],
   activeFocusSession: null,
   dailyIntention: "Complete the product research for my team meeting",
@@ -113,19 +86,12 @@ const defaultData: StorageData = {
   focusGoal: 240, // 4 hours in minutes
   weeklyFocusGoal: 1200, // 20 hours in minutes
   focusHistory: {
-    // Last 7 days of focus time (in minutes)
-    [getDateString(new Date(Date.now() - 86400000 * 6))]: 150, // 2.5 hours
-    [getDateString(new Date(Date.now() - 86400000 * 5))]: 216, // 3.6 hours
-    [getDateString(new Date(Date.now() - 86400000 * 4))]: 144, // 2.4 hours
-    [getDateString(new Date(Date.now() - 86400000 * 3))]: 192, // 3.2 hours
-    [getDateString(new Date(Date.now() - 86400000 * 2))]: 135, // 2.25 hours
-    [getDateString(new Date(Date.now() - 86400000))]: 72, // 1.2 hours
-    [getDateString(new Date())]: 48, // 0.8 hours (current day in progress)
+    [getDateString(new Date())]: 0,
   },
   streaks: {
-    current: 5,
-    best: 12,
-    lastActiveDate: getDateString(new Date(Date.now() - 86400000)) // yesterday
+    current: 0,
+    best: 0,
+    lastActiveDate: null
   }
 };
 
@@ -170,14 +136,13 @@ export const initStorage = async (): Promise<void> => {
 };
 
 // Get all data
-export const getStorageData = async (): Promise<StorageData> => {
+export const getStorageData = async (key: string = 'helmData'): Promise<StorageData> => {
   try {
     if (isChromeExtension() && window.chrome?.storage?.local) {
-      const data = await window.chrome.storage.local.get('helmData');
-      return data.helmData as StorageData;
+      const data = await window.chrome.storage.local.get(key);
+      return data[key] as StorageData;
     } else {
-      // Fallback to localStorage for development
-      const data = localStorage.getItem('helmData');
+      const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : defaultData;
     }
   } catch (error) {
@@ -187,18 +152,18 @@ export const getStorageData = async (): Promise<StorageData> => {
 };
 
 // Set all data
-export const setStorageData = async (data: StorageData): Promise<void> => {
+export const setStorageData = async (key: string, data: StorageData): Promise<void> => {
   try {
     if (isChromeExtension() && window.chrome?.storage?.local) {
-      await window.chrome.storage.local.set({ helmData: data });
+      await window.chrome.storage.local.set({ [key]: data });
     } else {
-      // Fallback to localStorage for development
-      localStorage.setItem('helmData', JSON.stringify(data));
+      localStorage.setItem(key, JSON.stringify(data));
     }
   } catch (error) {
     console.error('Error setting storage data:', error);
   }
 };
+
 
 // Helper functions for specific data
 export const getFocusProfiles = async (): Promise<FocusProfile[]> => {
@@ -234,7 +199,7 @@ export const updateProfile = async (
     lastUsed: new Date().toISOString()
   };
   
-  await setStorageData(data);
+  // await setStorageData(data);
   return data.focusProfiles[index];
 };
 
@@ -257,7 +222,7 @@ export const createProfile = async (
   };
   
   data.focusProfiles.push(newProfile);
-  await setStorageData(data);
+  // await setStorageData(data);
   return newProfile;
 };
 
@@ -268,7 +233,7 @@ export const deleteProfile = async (id: number): Promise<boolean> => {
   if (index === -1) return false;
   
   data.focusProfiles.splice(index, 1);
-  await setStorageData(data);
+  // await setStorageData(data);
   return true;
 };
 
@@ -280,7 +245,7 @@ export const getDailyIntention = async (): Promise<string> => {
 export const setDailyIntention = async (intention: string): Promise<void> => {
   const data = await getStorageData();
   data.dailyIntention = intention;
-  await setStorageData(data);
+  // await setStorageData(data);
 };
 
 export const startFocusSession = async (profileId: number): Promise<FocusSession> => {
@@ -306,7 +271,7 @@ export const startFocusSession = async (profileId: number): Promise<FocusSession
   };
   
   data.activeFocusSession = session;
-  await setStorageData(data);
+  // await setStorageData(data);
   return session;
 };
 
@@ -368,7 +333,7 @@ export const endFocusSession = async (saveProgress: boolean = true): Promise<Foc
     data.activeFocusSession = null;
     
     // Save updated data
-    await setStorageData(data);
+    // await setStorageData(data);
     
     return endedSession;
   } catch (error) {
@@ -395,7 +360,7 @@ export const getFocusGoal = async (): Promise<number> => {
 export const setFocusGoal = async (minutes: number): Promise<number> => {
   const data = await getStorageData();
   data.focusGoal = minutes;
-  await setStorageData(data);
+  // await setStorageData(data);
   return minutes;
 };
 
@@ -436,7 +401,7 @@ export const addDailyTarget = async (text: string): Promise<DailyTarget> => {
   };
   
   data.dailyTargets.push(newTarget);
-  await setStorageData(data);
+  // await setStorageData(data);
   return newTarget;
 };
 
@@ -451,7 +416,7 @@ export const updateDailyTarget = async (id: number, updates: Partial<DailyTarget
     ...updates
   };
   
-  await setStorageData(data);
+  // await setStorageData(data);
   return data.dailyTargets[index];
 };
 
@@ -462,6 +427,6 @@ export const deleteDailyTarget = async (id: number): Promise<boolean> => {
   if (index === -1) return false;
   
   data.dailyTargets.splice(index, 1);
-  await setStorageData(data);
+  // await setStorageData(data);
   return true;
 };

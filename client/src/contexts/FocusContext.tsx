@@ -323,7 +323,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     // Persist this change
     const data = await getStorageData();
     const updatedProfiles = data.focusProfiles.map(p => ({ ...p, isActive: p.id === profile.id }));
-    await setStorageData({ ...data, focusProfiles: updatedProfiles });
+    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
   }, []);
 
   const createProfileHandler = useCallback(async (profileData: Omit<StorageFocusProfile, 'id' | 'lastUsed' | 'isActive'>) => {
@@ -337,7 +337,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
       isActive: false, // New profiles are not active by default
     };
     const updatedProfiles = [...data.focusProfiles, newProfile];
-    await setStorageData({ ...data, focusProfiles: updatedProfiles });
+    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
     setProfiles(updatedProfiles);
   }, []);
 
@@ -386,7 +386,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     const finalActiveProfile = updatedProfiles.find(p => p.isActive) || null;
     setActiveProfileState(finalActiveProfile);
 
-    await setStorageData({ ...data, focusProfiles: updatedProfiles });
+    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
     setProfiles(updatedProfiles);
   }, []);
 
@@ -404,7 +404,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
       }
       setActiveProfileState(newActiveProfile);
     }
-    await setStorageData({ ...data, focusProfiles: updatedProfiles });
+    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
     setProfiles(updatedProfiles);
   }, [activeProfile]);
 
@@ -423,7 +423,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     
     // Persist to storage
     const data = await getStorageData();
-    await setStorageData({ ...data, focusGoal: minutes });
+    // await setStorageData({ ...data, focusGoal: minutes });
   }, [stats]);
 
   // Cleanup timer on unmount
@@ -449,7 +449,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     
     // Persist to storage
     const data = await getStorageData();
-    await setStorageData({ ...data, dailyTargets: updatedTargets });
+    // await setStorageData({ ...data, dailyTargets: updatedTargets });
   }, [dailyTargets]);
   
   const updateTargetHandler = useCallback(async (id: number, updates: Partial<DailyTarget>) => {
@@ -462,7 +462,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     
     // Persist to storage
     const data = await getStorageData();
-    await setStorageData({ ...data, dailyTargets: updatedTargets });
+    // await setStorageData({ ...data, dailyTargets: updatedTargets });
   }, [dailyTargets]);
   
   const deleteTargetHandler = useCallback(async (id: number) => {
@@ -473,7 +473,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     
     // Persist to storage
     const data = await getStorageData();
-    await setStorageData({ ...data, dailyTargets: updatedTargets });
+    // await setStorageData({ ...data, dailyTargets: updatedTargets });
   }, [dailyTargets]);
 
   const contextValue = useMemo(() => ({
