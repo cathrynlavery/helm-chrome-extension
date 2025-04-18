@@ -199,7 +199,7 @@ export const updateProfile = async (
     lastUsed: new Date().toISOString()
   };
   
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return data.focusProfiles[index];
 };
 
@@ -222,7 +222,7 @@ export const createProfile = async (
   };
   
   data.focusProfiles.push(newProfile);
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return newProfile;
 };
 
@@ -233,7 +233,7 @@ export const deleteProfile = async (id: number): Promise<boolean> => {
   if (index === -1) return false;
   
   data.focusProfiles.splice(index, 1);
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return true;
 };
 
@@ -245,7 +245,7 @@ export const getDailyIntention = async (): Promise<string> => {
 export const setDailyIntention = async (intention: string): Promise<void> => {
   const data = await getStorageData();
   data.dailyIntention = intention;
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
 };
 
 export const startFocusSession = async (profileId: number): Promise<FocusSession> => {
@@ -271,76 +271,82 @@ export const startFocusSession = async (profileId: number): Promise<FocusSession
   };
   
   data.activeFocusSession = session;
-  // await setStorageData(data);
+  await setStorageData('helmData',  data);
   return session;
 };
 
 export const endFocusSession = async (saveProgress: boolean = true): Promise<FocusSession | null> => {
-  console.log(`chromeStorage.endFocusSession called with saveProgress=${saveProgress}`);
-  
+  console.log(`📦 chromeStorage.endFocusSession called with saveProgress=${saveProgress}`);
+
   try {
     const data = await getStorageData();
-    
+    console.log('📦 Retrieved storage data:', data);
+
     if (!data.activeFocusSession) {
-      console.log('No active focus session found in storage');
+      console.log('⚠️ No active focus session found in storage');
       return null;
     }
-    
+
     const endTime = new Date();
     const startTime = new Date(data.activeFocusSession.startTime);
     const durationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
-    
-    console.log('Ending session that started at:', startTime);
-    console.log('Session duration in seconds:', durationSeconds);
-    
+
+    console.log('⏱ Ending session...');
+    console.log('👉 Session started at:', startTime);
+    console.log('👉 Session ended at:', endTime);
+    console.log('👉 Session duration (seconds):', durationSeconds);
+
     const endedSession: FocusSession = {
       ...data.activeFocusSession,
       endTime: endTime.toISOString(),
       duration: durationSeconds,
       isActive: false
     };
-    
-    // Update focus history only if saveProgress is true
+
     if (saveProgress) {
       const dateString = getDateString(new Date());
       const minutesFocused = Math.floor(durationSeconds / 60);
-      
+
+      console.log(`🧠 Adding ${minutesFocused} minutes to focusHistory for ${dateString}`);
       data.focusHistory[dateString] = (data.focusHistory[dateString] || 0) + minutesFocused;
-      
-      // Update streak
-      const today = getDateString(new Date());
-      if (data.streaks.lastActiveDate !== today) {
-        const yesterday = getDateString(new Date(Date.now() - 86400000));
-        
-        if (data.streaks.lastActiveDate === yesterday) {
-          // Continuing streak
+
+      // 🧠 Update streaks
+      const today = dateString;
+      const yesterday = getDateString(new Date(Date.now() - 86400000));
+      const lastActive = data.streaks.lastActiveDate;
+
+      console.log('📆 Streak check — lastActiveDate:', lastActive);
+
+      if (lastActive !== today) {
+        if (lastActive === yesterday) {
           data.streaks.current += 1;
           if (data.streaks.current > data.streaks.best) {
             data.streaks.best = data.streaks.current;
           }
         } else {
-          // Streak broken
           data.streaks.current = 1;
         }
-        
         data.streaks.lastActiveDate = today;
+
+        console.log(`🔥 Updated streaks: current=${data.streaks.current}, best=${data.streaks.best}`);
       }
     } else {
-      console.log('Session ended without saving progress to focus history or streaks');
+      console.log('⚠️ Session ended without saving progress to focusHistory or streaks');
     }
-    
-    // Clear active session
+
     data.activeFocusSession = null;
-    
-    // Save updated data
-    // await setStorageData(data);
-    
+
+    console.log('💾 Saving updated storage data...');
+    await setStorageData('helmData', data);
+    console.log('✅ Session successfully ended and saved');
+
     return endedSession;
   } catch (error) {
-    console.error('Error ending focus session:', error);
+    console.error('❌ Error ending focus session:', error);
     return null;
   }
 };
+
 
 export const getActiveFocusSession = async (): Promise<FocusSession | null> => {
   const data = await getStorageData();
@@ -360,7 +366,7 @@ export const getFocusGoal = async (): Promise<number> => {
 export const setFocusGoal = async (minutes: number): Promise<number> => {
   const data = await getStorageData();
   data.focusGoal = minutes;
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return minutes;
 };
 
@@ -401,7 +407,7 @@ export const addDailyTarget = async (text: string): Promise<DailyTarget> => {
   };
   
   data.dailyTargets.push(newTarget);
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return newTarget;
 };
 
@@ -416,7 +422,7 @@ export const updateDailyTarget = async (id: number, updates: Partial<DailyTarget
     ...updates
   };
   
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return data.dailyTargets[index];
 };
 
@@ -427,6 +433,6 @@ export const deleteDailyTarget = async (id: number): Promise<boolean> => {
   if (index === -1) return false;
   
   data.dailyTargets.splice(index, 1);
-  // await setStorageData(data);
+  await setStorageData('helmData', data);
   return true;
 };

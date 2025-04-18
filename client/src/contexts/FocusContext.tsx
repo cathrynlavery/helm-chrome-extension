@@ -33,6 +33,7 @@ interface FocusContextType {
   timerState: TimerState;
   stats: FocusStats;
   isLoading: boolean;
+  setStats: React.Dispatch<React.SetStateAction<FocusStats>>;
   dailyTargets: DailyTarget[];
   addTarget: (text: string) => void;
   updateTarget: (id: number, updates: Partial<DailyTarget>) => void;
@@ -482,6 +483,7 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     timerState,
     stats,
     isLoading,
+    setStats,
     dailyTargets,
     addTarget: addTargetHandler,
     updateTarget: updateTargetHandler,

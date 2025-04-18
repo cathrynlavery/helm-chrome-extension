@@ -42,7 +42,7 @@ interface FocusTimerProps {
   streakCount?: number;
 }
 
-const PRESET_DURATIONS = [15, 30, 45];
+const PRESET_DURATIONS = [1, 15, 30, 45];
 
 // Messages to rotate for empty state
 const EMPTY_STATE_MESSAGES = [
@@ -57,7 +57,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   showProfileSelector = true,
   streakCount 
 }) => {
-  const { timerState, startTimer, pauseTimer, activeProfile, stats, profiles, setActiveProfile } = useFocus();
+  const { timerState, startTimer, pauseTimer, endTimer, setStats, activeProfile, stats, profiles, setActiveProfile } = useFocus();
   const [customDuration, setCustomDuration] = useState<number | string>("");
   const [selectedDuration, setSelectedDuration] = useState<number>(25);
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -113,38 +113,53 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       }
     };
   }, [isInPauseCountdown, timerState.isPaused]);
+
+
   useEffect(() => {
     if (timerState.isRunning && timerState.timeRemaining === 0) {
-      const handleComplete = async () => {
-        console.log("⏱️ Session complete. Saving data...");
-        await endTimer(true); // Завершуємо зберігаючи прогрес
+      const handleEmergencyExit = async () => {
+        console.log('🚨 Auto-complete: Timer reached 0, triggering emergency exit flow');
   
-        const today = new Date().toISOString().split('T')[0];
-        const storage = await getStorageData();
+        try {
+          await endTimer(true); // <-- This should call FocusTimer.end → endFocusSession(true)
   
-        const minutesToAdd = Math.floor(timerState.totalDuration / 60);
+          const today = new Date().toISOString().split('T')[0];
+          const storage = await getStorageData();
+          const minutesToAdd = Math.floor(timerState.totalDuration / 60);
   
-        storage.focusHistory[today] = (storage.focusHistory[today] || 0) + minutesToAdd;
+          console.log('🧠 [Auto-Exit] Adding fallback minutes to focusHistory:', minutesToAdd);
   
-        // 🔥 Оновлюємо streak
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        if (storage.streaks.lastActiveDate !== today) {
-          if (storage.streaks.lastActiveDate === yesterday) {
-            storage.streaks.current += 1;
-            storage.streaks.best = Math.max(storage.streaks.current, storage.streaks.best);
-          } else {
-            storage.streaks.current = 1;
+          storage.focusHistory[today] = (storage.focusHistory[today] || 0) + minutesToAdd;
+  
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+          if (storage.streaks.lastActiveDate !== today) {
+            if (storage.streaks.lastActiveDate === yesterday) {
+              storage.streaks.current += 1;
+              storage.streaks.best = Math.max(storage.streaks.current, storage.streaks.best);
+            } else {
+              storage.streaks.current = 1;
+            }
+            storage.streaks.lastActiveDate = today;
           }
-          storage.streaks.lastActiveDate = today;
-        }
   
-        await setStorageData('helmData', storage);
-        console.log("✅ Focus session stats updated.");
+          await setStorageData('helmData', storage);
+          console.log('✅ [Auto-Exit] Metrics saved successfully');
+  
+          localStorage.setItem('helm_emergency_exit', 'true');
+          window.location.reload();
+        } catch (error) {
+          console.error('❌ Error during emergency exit:', error);
+          alert('Failed to exit. Please try refreshing the page manually.');
+        }
       };
   
-      handleComplete();
+      handleEmergencyExit();
     }
   }, [timerState.timeRemaining, timerState.isRunning]);
+  
+  
+  
+  
   const handleStartPause = async () => {
     console.log("handleStartPause called", { 
       isRunning: timerState.isRunning, 
@@ -473,7 +488,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                     <>
                       Paused - {formatPauseTime(pauseTimeRemaining)} remaining
                     </>
-                  ) : (
+                  ) : ( 
                     'Focusing'
                   )}
                 </span>
@@ -688,7 +703,4 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
 };
 
 export default FocusTimer;
-function endTimer(arg0: boolean) {
-  throw new Error('Function not implemented.');
-}
 
