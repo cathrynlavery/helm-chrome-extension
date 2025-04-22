@@ -239,16 +239,16 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
     console.log(`FocusContext: endTimer called with saveProgress=${saveProgress}`);
     await focusTimer.end(saveProgress);
   
-    // Update timer state
-    const currentState = focusTimer.getState();
-    setTimerState({
-      isRunning: currentState.isRunning,
-      isPaused: currentState.isPaused,
-      timeRemaining: currentState.timeRemaining,
-      totalDuration: currentState.totalDuration,
-      progress: currentState.progress,
-      profileId: currentState.profileId,
-    });
+    // ⛔️ Надсилаємо сигнал екстеншну на розблокування
+    try {
+      const EXTENSION_ID = "встав-свій-extension-id"; // встав сюди свій ID з chrome://extensions
+      const response = await chrome.runtime.sendMessage(EXTENSION_ID, {
+        action: "stopFocusSession",
+      });
+      console.log("🧹 Extension unblocked sites:", response);
+    } catch (err) {
+      console.error("❌ Failed to stop focus session in extension:", err);
+    }
   
     // Load updated storage
     const data = await getStorageData();

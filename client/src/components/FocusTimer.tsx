@@ -156,51 +156,75 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       handleEmergencyExit();
     }
   }, [timerState.timeRemaining, timerState.isRunning]);
-  
-  
-  
+
   
   const handleStartPause = async () => {
-    console.log("handleStartPause called", { 
+    console.log("▶️ handleStartPause called", { 
       isRunning: timerState.isRunning, 
       isPaused: timerState.isPaused,
       hasPausedOnce
     });
-    
-    if (!activeProfile) return;
-
+  
+    if (!activeProfile) {
+      toast.error("No focus profile selected.");
+      return;
+    }
+  
+    const EXTENSION_ID = "aajfaclleggpdbjjlpdpmcmpopigibfo";
+  
     if (timerState.isRunning) {
       if (timerState.isPaused) {
-        // Resuming from pause
-        console.log("Resuming from pause");
         setIsInPauseCountdown(false);
-        setPauseTimeRemaining(300); // Reset pause timer
-        await startTimer(activeProfile.id, selectedDuration * 60); // Use startTimer to resume
+        setPauseTimeRemaining(300);
+        await startTimer(activeProfile.id, selectedDuration * 60);
         setShowResumeConfirmation(true);
-        setTimeout(() => setShowResumeConfirmation(false), 5000); // Hide after 5 seconds
+        setTimeout(() => setShowResumeConfirmation(false), 5000);
         toast.success("Session resumed. Stay focused!");
       } else {
-        // Attempting to pause
-        console.log("Attempting to pause");
         if (hasPausedOnce) {
           toast.error("You've already used your pause for this session!");
           return;
         }
         setHasPausedOnce(true);
         setIsInPauseCountdown(true);
-        await pauseTimer(); // Call pauseTimer to pause the session
+        await pauseTimer();
         toast.info("Session paused. You have 5 minutes to resume.");
       }
     } else {
-      // Starting new session
-      console.log("Starting new session");
       setHasPausedOnce(false);
       setPauseTimeRemaining(300);
       setIsInPauseCountdown(false);
       setShowResumeConfirmation(false);
+  
+      try {
+        const sites = activeProfile.blockedSites?.length
+          ? activeProfile.blockedSites
+          : ["facebook.com", "youtube.com"];
+  
+        console.log("📤 Sending START_FOCUS_SESSION to extension:", sites);
+  
+        chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          { type: "START_FOCUS_SESSION", sites },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              console.error("❌ Extension error:", chrome.runtime.lastError.message);
+              toast.error("Extension not found or blocked.");
+            } else {
+              console.log("✅ Extension responded:", response);
+              toast.success("Extension started focus block.");
+            }
+          }
+        );
+      } catch (err) {
+        console.error("❌ Exception sending message to extension:", err);
+        toast.error("Failed to send message to extension.");
+      }
+  
       await startTimer(activeProfile.id, selectedDuration * 60);
     }
   };
+  
   
   const handleSelectDuration = (duration: number) => {
     setSelectedDuration(duration);
