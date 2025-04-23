@@ -234,79 +234,70 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
       profileId: currentState.profileId,
     });
   }, [focusTimer]);
+  
+  const [hasEnded, setHasEnded] = useState(false);
+const sendMessageToExtension = useCallback((message: any): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      if (!chrome.runtime?.sendMessage) {
+        return reject(new Error("chrome.runtime.sendMessage is not available"));
+      }
+      try {
+        chrome.runtime.sendMessage("aajfaclleggpdbjjlpdpmcmpopigibfo", message, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve(response);
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }, []);
 
   const endTimerHandler = useCallback(async (saveProgress: boolean = true) => {
-    console.log(`FocusContext: endTimer called with saveProgress=${saveProgress}`);
+    if (hasEndedRef.current || !timerState.isRunning) return;
+    hasEndedRef.current = true;
+
+    console.log("⏹ Ending timer with saveProgress=", saveProgress);
     await focusTimer.end(saveProgress);
-  
-    // ⛔️ Надсилаємо сигнал екстеншну на розблокування
+
     try {
-      const EXTENSION_ID = "встав-свій-extension-id"; // встав сюди свій ID з chrome://extensions
-      const response = await chrome.runtime.sendMessage(EXTENSION_ID, {
-        action: "stopFocusSession",
-      });
-      console.log("🧹 Extension unblocked sites:", response);
-    } catch (err) {
-      console.error("❌ Failed to stop focus session in extension:", err);
+      const result = await sendMessageToExtension({ type: "STOP_FOCUS_SESSION" });
+      console.log("✅ Extension responded:", result);
+    } catch (e) {
+      console.error("❌ Failed to notify extension:", e);
     }
-  
-    // Load updated storage
+
     const data = await getStorageData();
-  
-    // 🔥 Update streaks before updating stats
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  
+    const today = new Date().toISOString().split("T")[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     const lastActive = data.streaks?.lastActiveDate;
-    const isTodayAlreadyCounted = lastActive === today;
-  
     let currentStreak = data.streaks?.current || 0;
     let bestStreak = data.streaks?.best || 0;
-  
-    if (!isTodayAlreadyCounted) {
-      if (lastActive === yesterday) {
-        currentStreak += 1;
-      } else {
-        currentStreak = 1;
-      }
-  
+
+    if (lastActive !== today) {
+      if (lastActive === yesterday) currentStreak += 1;
+      else currentStreak = 1;
       if (currentStreak > bestStreak) bestStreak = currentStreak;
-  
-      await setStorageData({
-        ...data,
-        streaks: {
-          current: currentStreak,
-          best: bestStreak,
-          lastActiveDate: today,
-        }
-      });
-  
-      setStats(prev => ({
-        ...prev,
-        streaks: {
-          current: currentStreak,
-          best: bestStreak,
-        }
-      }));
+      data.streaks = { current: currentStreak, best: bestStreak, lastActiveDate: today };
+      await setStorageData(data);
+      setStats((prev) => ({ ...prev, streaks: { current: currentStreak, best: bestStreak } }));
     }
+
     const todayMinutes = data.focusHistory?.[today] || 0;
     const weeklyMinutes = Object.values(data.focusHistory || {}).reduce((sum, mins) => sum + mins, 0);
-  
     const focusGoal = data.focusGoal || 240;
-    const todayPercentage = focusGoal > 0 ? Math.min(100, Math.round((todayMinutes / focusGoal) * 100)) : 0;
-  
-    const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const todayPercentage = Math.min(100, Math.round((todayMinutes / focusGoal) * 100));
+    const days = ["M", "T", "W", "T", "F", "S", "S"];
     const weeklyData = days.map((day, index) => {
       const date = new Date();
       date.setDate(date.getDate() - (6 - index));
-      const dateStr = date.toISOString().split('T')[0];
-      return {
-        day,
-        minutes: data.focusHistory?.[dateStr] || 0
-      };
+      const dateStr = date.toISOString().split("T")[0];
+      return { day, minutes: data.focusHistory?.[dateStr] || 0 };
     });
-  
-    setStats(prev => ({
+
+    setStats((prev) => ({
       ...prev,
       todayMinutes,
       weeklyMinutes,
@@ -314,9 +305,29 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
       todayPercentage,
       weeklyData,
     }));
-  }, [focusTimer]);
-  
+  }, [focusTimer, sendMessageToExtension, setStats, timerState.isRunning]);
 
+  useEffect(() => {
+    const unsubscribe = focusTimer.subscribe((state: FocusTimerLibState) => {
+      setTimerState({
+        isRunning: state.isRunning,
+        isPaused: state.isPaused,
+        timeRemaining: state.timeRemaining,
+        totalDuration: state.totalDuration,
+        progress: state.progress,
+        profileId: state.profileId,
+      });
+
+      if (!state.isRunning && !state.isPaused && state.timeRemaining === 0 && !hasEndedRef.current) {
+        console.log("⏱ Detected timer end via state — calling endTimer");
+        endTimerHandler(true);
+      }
+    });
+    return () => unsubscribe();
+  }, [focusTimer, endTimerHandler]);
+
+
+  
   // Profile management functions
   const setActiveProfileHandler = useCallback(async (profile: StorageFocusProfile) => {
     console.log(`FocusContext: Setting active profile to: ${profile.name}`);

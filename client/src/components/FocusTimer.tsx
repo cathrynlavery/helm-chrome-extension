@@ -114,49 +114,43 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
     };
   }, [isInPauseCountdown, timerState.isPaused]);
 
-
   useEffect(() => {
-    if (timerState.isRunning && timerState.timeRemaining === 0) {
-      const handleEmergencyExit = async () => {
-        console.log('🚨 Auto-complete: Timer reached 0, triggering emergency exit flow');
+    if (
+      timerState.timeRemaining === 0 &&
+      timerState.isRunning &&
+      !timerState.isPaused
+    ) {
+      console.log("🚨 Timer reached 0 — triggering auto-end");
   
+      const autoEnd = async () => {
         try {
-          await endTimer(true); // <-- This should call FocusTimer.end → endFocusSession(true)
+          await endTimer(true);
   
-          const today = new Date().toISOString().split('T')[0];
-          const storage = await getStorageData();
-          const minutesToAdd = Math.floor(timerState.totalDuration / 60);
-  
-          console.log('🧠 [Auto-Exit] Adding fallback minutes to focusHistory:', minutesToAdd);
-  
-          storage.focusHistory[today] = (storage.focusHistory[today] || 0) + minutesToAdd;
-  
-          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-          if (storage.streaks.lastActiveDate !== today) {
-            if (storage.streaks.lastActiveDate === yesterday) {
-              storage.streaks.current += 1;
-              storage.streaks.best = Math.max(storage.streaks.current, storage.streaks.best);
-            } else {
-              storage.streaks.current = 1;
+          const EXTENSION_ID = "aajfaclleggpdbjjlpdpmcmpopigibfo";
+          chrome.runtime.sendMessage(
+            EXTENSION_ID,
+            { type: "STOP_FOCUS_SESSION" },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                console.error("❌ Extension STOP error:", chrome.runtime.lastError.message);
+              } else {
+                console.log("✅ Extension STOP response:", response);
+              }
             }
-            storage.streaks.lastActiveDate = today;
-          }
+          );
   
-          await setStorageData('helmData', storage);
-          console.log('✅ [Auto-Exit] Metrics saved successfully');
-  
-          localStorage.setItem('helm_emergency_exit', 'true');
-          window.location.reload();
+          console.log("✅ Auto session ended — reloading");
+          setTimeout(() => window.location.reload(), 1000);
         } catch (error) {
-          console.error('❌ Error during emergency exit:', error);
-          alert('Failed to exit. Please try refreshing the page manually.');
+          console.error("❌ Auto-end failed:", error);
         }
       };
   
-      handleEmergencyExit();
+      autoEnd();
     }
-  }, [timerState.timeRemaining, timerState.isRunning]);
-
+  }, [timerState.timeRemaining, timerState.isRunning, timerState.isPaused]);
+  
+  
   
   const handleStartPause = async () => {
     console.log("▶️ handleStartPause called", { 
@@ -202,20 +196,21 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
           : ["facebook.com", "youtube.com"];
   
         console.log("📤 Sending START_FOCUS_SESSION to extension:", sites);
-  
-        chrome.runtime.sendMessage(
-          EXTENSION_ID,
-          { type: "START_FOCUS_SESSION", sites },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              console.error("❌ Extension error:", chrome.runtime.lastError.message);
-              toast.error("Extension not found or blocked.");
-            } else {
-              console.log("✅ Extension responded:", response);
-              toast.success("Extension started focus block.");
+        if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
+          chrome.runtime.sendMessage(
+            EXTENSION_ID,
+            { type: "START_FOCUS_SESSION", sites },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                console.error("❌ Extension error:", chrome.runtime.lastError.message);
+              } else {
+                console.log("✅ Extension responded:", response);
+              }
             }
-          }
-        );
+          );
+        } else {
+          console.error("❌ chrome.runtime.sendMessage is not available");
+        }
       } catch (err) {
         console.error("❌ Exception sending message to extension:", err);
         toast.error("Failed to send message to extension.");
