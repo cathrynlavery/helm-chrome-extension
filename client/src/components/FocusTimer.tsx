@@ -125,20 +125,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
       const autoEnd = async () => {
         try {
           await endTimer(true);
-  
-          const EXTENSION_ID = "aajfaclleggpdbjjlpdpmcmpopigibfo";
-          chrome.runtime.sendMessage(
-            EXTENSION_ID,
-            { type: "STOP_FOCUS_SESSION" },
-            (response) => {
-              if (chrome.runtime.lastError) {
-                console.error("❌ Extension STOP error:", chrome.runtime.lastError.message);
-              } else {
-                console.log("✅ Extension STOP response:", response);
-              }
-            }
-          );
-  
+
           console.log("✅ Auto session ended — reloading");
           setTimeout(() => window.location.reload(), 1000);
         } catch (error) {

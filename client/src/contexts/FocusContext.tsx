@@ -74,23 +74,300 @@ interface FocusProviderProps {
 }
 
 export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
+  // 1. First, define all state variables
   const [profiles, setProfiles] = useState<StorageFocusProfile[]>([]);
   const [activeProfile, setActiveProfileState] = useState<StorageFocusProfile | null>(null);
-  // Use correct initial state
   const [timerState, setTimerState] = useState<TimerState>(defaultTimerState);
   const [stats, setStats] = useState<FocusStats>(defaultStats);
   const [isLoading, setIsLoading] = useState(true);
   const [dailyTargets, setDailyTargets] = useState<DailyTarget[]>([]);
+  const [hasEnded, setHasEnded] = useState(false);
   
-  // Memoize the FocusTimer instance
+  // 2. Create any memoized values
   const focusTimer = useMemo(() => {
     console.log("Creating new FocusTimer instance");
-    // Pass initial state if needed, or handle restoration later
     return new FocusTimer(); 
   }, []);
 
-  // Load initial data - (logic remains largely the same, ensure it uses FocusTimerLibState where applicable internally if needed for restoration)
+  // 3. Define the sendMessageToExtension helper
+  const EXTENSION_ID = "aajfaclleggpdbjjlpdpmcmpopigibfo";
+
+  const sendMessageToExtension = useCallback((message: any): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      if (!chrome.runtime?.sendMessage) {
+        return reject(new Error("chrome.runtime.sendMessage is not available"));
+      }
+  
+      try {
+        console.log("📤 Sending external message to extension:", message);
+        chrome.runtime.sendMessage(EXTENSION_ID, message, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error("❌ Extension error:", chrome.runtime.lastError.message);
+            reject(chrome.runtime.lastError);
+          } else {
+            console.log("✅ Extension responded:", response);
+            resolve(response);
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }, []);
+  
+  // 4. Define ALL handler functions before any useEffects that use them
+  const endTimerHandler = useCallback(async (saveProgress: boolean = true) => {
+    console.log("⏹ Ending timer with saveProgress=", saveProgress);
+    
+    // Use this flag to prevent duplicate executions
+    if (hasEnded) {
+      console.log("Timer already ended, skipping duplicate end call");
+      return;
+    }
+    
+    // Set hasEnded first to prevent race conditions
+    setHasEnded(true);
+    
+    // End the timer in the focus timer lib
+    await focusTimer.end(saveProgress);
+
+    // IMPORTANT: Get storage data and update focus history
+    const data = await getStorageData();
+    
+    // Check if we have a valid session duration to record
+    const sessionDuration = Math.floor((timerState.totalDuration - timerState.timeRemaining) / 60);
+    console.log(`Session completed: ${sessionDuration} minutes`);
+    
+    if (sessionDuration > 0 && saveProgress) {
+      // Get today's date in YYYY-MM-DD format for the history key
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Update focus history for today
+      if (!data.focusHistory) {
+        data.focusHistory = {};
+      }
+      
+      // Initialize today's minutes if not present
+      if (!data.focusHistory[today]) {
+        data.focusHistory[today] = 0;
+      }
+      
+      // Add session minutes to today's total
+      console.log(`🧠 Adding ${sessionDuration} minutes to focusHistory for ${today}`);
+      data.focusHistory[today] += sessionDuration;
+      
+      // Update streak if needed
+      const lastActiveDate = data.lastActiveDate || '';
+      console.log(`📆 Streak check — lastActiveDate: ${lastActiveDate}`);
+      
+      if (lastActiveDate !== today) {
+        // Check if yesterday was the last active date (for continuing streak)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayString = yesterday.toISOString().split('T')[0];
+        
+        if (lastActiveDate === yesterdayString) {
+          // Continue streak
+          data.currentStreak = (data.currentStreak || 0) + 1;
+          console.log(`🔥 Continuing streak: ${data.currentStreak} days`);
+        } else {
+          // Reset streak
+          data.currentStreak = 1;
+          console.log(`🔄 Resetting streak to 1 day`);
+        }
+        
+        // Update last active date to today
+        data.lastActiveDate = today;
+      }
+      
+      // Save the updated data
+      console.log("💾 Saving updated storage data...");
+      await setStorageData(data);
+      
+      // Update stats in React state
+      setStats(prev => {
+        const todayMinutes = data.focusHistory[today] || 0;
+        const todayGoal = data.focusGoal || 0;
+        const todayPercentage = todayGoal > 0 ? Math.min(100, Math.round((todayMinutes / todayGoal) * 100)) : 0;
+        
+        return {
+          ...prev,
+          todayMinutes,
+          todayGoal,
+          todayPercentage,
+          currentStreak: data.currentStreak || 0
+        };
+      });
+    }
+
+    // Send message to extension with session data
+    if (timerState.totalDuration > 0) {
+      try {
+        const sessionData = {
+          profileId: timerState.profileId,
+          duration: timerState.totalDuration,
+          timeCompleted: timerState.totalDuration - timerState.timeRemaining
+        };
+        
+        console.log("📊 Session data being sent to extension:", sessionData);
+        const result = await sendMessageToExtension({ 
+          type: "STOP_FOCUS_SESSION",
+          data: sessionData
+        });
+        console.log("✅ Extension responded:", result);
+      } catch (e) {
+        console.error("❌ Failed to notify extension:", e);
+      }
+    } else {
+      console.warn("⚠️ Not sending session data to extension - invalid duration", timerState);
+    }
+
+    console.log("✅ Session successfully ended and saved");
+  }, [focusTimer, sendMessageToExtension, hasEnded, timerState]);
+
+  // Define other handler functions...
+  const startTimerHandler = useCallback(async (profileId: number, durationSeconds: number) => {
+    console.log(`FocusContext: startTimer called - profileId: ${profileId}, duration: ${durationSeconds}s`);
+    // Reset hasEnded flag when starting a new session
+    setHasEnded(false);
+    await focusTimer.start(profileId, durationSeconds);
+    // Explicitly update React state after starting/resuming
+    const currentState = focusTimer.getState();
+    setTimerState({
+      isRunning: currentState.isRunning,
+      isPaused: currentState.isPaused,
+      timeRemaining: currentState.timeRemaining,
+      totalDuration: currentState.totalDuration,
+      progress: currentState.progress,
+      profileId: currentState.profileId,
+    });
+  }, [focusTimer]);
+
+  const pauseTimerHandler = useCallback(() => {
+    console.log("FocusContext: pauseTimer called");
+    focusTimer.pause();
+    // Explicitly update React state after pausing
+    const currentState = focusTimer.getState();
+    setTimerState({
+      isRunning: currentState.isRunning,
+      isPaused: currentState.isPaused,
+      timeRemaining: currentState.timeRemaining,
+      totalDuration: currentState.totalDuration,
+      progress: currentState.progress,
+      profileId: currentState.profileId,
+    });
+  }, [focusTimer]);
+
+  // Define all the missing handlers
+  const addTargetHandler = useCallback(async (text: string) => {
+    const data = await getStorageData();
+    const newTarget: DailyTarget = {
+      id: Date.now(),
+      text,
+      completed: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    const updatedTargets = [...(data.dailyTargets || []), newTarget];
+    data.dailyTargets = updatedTargets;
+    await setStorageData(data);
+    setDailyTargets(updatedTargets);
+  }, []);
+
+  const updateTargetHandler = useCallback(async (id: number, updates: Partial<DailyTarget>) => {
+    const data = await getStorageData();
+    const updatedTargets = (data.dailyTargets || []).map(target => 
+      target.id === id ? { ...target, ...updates } : target
+    );
+    data.dailyTargets = updatedTargets;
+    await setStorageData(data);
+    setDailyTargets(updatedTargets);
+  }, []);
+
+  const deleteTargetHandler = useCallback(async (id: number) => {
+    const data = await getStorageData();
+    const updatedTargets = (data.dailyTargets || []).filter(target => target.id !== id);
+    data.dailyTargets = updatedTargets;
+    await setStorageData(data);
+    setDailyTargets(updatedTargets);
+  }, []);
+
+  const setActiveProfileHandler = useCallback(async (profile: StorageFocusProfile) => {
+    const data = await getStorageData();
+    const updatedProfiles = (data.focusProfiles || []).map(p => ({
+      ...p,
+      isActive: p.id === profile.id,
+      lastUsed: p.id === profile.id ? new Date().toISOString() : p.lastUsed
+    }));
+    
+    data.focusProfiles = updatedProfiles;
+    await setStorageData(data);
+    setProfiles(updatedProfiles);
+    setActiveProfileState(profile);
+  }, []);
+
+  const createProfileHandler = useCallback(async (profileData: Omit<StorageFocusProfile, 'id' | 'lastUsed' | 'isActive'>) => {
+    const data = await getStorageData();
+    const newProfile: StorageFocusProfile = {
+      ...profileData,
+      id: Date.now(),
+      lastUsed: new Date().toISOString(),
+      isActive: false
+    };
+    
+    const updatedProfiles = [...(data.focusProfiles || []), newProfile];
+    data.focusProfiles = updatedProfiles;
+    await setStorageData(data);
+    setProfiles(updatedProfiles);
+  }, []);
+
+  const updateProfileHandler = useCallback(async (id: number, updates: Partial<StorageFocusProfile>) => {
+    const data = await getStorageData();
+    const updatedProfiles = (data.focusProfiles || []).map(profile => 
+      profile.id === id ? { ...profile, ...updates } : profile
+    );
+    
+    data.focusProfiles = updatedProfiles;
+    await setStorageData(data);
+    setProfiles(updatedProfiles);
+    
+    // Update active profile if needed
+    if (activeProfile?.id === id) {
+      const updatedActiveProfile = updatedProfiles.find(p => p.id === id) || null;
+      setActiveProfileState(updatedActiveProfile);
+    }
+  }, [activeProfile]);
+
+  const deleteProfileHandler = useCallback(async (id: number) => {
+    const data = await getStorageData();
+    const updatedProfiles = (data.focusProfiles || []).filter(profile => profile.id !== id);
+    
+    data.focusProfiles = updatedProfiles;
+    await setStorageData(data);
+    setProfiles(updatedProfiles);
+    
+    // Clear active profile if it was deleted
+    if (activeProfile?.id === id) {
+      setActiveProfileState(null);
+    }
+  }, [activeProfile]);
+
+  const setFocusGoalHandler = useCallback(async (minutes: number) => {
+    const data = await getStorageData();
+    data.focusGoal = minutes;
+    await setStorageData(data);
+    
+    // Update stats with new goal
+    setStats(prev => ({
+      ...prev,
+      todayGoal: minutes,
+      todayPercentage: minutes > 0 ? Math.min(100, Math.round((prev.todayMinutes / minutes) * 100)) : 0
+    }));
+  }, []);
+
+  // 5. NOW define useEffects that use those handlers
   useEffect(() => {
+    // Load initial data effect
     const loadData = async () => {
       console.log("FocusContext: Loading initial data...");
       setIsLoading(true);
@@ -179,315 +456,60 @@ export const FocusProvider: React.FC<FocusProviderProps> = ({ children }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps 
   }, []); 
 
-  // Subscribe to timer updates
+  // Timer state update subscription
   useEffect(() => {
-     console.log("FocusContext: Subscribing to timer updates.");
-     // The state from the timer library might have a different shape (FocusTimerLibState)
+    console.log("FocusContext: Subscribing to timer updates.");
+    
+    // Use a regular variable instead of useRef
+    const isProcessingUpdate = { current: false };
+    
     const unsubscribe = focusTimer.subscribe((timerLibState: FocusTimerLibState) => {
+      // Prevent recursive updates
+      if (isProcessingUpdate.current) {
+        console.log("Skipping recursive timer update");
+        return;
+      }
+      
+      isProcessingUpdate.current = true;
       console.log("FocusContext: Received timer state update from lib:", timerLibState);
-      // Map the library state to the context state
+      
+      // Use functional state update to avoid dependencies on previous state
       setTimerState({
         isRunning: timerLibState.isRunning,
-        isPaused: timerLibState.isPaused, // Get isPaused from the lib state
+        isPaused: timerLibState.isPaused,
         timeRemaining: timerLibState.timeRemaining,
         totalDuration: timerLibState.totalDuration,
         progress: timerLibState.progress,
         profileId: timerLibState.profileId,
       });
+      
+      // Reset the processing flag after a short delay
+      setTimeout(() => {
+        isProcessingUpdate.current = false;
+      }, 0);
     });
 
     return () => {
       console.log("FocusContext: Unsubscribing from timer updates.");
       unsubscribe();
     };
-  }, [focusTimer]); 
-  
- // ... (rest of the handlers remain the same)
- 
-   // Timer control functions
-   const startTimerHandler = useCallback(async (profileId: number, durationSeconds: number) => {
-    console.log(`FocusContext: startTimer called - profileId: ${profileId}, duration: ${durationSeconds}s`);
-    await focusTimer.start(profileId, durationSeconds);
-    // Explicitly update React state after starting/resuming
-    const currentState = focusTimer.getState();
-    setTimerState({
-      isRunning: currentState.isRunning,
-      isPaused: currentState.isPaused,
-      timeRemaining: currentState.timeRemaining,
-      totalDuration: currentState.totalDuration,
-      progress: currentState.progress,
-      profileId: currentState.profileId,
-    });
   }, [focusTimer]);
 
-  const pauseTimerHandler = useCallback(() => {
-    console.log("FocusContext: pauseTimer called");
-    focusTimer.pause();
-    // Explicitly update React state after pausing
-    const currentState = focusTimer.getState();
-    setTimerState({
-      isRunning: currentState.isRunning,
-      isPaused: currentState.isPaused,
-      timeRemaining: currentState.timeRemaining,
-      totalDuration: currentState.totalDuration,
-      progress: currentState.progress,
-      profileId: currentState.profileId,
-    });
-  }, [focusTimer]);
-  
-  const [hasEnded, setHasEnded] = useState(false);
-const sendMessageToExtension = useCallback((message: any): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      if (!chrome.runtime?.sendMessage) {
-        return reject(new Error("chrome.runtime.sendMessage is not available"));
-      }
-      try {
-        chrome.runtime.sendMessage("aajfaclleggpdbjjlpdpmcmpopigibfo", message, (response) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(response);
-          }
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
-  }, []);
-
-  const endTimerHandler = useCallback(async (saveProgress: boolean = true) => {
-    if (hasEndedRef.current || !timerState.isRunning) return;
-    hasEndedRef.current = true;
-
-    console.log("⏹ Ending timer with saveProgress=", saveProgress);
-    await focusTimer.end(saveProgress);
-
-    try {
-      const result = await sendMessageToExtension({ type: "STOP_FOCUS_SESSION" });
-      console.log("✅ Extension responded:", result);
-    } catch (e) {
-      console.error("❌ Failed to notify extension:", e);
-    }
-
-    const data = await getStorageData();
-    const today = new Date().toISOString().split("T")[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-    const lastActive = data.streaks?.lastActiveDate;
-    let currentStreak = data.streaks?.current || 0;
-    let bestStreak = data.streaks?.best || 0;
-
-    if (lastActive !== today) {
-      if (lastActive === yesterday) currentStreak += 1;
-      else currentStreak = 1;
-      if (currentStreak > bestStreak) bestStreak = currentStreak;
-      data.streaks = { current: currentStreak, best: bestStreak, lastActiveDate: today };
-      await setStorageData(data);
-      setStats((prev) => ({ ...prev, streaks: { current: currentStreak, best: bestStreak } }));
-    }
-
-    const todayMinutes = data.focusHistory?.[today] || 0;
-    const weeklyMinutes = Object.values(data.focusHistory || {}).reduce((sum, mins) => sum + mins, 0);
-    const focusGoal = data.focusGoal || 240;
-    const todayPercentage = Math.min(100, Math.round((todayMinutes / focusGoal) * 100));
-    const days = ["M", "T", "W", "T", "F", "S", "S"];
-    const weeklyData = days.map((day, index) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - index));
-      const dateStr = date.toISOString().split("T")[0];
-      return { day, minutes: data.focusHistory?.[dateStr] || 0 };
-    });
-
-    setStats((prev) => ({
-      ...prev,
-      todayMinutes,
-      weeklyMinutes,
-      todayGoal: focusGoal,
-      todayPercentage,
-      weeklyData,
-    }));
-  }, [focusTimer, sendMessageToExtension, setStats, timerState.isRunning]);
-
+  // Separate effect for handling timer completion
   useEffect(() => {
-    const unsubscribe = focusTimer.subscribe((state: FocusTimerLibState) => {
-      setTimerState({
-        isRunning: state.isRunning,
-        isPaused: state.isPaused,
-        timeRemaining: state.timeRemaining,
-        totalDuration: state.totalDuration,
-        progress: state.progress,
-        profileId: state.profileId,
-      });
-
-      if (!state.isRunning && !state.isPaused && state.timeRemaining === 0 && !hasEndedRef.current) {
-        console.log("⏱ Detected timer end via state — calling endTimer");
+    // Don't put the subscription logic here - just check the current state
+    if (!timerState.isRunning && !timerState.isPaused && 
+        timerState.timeRemaining === 0 && timerState.totalDuration > 0) {
+      if (!hasEnded) {
+        console.log("⏱ Auto-ending session from timerState check");
         endTimerHandler(true);
       }
-    });
-    return () => unsubscribe();
-  }, [focusTimer, endTimerHandler]);
-
-
-  
-  // Profile management functions
-  const setActiveProfileHandler = useCallback(async (profile: StorageFocusProfile) => {
-    console.log(`FocusContext: Setting active profile to: ${profile.name}`);
-    setActiveProfileState(profile);
-    // Persist this change
-    const data = await getStorageData();
-    const updatedProfiles = data.focusProfiles.map(p => ({ ...p, isActive: p.id === profile.id }));
-    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
-  }, []);
-
-  const createProfileHandler = useCallback(async (profileData: Omit<StorageFocusProfile, 'id' | 'lastUsed' | 'isActive'>) => {
-    console.log("FocusContext: Creating profile:", profileData.name);
-    const data = await getStorageData();
-    const maxId = data.focusProfiles.reduce((max, p) => Math.max(max, p.id), 0);
-    const newProfile: StorageFocusProfile = {
-      ...profileData,
-      id: maxId + 1,
-      lastUsed: new Date().toISOString(),
-      isActive: false, // New profiles are not active by default
-    };
-    const updatedProfiles = [...data.focusProfiles, newProfile];
-    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
-    setProfiles(updatedProfiles);
-  }, []);
-
-  const updateProfileHandler = useCallback(async (id: number, updates: Partial<StorageFocusProfile>) => {
-     console.log(`FocusContext: Updating profile ${id} with:`, updates);
-    const data = await getStorageData();
-    let activeProfileChanged = false;
-    const updatedProfiles = data.focusProfiles.map(p => {
-      if (p.id === id) {
-        const updatedProfile = { ...p, ...updates };
-         // If this profile is being set active, ensure others are inactive
-         if (updates.isActive && updates.isActive === true) {
-            // Deactivate all other profiles first
-            data.focusProfiles.forEach(prof => { if (prof.id !== id) prof.isActive = false; });
-             // Ensure the current one being updated is marked active
-            updatedProfile.isActive = true;
-             setActiveProfileState(updatedProfile);
-             activeProfileChanged = true;
-         }
-         // Handle case where the active profile is being deactivated
-         else if (updates.isActive === false && p.isActive) {
-              setActiveProfileState(null); // Or set to another default? Needs thought.
-              activeProfileChanged = true; // Mark that active status might need recalculation
-         }
-        return updatedProfile;
-      }
-       // If another profile was set active by the update loop, ensure this one is not
-       if (activeProfileChanged && updates.isActive && updates.isActive === true && p.id !== id) {
-          return { ...p, isActive: false };
-       }
-      return p;
-    });
-
-    // Post-map check to ensure only one profile is active if the update logic didn't guarantee it
-    const currentlyActiveProfiles = updatedProfiles.filter(p => p.isActive);
-    if (currentlyActiveProfiles.length > 1) {
-        console.warn("Multiple active profiles detected after update, correcting...");
-        // Prioritize the explicitly updated one if it exists and was meant to be active
-        const intendedActive = updatedProfiles.find(p => p.id === id && updates.isActive === true);
-        updatedProfiles.forEach(p => p.isActive = (p.id === (intendedActive?.id || currentlyActiveProfiles[0].id)));
-    } else if (currentlyActiveProfiles.length === 0 && updatedProfiles.length > 0) {
-        console.warn("No active profile detected after update, setting first as active.");
-        updatedProfiles[0].isActive = true; // Default to first if none are active
     }
+  }, [timerState, hasEnded, endTimerHandler]);
 
-    const finalActiveProfile = updatedProfiles.find(p => p.isActive) || null;
-    setActiveProfileState(finalActiveProfile);
+  // ... other effects ...
 
-    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
-    setProfiles(updatedProfiles);
-  }, []);
-
-  const deleteProfileHandler = useCallback(async (id: number) => {
-    console.log(`FocusContext: Deleting profile ${id}`);
-    const data = await getStorageData();
-    const updatedProfiles = data.focusProfiles.filter(p => p.id !== id);
-    let newActiveProfile: StorageFocusProfile | null = null;
-    // If the deleted profile was active, select another one (e.g., the first one)
-    if (activeProfile?.id === id) {
-      newActiveProfile = updatedProfiles.length > 0 ? updatedProfiles[0] : null;
-      if (newActiveProfile) {
-        // Ensure the new active profile is marked as active in the list being saved
-        updatedProfiles.forEach(p => p.isActive = (p.id === newActiveProfile!.id));
-      }
-      setActiveProfileState(newActiveProfile);
-    }
-    // await setStorageData({ ...data, focusProfiles: updatedProfiles });
-    setProfiles(updatedProfiles);
-  }, [activeProfile]);
-
-  // Focus goal handler
-  const setFocusGoalHandler = useCallback(async (minutes: number) => {
-    console.log(`FocusContext: Setting focus goal to ${minutes} minutes`);
-    
-    // Update stats with new goal and percentage
-    const todayPercentage = stats.todayMinutes > 0 ? Math.min(100, Math.round((stats.todayMinutes / minutes) * 100)) : 0;
-    
-    setStats({
-      ...stats,
-      todayGoal: minutes,
-      todayPercentage
-    });
-    
-    // Persist to storage
-    const data = await getStorageData();
-    // await setStorageData({ ...data, focusGoal: minutes });
-  }, [stats]);
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      console.log("FocusContext: Cleaning up FocusTimer instance.");
-      focusTimer.cleanup();
-    };
-  }, [focusTimer]);
-
-  // Daily targets handlers
-  const addTargetHandler = useCallback(async (text: string) => {
-    console.log(`FocusContext: Adding daily target: ${text}`);
-    const newTarget: DailyTarget = {
-      id: Date.now(),
-      text,
-      completed: false,
-      date: new Date().toISOString().split('T')[0]
-    };
-    
-    const updatedTargets = [...dailyTargets, newTarget];
-    setDailyTargets(updatedTargets);
-    
-    // Persist to storage
-    const data = await getStorageData();
-    // await setStorageData({ ...data, dailyTargets: updatedTargets });
-  }, [dailyTargets]);
-  
-  const updateTargetHandler = useCallback(async (id: number, updates: Partial<DailyTarget>) => {
-    console.log(`FocusContext: Updating daily target ${id} with:`, updates);
-    const updatedTargets = dailyTargets.map(target => 
-      target.id === id ? { ...target, ...updates } : target
-    );
-    
-    setDailyTargets(updatedTargets);
-    
-    // Persist to storage
-    const data = await getStorageData();
-    // await setStorageData({ ...data, dailyTargets: updatedTargets });
-  }, [dailyTargets]);
-  
-  const deleteTargetHandler = useCallback(async (id: number) => {
-    console.log(`FocusContext: Deleting daily target ${id}`);
-    const updatedTargets = dailyTargets.filter(target => target.id !== id);
-    
-    setDailyTargets(updatedTargets);
-    
-    // Persist to storage
-    const data = await getStorageData();
-    // await setStorageData({ ...data, dailyTargets: updatedTargets });
-  }, [dailyTargets]);
-
+  // 6. Finally create the context value and return the provider
   const contextValue = useMemo(() => ({
     profiles,
     activeProfile,
